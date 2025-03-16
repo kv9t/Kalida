@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalida - A Game by Koert Voorhees</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            touch-action: manipulation;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .game-info {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .player-turn {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-gap: 5px;
+            margin: 0 auto;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .cell {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #fff;
+            border: 2px solid #333;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .cell:hover {
+            background-color: #89f88b;
+        }
+        
+        .player-x {
+            color: #e74c3c;
+        }
+        
+        .player-o {
+            color: #3498db;
+        }
+        
+        .last-move-x {
+            border: 3px solid #e74c3c;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .last-move-o {
+            border: 3px solid #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .winning-cell {
+            background-color: #FFD580;
+        }
+        
+        .bounce-cell {
+            background-color: #f39c12;
+            position: relative;
+        }
+        
+        .bounce-cell::after {
+            content: "↺";
+            position: absolute;
+            top: -10px;
+            right: 0px;
+            font-size: 30px;
+            color: #ffffff;
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .score {
+            padding: 8px 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        .game-mode {
+            margin-top: 15px;
+        }
+        
+        .game-rules {
+            margin-top: 15px;
+        }
+        
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            margin-left: 5px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .checkbox-container {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        
+        .game-description {
+            max-width: 600px;
+            margin: 30px auto;
+            text-align: left;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 500px) {
+            .board {
+                grid-gap: 3px;
+                width: 95%;
+            }
+            
+            .cell {
+                font-size: 18px;
+            }
+            
+            .game-description {
+                width: 95%;
+                font-size: 14px;
+            }
+            
+            .score-board {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Kalida</h1>
+    <div class="game-info">A game created by Koert Voorhees, brought to digital life</div>
+    
+    <div class="player-turn">Player X's Turn</div>
+    
+    <div class="score-board">
+        <div class="score">Player X: <span id="score-x">0</span></div>
+        <div class="score">Player O: <span id="score-o">0</span></div>
+    </div>
+    
+    <div class="board" id="game-board"></div>
+    
+    <div class="controls">
+        <button id="reset-button">New Game</button>
+        
+        <div class="game-mode">
+            <label for="game-mode-select">Play Against: </label>
+            <select id="game-mode-select">
+                <option value="human">Another Player</option>
+                <option value="easy">Computer (Easy)</option>
+                <option value="medium">Computer (Medium)</option>
+                <option value="hard">Computer (Hard)</option>
+                <option value="extrahard">Computer (Extra Hard)</option>
+            </select>
+        </div>
+        
+        <div class="game-rules">
+            <label>Game Rules: </label>
+            <div class="checkbox-container">
+                <input type="checkbox" id="bounce-toggle">
+                <label for="bounce-toggle">Enable Bounce Rule</label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-description">
+        <h3>How to Play:</h3>
+        <p>Kalida is played on a 6x6 grid, created by Koert Voorhees. Players take turns placing their markers (X or O) on the board.</p>
+        <p>The goal is to place five markers in a row, column, or diagonal.</p>
+        <p><strong>Unique Features:</strong></p>
+        <ul>
+            <li><strong>Wrap:</strong> The board "wraps around" at the edges. This means:
+                <ul>
+                    <li>The left edge connects to the right edge</li>
+                    <li>The top edge connects to the bottom edge</li>
+                </ul>
+            </li>
+            <li><strong>Bounce (Optional):</strong> When enabled, diagonals can also "bounce" off an edge once to form a winning line. A bounced diagonal changes direction but continues the line. Only one bounce is allowed per winning line. Each square can only be counted once in a winning pattern (no revisiting squares).</li>
+        </ul>
+        <p>These features create new strategic possibilities for connecting five in a row!</p>
+    </div>
+
+    <script>
+        // Game state
+        const boardSize = 6;
+        let board = Array(boardSize).fill().map(() => Array(boardSize).fill(''));
+        let currentPlayer = 'X';
+        let gameActive = true;
+        let scores = {
+            'X': 0,
+            'O': 0
+        };
+        let gameMode = 'human'; // Default game mode (human vs human)
+        let computerPlayer = 'O'; // Computer will play as O
+        let lastMove = null; // Track the last move
+        let bounceRuleEnabled = false; // Bounce rule flag
+        
+        // DOM elements
+        const gameBoard = document.getElementById('game-board');
+        const playerTurn = document.querySelector('.player-turn');
+        const resetButton = document.getElementById('reset-button');
+        const scoreX = document.getElementById('score-x');
+        const scoreO = document.getElementById('score-o');
+        const gameModeSelect = document.getElementById('game-mode-select');
+        const bounceToggle = document.getElementById('bounce-toggle');
+        
+        // Initialize the board
+        function initializeBoard() {
+            gameBoard.innerHTML = '';
+            
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', () => makeMove(row, col));
+                    gameBoard.appendChild(cell);
+                }
+            }
+        }
+        
+        // Handle player move
+        function makeMove(row, col) {
+            // If the game is not active or the cell is already taken, do nothing
+            if (!gameActive || board[row][col] !== '') return;
+            
+            // Clear previous last move highlighting
+            clearLastMoveHighlight();
+            
+            // Update the board state
+            board[row][col] = currentPlayer;
+            
+            // Set this as the last move
+            lastMove = {row, col, player: currentPlayer};
+            
+            // Update the UI
+            updateBoardUI();
+            
+            // Highlight the last move
+            highlightLastMove();
+            
+            // Check for a win
+            if (checkWin(row, col)) {
+                playerTurn.textContent = `Player ${currentPlayer} wins!`;
+                gameActive = false;
+                highlightWinningCells();
+                
+                // Update score
+                scores[currentPlayer]++;
+                updateScoreDisplay();
+                return;
+            }
+            
+            // Check for a draw
+            if (checkDraw()) {
+                playerTurn.textContent = "It's a draw!";
+                gameActive = false;
+                return;
+            }
+            
+            // Switch player
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            playerTurn.textContent = `Player ${currentPlayer}'s Turn`;
+            
+            // If it's the computer's turn, make a move after a short delay
+            if (gameMode !== 'human' && gameActive && currentPlayer === computerPlayer) {
+                setTimeout(makeComputerMove, 500); // Delay for better user experience
+            }
+        }
+        
+        // Highlight the last move
+        function highlightLastMove() {
+            if (!lastMove) return;
+            
+            const cells = document.querySelectorAll('.cell');
+            const index = lastMove.row * boardSize + lastMove.col;
+            
+            if (lastMove.player === 'X') {
+                cells[index].classList.add('last-move-x');
+            } else {
+                cells[index].classList.add('last-move-o');
+            }
+        }
+        
+        // Clear the last move highlight
+        function clearLastMoveHighlight() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.classList.remove('last-move-x', 'last-move-o');
+            });
+        }
+        
+        // Computer move logic
+        function makeComputerMove() {
+            if (!gameActive) return;
+            
+            let move;
+            
+            switch (gameMode) {
+                case 'easy':
+                    move = getRandomMove();
+                    break;
+                case 'medium':
+                    // 50% chance to make a strategic move, 50% chance to make a random move
+                    move = Math.random() < 0.5 ? findBestMove(1) : getRandomMove();
+                    break;
+                case 'hard':
+                    move = findBestMove(2);
+                    break;
+                case 'extrahard':
+                    move = findMinimaxMove();
+                    break;
+                default:
+                    move = getRandomMove();
+            }
+            
+            if (move) {
+                makeMove(move.row, move.col);
+            }
+        }
+        
+        // Find the best move using minimax with alpha-beta pruning
+        function findMinimaxMove() {
+            // Maximum depth to search (higher = stronger but slower)
+            const maxDepth = 3;
+            
+            let bestScore = -Infinity;
+            let bestMove = null;
+            
+            // Try each possible move
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (board[row][col] === '') {
+                        // Make the move on a temporary board
+                        const tempBoard = board.map(row => [...row]);
+                        tempBoard[row][col] = computerPlayer;
+                        
+                        // Use minimax to evaluate this move
+                        const score = minimax(tempBoard, maxDepth, -Infinity, Infinity, false);
+                        
+                        // Update the best move if this one is better
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestMove = {row, col};
+                        }
+                    }
+                }
+            }
+            
+            return bestMove;
+        }
+        
+        // Minimax algorithm with alpha-beta pruning
+        function minimax(boardState, depth, alpha, beta, isMaximizing) {
+            // Check for terminal states
+            const winner = checkGameWinner(boardState);
+            if (winner === computerPlayer) return 1000 + depth; // AI wins
+            if (winner === (computerPlayer === 'X' ? 'O' : 'X')) return -1000 - depth; // Opponent wins
+            if (isBoardFull(boardState) || depth === 0) return evaluateBoard(boardState); // Draw or max depth
+            
+            if (isMaximizing) {
+                // AI's turn - trying to maximize score
+                let maxEval = -Infinity;
+                
+                // Try each possible move
+                for (let row = 0; row < boardSize; row++) {
+                    for (let col = 0; col < boardSize; col++) {
+                        if (boardState[row][col] === '') {
+                            // Make the move
+                            boardState[row][col] = computerPlayer;
+                            
+                            // Evaluate this move
+                            const evalScore = minimax(boardState, depth - 1, alpha, beta, false);
+                            
+                            // Undo the move
+                            boardState[row][col] = '';
+                            
+                            // Update best score
+                            maxEval = Math.max(maxEval, evalScore);
+                            
+                            // Alpha-beta pruning
+                            alpha = Math.max(alpha, evalScore);
+                            if (beta <= alpha) break; // Beta cutoff
+                        }
+                    }
+                }
+                
+                return maxEval;
+            } else {
+                // Opponent's turn - trying to minimize score
+                let minEval = Infinity;
+                const opponentPlayer = computerPlayer === 'X' ? 'O' : 'X';
+                
+                // Try each possible move
+                for (let row = 0; row < boardSize; row++) {
+                    for (let col = 0; col < boardSize; col++) {
+                        if (boardState[row][col] === '') {
+                            // Make the move
+                            boardState[row][col] = opponentPlayer;
+                            
+                            // Evaluate this move
+                            const evalScore = minimax(boardState, depth - 1, alpha, beta, true);
+                            
+                            // Undo the move
+                            boardState[row][col] = '';
+                            
+                            // Update best score
+                            minEval = Math.min(minEval, evalScore);
+                            
+                            // Alpha-beta pruning
+                            beta = Math.min(beta, evalScore);
+                            if (beta <= alpha) break; // Alpha cutoff
+                        }
+                    }
+                }
+                
+                return minEval;
+            }
+        }
+        
+        // Check if the board is full (used by minimax)
+        function isBoardFull(boardState) {
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (boardState[row][col] === '') {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        // Evaluate the board position (heuristic function)
+        function evaluateBoard(boardState) {
+            let score = 0;
+            const aiPlayer = computerPlayer;
+            const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
+            
+            // Check all directions
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (boardState[row][col] !== '') {
+                        // For each position that has a marker, check all directions
+                        for (const [dx, dy] of directions) {
+                            // Check this direction for sequences
+                            const sequenceValue = evaluateSequence(boardState, row, col, dx, dy);
+                            
+                            // Add to score (positive for AI, negative for human)
+                            if (boardState[row][col] === aiPlayer) {
+                                score += sequenceValue;
+                            } else {
+                                score -= sequenceValue;
+                            }
+                        }
+                        
+                        // Check for bounce sequences if enabled
+                        if (bounceRuleEnabled) {
+                            // Only check diagonal directions for bounces
+                            for (const [dx, dy] of diagonalDirections) {
+                                const bounceValue = evaluateBounceSequence(boardState, row, col, dx, dy);
+                                
+                                // Add to score (positive for AI, negative for human)
+                                if (boardState[row][col] === aiPlayer) {
+                                    score += bounceValue;
+                                } else {
+                                    score -= bounceValue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return score;
+        }
+        
+        // Evaluate a sequence starting at a position and going in a direction
+        function evaluateSequence(boardState, row, col, dx, dy) {
+            const player = boardState[row][col];
+            let count = 1;
+            let openEnds = 0;
+            
+            // Check forward
+            let forwardOpen = false;
+            for (let i = 1; i < 5; i++) {
+                const newRow = (row + i * dx + boardSize) % boardSize;
+                const newCol = (col + i * dy + boardSize) % boardSize;
+                
+                if (boardState[newRow][newCol] === player) {
+                    count++;
+                } else if (boardState[newRow][newCol] === '') {
+                    forwardOpen = true;
+                    break;
+                } else {
+                    break;
+                }
+            }
+            
+            // Check backward
+            let backwardOpen = false;
+            for (let i = 1; i < 5; i++) {
+                const newRow = (row - i * dx + boardSize) % boardSize;
+                const newCol = (col - i * dy + boardSize) % boardSize;
+                
+                if (boardState[newRow][newCol] === player) {
+                    count++;
+                } else if (boardState[newRow][newCol] === '') {
+                    backwardOpen = true;
+                    break;
+                } else {
+                    break;
+                }
+            }
+            
+            // Count open ends
+            if (forwardOpen) openEnds++;
+            if (backwardOpen) openEnds++;
+            
+            // Calculate value based on sequence length and open ends
+            if (count >= 5) return 1000; // Winning sequence
+            if (count === 4 && openEnds >= 1) return 100; // Four in a row with an open end
+            if (count === 3 && openEnds === 2) return 50; // Three in a row with two open ends
+            if (count === 3 && openEnds === 1) return 10; // Three in a row with one open end
+            if (count === 2 && openEnds === 2) return 5; // Two in a row with two open ends
+            
+            return 0; // No significant pattern
+        }
+        
+        // Evaluate a bounce sequence starting at a position and going in a diagonal direction
+        function evaluateBounceSequence(boardState, row, col, dx, dy) {
+            // Only evaluate if we're using diagonal directions and bounce rule is enabled
+            if (!bounceRuleEnabled || (dx === 0 || dy === 0)) return 0;
+            
+            const player = boardState[row][col];
+            
+            // Try bounces from this position
+            const bounceResults = checkBounceFromPosition(boardState, row, col, dx, dy, player, 5);
+            
+            // Calculate value based on the longest sequence with a bounce
+            if (bounceResults.length >= 5) return 1000; // Winning sequence with bounce
+            if (bounceResults.length === 4) return 80; // Four in a row with a bounce
+            if (bounceResults.length === 3) return 30; // Three in a row with a bounce
+            
+            return 0; // No significant pattern with bounce
+        }
+        
+        // Check if there's a winner on the board (used by minimax)
+        function checkGameWinner(boardState) {
+            // Check for wrap wins first
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    // Skip empty cells
+                    if (boardState[row][col] === '') continue;
+                    
+                    const player = boardState[row][col];
+                    
+                    // Check all directions from this cell
+                    for (const [dx, dy] of directions) {
+                        // Check for a win using wrap
+                        if (checkWrapWin(boardState, row, col, dx, dy, player)) {
+                            return player;
+                        }
+                    }
+                    
+                    // Check for bounce wins if enabled
+                    if (bounceRuleEnabled) {
+                        // Only check diagonal directions for bounces
+                        for (const [dx, dy] of diagonalDirections) {
+                            // Check for a win using bounce
+                            const bounceResults = checkBounceFromPosition(boardState, row, col, dx, dy, player, 5);
+                            if (bounceResults.length >= 5) {
+                                return player;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // No winner
+            return null;
+        }
+        
+        // Check for a wrap win from the given position
+        function checkWrapWin(boardState, row, col, dx, dy, player) {
+            let count = 1; // Start with 1 for the current cell
+            
+            // Check in the positive direction
+            for (let i = 1; i < 5; i++) {
+                const newRow = (row + i * dx + boardSize) % boardSize;
+                const newCol = (col + i * dy + boardSize) % boardSize;
+                
+                if (boardState[newRow][newCol] === player) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            
+            // If we don't have enough in the positive direction, no need to check negative
+            if (count >= 5) {
+                return true;
+            }
+            
+            // No win found
+            return false;
+        }
+        
+        // Get a random valid move
+        function getRandomMove() {
+            const emptyCells = [];
+            
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (board[row][col] === '') {
+                        emptyCells.push({row, col});
+                    }
+                }
+            }
+            
+            if (emptyCells.length === 0) return null;
+            
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            return emptyCells[randomIndex];
+        }
+        
+        // Find the best move for the computer
+        function findBestMove(depth) {
+            // First priority: Win if possible
+            const winningMove = findWinningMove(computerPlayer);
+            if (winningMove) return winningMove;
+            
+            // Second priority: Block opponent from winning
+            const blockingMove = findWinningMove(computerPlayer === 'X' ? 'O' : 'X');
+            if (blockingMove) return blockingMove;
+            
+            // If we're at depth 2 (hard difficulty), look for creating opportunities
+            if (depth >= 2) {
+                // Try to find a move that creates a "fork" (multiple winning paths)
+                const forkingMove = findForkingMove();
+                if (forkingMove) return forkingMove;
+            }
+            
+            // If center is empty, take it as it's usually strategically good
+            const centerRow = Math.floor(boardSize / 2);
+            const centerCol = Math.floor(boardSize / 2);
+            if (board[centerRow][centerCol] === '') {
+                return {row: centerRow, col: centerCol};
+            }
+            
+            // Otherwise, take a random move
+            return getRandomMove();
+        }
+        
+        // Find a move that would win the game for the specified player
+        function findWinningMove(player) {
+            // Make a copy of the board to simulate moves
+            const tempBoard = board.map(row => [...row]);
+            
+            // Try each empty cell
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (tempBoard[row][col] === '') {
+                        // Place the player's marker
+                        tempBoard[row][col] = player;
+                        
+                        // Check if this move would win using the standard win check logic
+                        if (checkWinOnBoard(row, col, tempBoard, player)) {
+                            return {row, col};
+                        }
+                        
+                        // Reset the cell
+                        tempBoard[row][col] = '';
+                    }
+                }
+            }
+            
+            return null;
+        }
+        
+        // Check if the given position on the given board would be a win for the player
+        function checkWinOnBoard(row, col, boardState, player) {
+            // Check for standard wrap win
+            for (const [dx, dy] of directions) {
+                let consecutiveCount = 1; // Start with 1 for the current piece
+                
+                // Check both directions along the line
+                for (let dir = -1; dir <= 1; dir += 2) {
+                    if (dir === 0) continue; // Skip the center
+                    
+                    for (let i = 1; i < 5; i++) {
+                        // Calculate the position with wrapping
+                        let newRow = (row + i * dx * dir + boardSize) % boardSize;
+                        let newCol = (col + i * dy * dir + boardSize) % boardSize;
+                        
+                        if (boardState[newRow][newCol] === player) {
+                            consecutiveCount++;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                
+                if (consecutiveCount >= 5) {
+                    return true;
+                }
+            }
+            
+            // Check for bounce win if enabled
+            if (bounceRuleEnabled) {
+                // Only check diagonal directions for bounces
+                for (const [dx, dy] of diagonalDirections) {
+                    const bounceResults = checkBounceFromPosition(boardState, row, col, dx, dy, player, 5);
+                    if (bounceResults.length >= 5) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Find a move that creates multiple winning opportunities (a fork)
+        function findForkingMove() {
+            const player = computerPlayer;
+            
+            // Try each empty cell
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (board[row][col] === '') {
+                        // Check if placing here creates multiple potential winning paths
+                        if (countPotentialWins(row, col, player) >= 2) {
+                            return {row, col};
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+        
+        // Count how many potential wins a move would create
+        function countPotentialWins(row, col, player) {
+            let potentialWins = 0;
+            const tempBoard = board.map(row => [...row]);
+            tempBoard[row][col] = player;
+            
+            // Check each direction
+            for (const [dx, dy] of directions) {
+                // Start counting consecutive pieces and empty spaces
+                let count = 1; // Current position
+                let emptySpaces = 0;
+                let blocked = false;
+                
+                // Check in both directions
+                for (let dir = -1; dir <= 1; dir += 2) {
+                    if (dir === 0) continue;
+                    
+                    // Look up to 4 positions away
+                    for (let i = 1; i <= 4; i++) {
+                        let newRow = (row + i * dx * dir + boardSize) % boardSize;
+                        let newCol = (col + i * dy * dir + boardSize) % boardSize;
+                        
+                        if (tempBoard[newRow][newCol] === player) {
+                            count++;
+                        } else if (tempBoard[newRow][newCol] === '') {
+                            emptySpaces++;
+                        } else {
+                            blocked = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // If we have 3 or 4 in a row with enough spaces to make 5, it's a potential win
+                if (count >= 3 && count + emptySpaces >= 5 && !blocked) {
+                    potentialWins++;
+                }
+            }
+            
+            // Also check bounce patterns if enabled
+            if (bounceRuleEnabled) {
+                for (const [dx, dy] of diagonalDirections) {
+                    const bounceResults = checkBounceFromPosition(tempBoard, row, col, dx, dy, player, 4);
+                    if (bounceResults.length >= 3) {
+                        potentialWins++;
+                    }
+                }
+            }
+            
+            return potentialWins;
+        }
+        
+        // Update the board UI based on the current state
+        function updateBoardUI() {
+            const cells = document.querySelectorAll('.cell');
+            
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    const index = row * boardSize + col;
+                    cells[index].textContent = board[row][col];
+                    cells[index].classList.remove('player-x', 'player-o');
+                    
+                    if (board[row][col] === 'X') {
+                        cells[index].classList.add('player-x');
+                    } else if (board[row][col] === 'O') {
+                        cells[index].classList.add('player-o');
+                    }
+                }
+            }
+        }
+        
+        // Directions to check for win (horizontal, vertical, diagonal, anti-diagonal)
+        const directions = [
+            [0, 1], // horizontal
+            [1, 0], // vertical
+            [1, 1], // diagonal
+            [1, -1]  // anti-diagonal
+        ];
+        
+        // Only diagonal directions (for bounce checking)
+        const diagonalDirections = [
+            [1, 1],  // diagonal
+            [1, -1]  // anti-diagonal
+        ];
+        
+        // Check if the current move results in a win
+        function checkWin(row, col) {
+            const player = board[row][col];
+            
+            // Check for wrap win
+            for (const [dx, dy] of directions) {
+                let consecutiveCount = 1; // Start with 1 for the current piece
+                let winningCells = [[row, col]];
+                
+                // Check both directions along the line
+                for (let dir = -1; dir <= 1; dir += 2) {
+                    if (dir === 0) continue; // Skip the center
+                    
+                    for (let i = 1; i < 5; i++) {
+                        // Calculate the position with wrapping
+                        let newRow = (row + i * dx * dir + boardSize) % boardSize;
+                        let newCol = (col + i * dy * dir + boardSize) % boardSize;
+                        
+                        if (board[newRow][newCol] === player) {
+                            consecutiveCount++;
+                            winningCells.push([newRow, newCol]);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                
+                if (consecutiveCount >= 5) {
+                    // Store the winning cells for highlighting
+                    window.winningCells = winningCells;
+                    window.bounceCellIndex = -1; // No bounce in this win
+                    return true;
+                }
+            }
+            
+            // Check for bounce win if enabled
+            if (bounceRuleEnabled) {
+                // Only check diagonal directions for bounces
+                for (const [dx, dy] of diagonalDirections) {
+                    const bounceResults = checkBounceFromPosition(board, row, col, dx, dy, player, 5);
+                    if (bounceResults.length >= 5) {
+                        // Store the winning cells for highlighting
+                        window.winningCells = bounceResults.path;
+                        window.bounceCellIndex = bounceResults.bounceIndex;
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Check for bounce patterns from a specific position
+        function checkBounceFromPosition(boardState, startRow, startCol, dx, dy, player, targetLength) {
+            // Skip non-diagonal directions
+            if (dx === 0 || dy === 0) return { length: 0, path: [], bounceIndex: -1 };
+            
+            // Start with the current position
+            let path = [[startRow, startCol]];
+            let length = 1;
+            let bounceFound = false;
+            let bounceIndex = -1;
+            
+            // Track all cells in the path to prevent double-counting
+            const visitedCells = new Set();
+            visitedCells.add(`${startRow},${startCol}`);
+            
+            // Try to find a bounce pattern starting from this position
+            // We'll try both directions from the starting point
+            for (let firstDir = -1; firstDir <= 1; firstDir += 2) {
+                if (firstDir === 0) continue; // Skip center
+                
+                // Reset for this direction
+                path = [[startRow, startCol]];
+                length = 1;
+                bounceFound = false;
+                bounceIndex = -1;
+                visitedCells.clear();
+                visitedCells.add(`${startRow},${startCol}`);
+                
+                // First, follow the pattern in the initial direction (without bounce)
+                let currentRow = startRow;
+                let currentCol = startCol;
+                let preBounceSteps = 0;
+                
+                // Check up to 4 steps in the initial direction
+                for (let i = 1; i < 5 && length < targetLength; i++) {
+                    const newRow = (currentRow + firstDir * dx + boardSize) % boardSize;
+                    const newCol = (currentCol + firstDir * dy + boardSize) % boardSize;
+                    const cellKey = `${newRow},${newCol}`;
+                    
+                    // If we hit a boundary, this is where we can bounce
+                    const hitVerticalBoundary = (currentRow === 0 && firstDir * dx < 0) || 
+                                              (currentRow === boardSize - 1 && firstDir * dx > 0);
+                    const hitHorizontalBoundary = (currentCol === 0 && firstDir * dy < 0) || 
+                                                (currentCol === boardSize - 1 && firstDir * dy > 0);
+                    
+                    // If we hit a boundary and haven't bounced yet, try to bounce
+                    if ((hitVerticalBoundary || hitHorizontalBoundary) && !bounceFound) {
+                        bounceFound = true;
+                        bounceIndex = path.length - 1;
+                        preBounceSteps = i - 1; // Number of steps before the bounce
+                        
+                        // Calculate bounce direction: flip only the component that hit the boundary
+                        let bounceDx = dx;
+                        let bounceDy = dy;
+                        
+                        if (hitVerticalBoundary) bounceDx = -dx;
+                        if (hitHorizontalBoundary) bounceDy = -dy;
+                        
+                        // Now follow the bounced pattern
+                        let bounceRow = currentRow;
+                        let bounceCol = currentCol;
+                        
+                        // Check up to 5-length positions after the bounce
+                        for (let j = 1; j < targetLength - preBounceSteps && length < targetLength; j++) {
+                            const newBounceRow = (bounceRow + firstDir * bounceDx + boardSize) % boardSize;
+                            const newBounceCol = (bounceCol + firstDir * bounceDy + boardSize) % boardSize;
+                            const bounceCellKey = `${newBounceRow},${newBounceCol}`;
+                            
+                            // Check if this cell is already in our path (no double-counting)
+                            if (visitedCells.has(bounceCellKey)) {
+                                break; // Skip this bounce path if it revisits cells
+                            }
+                            
+                            if (boardState[newBounceRow][newBounceCol] === player) {
+                                path.push([newBounceRow, newBounceCol]);
+                                visitedCells.add(bounceCellKey);
+                                length++;
+                                bounceRow = newBounceRow;
+                                bounceCol = newBounceCol;
+                            } else {
+                                break;
+                            }
+                        }
+                        
+                        // Exit the outer loop, we've already tried the bounce
+                        break;
+                    }
+                    
+                    // If no bounce yet, continue in the initial direction
+                    if (boardState[newRow][newCol] === player) {
+                        // Add this cell to the path and mark it as visited
+                        path.push([newRow, newCol]);
+                        visitedCells.add(cellKey);
+                        length++;
+                        currentRow = newRow;
+                        currentCol = newCol;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // If we found a valid pattern of the target length, return it
+                if (length >= targetLength && bounceFound) {
+                    return { length, path, bounceIndex };
+                }
+            }
+            
+            // Try the second direction (after the starting point)
+            for (let secondDir = -1; secondDir <= 1; secondDir += 2) {
+                if (secondDir === 0) continue; // Skip center
+                
+                // Reset for this direction
+                path = [[startRow, startCol]];
+                length = 1;
+                bounceFound = false;
+                bounceIndex = -1;
+                visitedCells.clear();
+                visitedCells.add(`${startRow},${startCol}`);
+                
+                // First, follow the pattern in the initial direction (without bounce)
+                let currentRow = startRow;
+                let currentCol = startCol;
+                let preBounceSteps = 0;
+                
+                // Check up to 4 steps in the initial direction
+                for (let i = 1; i < 5 && length < targetLength; i++) {
+                    const newRow = (currentRow + secondDir * dx + boardSize) % boardSize;
+                    const newCol = (currentCol + secondDir * dy + boardSize) % boardSize;
+                    const cellKey = `${newRow},${newCol}`;
+                    
+                    // If we hit a boundary, this is where we can bounce
+                    const hitVerticalBoundary = (currentRow === 0 && secondDir * dx < 0) || 
+                                              (currentRow === boardSize - 1 && secondDir * dx > 0);
+                    const hitHorizontalBoundary = (currentCol === 0 && secondDir * dy < 0) || 
+                                                (currentCol === boardSize - 1 && secondDir * dy > 0);
+                    
+                    // If we hit a boundary and haven't bounced yet, try to bounce
+                    if ((hitVerticalBoundary || hitHorizontalBoundary) && !bounceFound) {
+                        bounceFound = true;
+                        bounceIndex = path.length - 1;
+                        preBounceSteps = i - 1; // Number of steps before the bounce
+                        
+                        // Calculate bounce direction: flip only the component that hit the boundary
+                        let bounceDx = dx;
+                        let bounceDy = dy;
+                        
+                        if (hitVerticalBoundary) bounceDx = -dx;
+                        if (hitHorizontalBoundary) bounceDy = -dy;
+                        
+                        // Now follow the bounced pattern
+                        let bounceRow = currentRow;
+                        let bounceCol = currentCol;
+                        
+                        // Check up to 5-length positions after the bounce
+                        for (let j = 1; j < targetLength - preBounceSteps && length < targetLength; j++) {
+                            const newBounceRow = (bounceRow + secondDir * bounceDx + boardSize) % boardSize;
+                            const newBounceCol = (bounceCol + secondDir * bounceDy + boardSize) % boardSize;
+                            const bounceCellKey = `${newBounceRow},${newBounceCol}`;
+                            
+                            // Check if this cell is already in our path (no double-counting)
+                            if (visitedCells.has(bounceCellKey)) {
+                                break; // Skip this bounce path if it revisits cells
+                            }
+                            
+                            if (boardState[newBounceRow][newBounceCol] === player) {
+                                path.push([newBounceRow, newBounceCol]);
+                                visitedCells.add(bounceCellKey);
+                                length++;
+                                bounceRow = newBounceRow;
+                                bounceCol = newBounceCol;
+                            } else {
+                                break;
+                            }
+                        }
+                        
+                        // Exit the outer loop, we've already tried the bounce
+                        break;
+                    }
+                    
+                    // If no bounce yet, continue in the initial direction
+                    if (boardState[newRow][newCol] === player) {
+                        // Add this cell to the path and mark it as visited
+                        path.push([newRow, newCol]);
+                        visitedCells.add(cellKey);
+                        length++;
+                        currentRow = newRow;
+                        currentCol = newCol;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // If we found a valid pattern of the target length, return it
+                if (length >= targetLength && bounceFound) {
+                    return { length, path, bounceIndex };
+                }
+            }
+            
+            // No valid bounce pattern found
+            return { length: 0, path: [], bounceIndex: -1 };
+        }
+        
+        // Highlight the winning cells
+        function highlightWinningCells() {
+            if (!window.winningCells) return;
+            
+            const cells = document.querySelectorAll('.cell');
+            
+            for (let i = 0; i < window.winningCells.length; i++) {
+                const [row, col] = window.winningCells[i];
+                const index = row * boardSize + col;
+                cells[index].classList.add('winning-cell');
+                
+                // If this is the bounce cell, add the bounce indicator
+                if (i === window.bounceCellIndex) {
+                    cells[index].classList.add('bounce-cell');
+                }
+            }
+        }
+        
+        // Check if the game is a draw
+        function checkDraw() {
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (board[row][col] === '') {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        // Update the score display
+        function updateScoreDisplay() {
+            scoreX.textContent = scores['X'];
+            scoreO.textContent = scores['O'];
+        }
+        
+        // Reset the game
+        function resetGame() {
+            board = Array(boardSize).fill().map(() => Array(boardSize).fill(''));
+            currentPlayer = 'X';
+            gameActive = true;
+            playerTurn.textContent = `Player ${currentPlayer}'s Turn`;
+            window.winningCells = null;
+            window.bounceCellIndex = -1;
+            lastMove = null;
+            
+            // Reset cell highlights
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.classList.remove('winning-cell', 'last-move-x', 'last-move-o', 'bounce-cell');
+            });
+            
+            updateBoardUI();
+            
+            // If playing against computer and computer goes first, make a move
+            if (gameMode !== 'human' && computerPlayer === 'X') {
+                setTimeout(makeComputerMove, 500);
+            }
+        }
+        
+        // Toggle bounce rule
+        function toggleBounceRule() {
+            bounceRuleEnabled = bounceToggle.checked;
+            resetGame();
+        }
+        
+        // Event listeners
+        resetButton.addEventListener('click', resetGame);
+        
+        gameModeSelect.addEventListener('change', (e) => {
+            gameMode = e.target.value;
+            resetGame();
+        });
+        
+        bounceToggle.addEventListener('change', toggleBounceRule);
+        
+        // Initialize the game
+        initializeBoard();
+        resetGame();
+        updateScoreDisplay();
+    </script>
+</body>
+</html>
