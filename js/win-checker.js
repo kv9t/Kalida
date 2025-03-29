@@ -22,13 +22,14 @@ class WinChecker {
     }
 
     // Check if a move results in a win
-    checkWin(board, row, col, bounceRuleEnabled) {
+    checkWin(board, row, col, bounceRuleEnabled, missingTeethRuleEnabled) {
         const player = board[row][col];
         
         // Check for wrap win
         for (const [dx, dy] of this.directions) {
             let consecutiveCount = 1; // Start with 1 for the current piece
             let winningCells = [[row, col]];
+            let isWrap = false;
             
             // Check both directions along the line
             for (let dir = -1; dir <= 1; dir += 2) {
@@ -38,6 +39,12 @@ class WinChecker {
                     // Calculate the position with wrapping
                     let newRow = (row + i * dx * dir + this.boardSize) % this.boardSize;
                     let newCol = (col + i * dy * dir + this.boardSize) % this.boardSize;
+                    
+                    // Check if we've wrapped around
+                    if ((row + i * dx * dir < 0) || (row + i * dx * dir >= this.boardSize) ||
+                        (col + i * dy * dir < 0) || (col + i * dy * dir >= this.boardSize)) {
+                        isWrap = true;
+                    }
                     
                     if (board[newRow][newCol] === player) {
                         consecutiveCount++;
@@ -49,11 +56,45 @@ class WinChecker {
             }
             
             if (consecutiveCount >= 5) {
-                return {
-                    winner: player, 
-                    winningCells: winningCells,
-                    bounceCellIndex: -1 // No bounce in this win
-                };
+                // If this is a wrapping win, it's always valid (even with missing teeth)
+                if (isWrap) {
+                    return {
+                        winner: player, 
+                        winningCells: winningCells,
+                        bounceCellIndex: -1 // No bounce in this win
+                    };
+                }
+                
+                // If missing teeth rule is enabled, check for gaps
+                if (missingTeethRuleEnabled) {
+                    // Check if this is a major axis (full row, column, or main diagonal)
+                    const isMajorAxis = this.isMajorAxis(dx, dy, row, col, winningCells);
+                    
+                    if (isMajorAxis) {
+                        // If it's a major axis, check for missing teeth
+                        if (!this.hasMissingTeeth(board, winningCells, player)) {
+                            return {
+                                winner: player, 
+                                winningCells: winningCells,
+                                bounceCellIndex: -1 // No bounce in this win
+                            };
+                        }
+                    } else {
+                        // If not a major axis, it's a valid win regardless of missing teeth
+                        return {
+                            winner: player, 
+                            winningCells: winningCells,
+                            bounceCellIndex: -1 // No bounce in this win
+                        };
+                    }
+                } else {
+                    // If missing teeth rule is disabled, it's always a valid win
+                    return {
+                        winner: player, 
+                        winningCells: winningCells,
+                        bounceCellIndex: -1 // No bounce in this win
+                    };
+                }
             }
         }
         
@@ -61,7 +102,7 @@ class WinChecker {
         if (bounceRuleEnabled) {
             // Only check diagonal directions for bounces
             for (const [dx, dy] of this.diagonalDirections) {
-                const bounceResults = this.checkBounceFromPosition(board, row, col, dx, dy, player, 5);
+                const bounceResults = this.checkBounceFromPosition(board, row, col, dx, dy, player, 5, missingTeethRuleEnabled);
                 if (bounceResults.length >= 5) {
                     return {
                         winner: player,
@@ -77,7 +118,7 @@ class WinChecker {
     }
 
     // Check for a win on a generic board state (for AI)
-    checkGameWinner(boardState, bounceRuleEnabled) {
+    checkGameWinner(boardState, bounceRuleEnabled, missingTeethRuleEnabled) {
         // Check for wrap wins first
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
@@ -89,7 +130,7 @@ class WinChecker {
                 // Check all directions from this cell
                 for (const [dx, dy] of this.directions) {
                     // Check for a win using wrap
-                    if (this.checkWrapWin(boardState, row, col, dx, dy, player)) {
+                    if (this.checkWrapWin(boardState, row, col, dx, dy, player, missingTeethRuleEnabled)) {
                         return player;
                     }
                 }
@@ -99,7 +140,7 @@ class WinChecker {
                     // Only check diagonal directions for bounces
                     for (const [dx, dy] of this.diagonalDirections) {
                         // Check for a win using bounce
-                        const bounceResults = this.checkBounceFromPosition(boardState, row, col, dx, dy, player, 5);
+                        const bounceResults = this.checkBounceFromPosition(boardState, row, col, dx, dy, player, 5, missingTeethRuleEnabled);
                         if (bounceResults.length >= 5) {
                             return player;
                         }
@@ -113,32 +154,165 @@ class WinChecker {
     }
 
     // Check for a wrap win from a given position (helper for AI)
-    checkWrapWin(boardState, row, col, dx, dy, player) {
+    checkWrapWin(boardState, row, col, dx, dy, player, missingTeethRuleEnabled) {
         let count = 1; // Start with 1 for the current cell
+        let winningCells = [[row, col]];
+        let isWrap = false;
         
-        // Check in the positive direction
-        for (let i = 1; i < 5; i++) {
-            const newRow = (row + i * dx + this.boardSize) % this.boardSize;
-            const newCol = (col + i * dy + this.boardSize) % this.boardSize;
+        // Check in both directions
+        for (let dir = -1; dir <= 1; dir += 2) {
+            if (dir === 0) continue; // Skip center
             
-            if (boardState[newRow][newCol] === player) {
-                count++;
-            } else {
-                break;
+            for (let i = 1; i < 5; i++) {
+                // Calculate the position with wrapping
+                let newRow = (row + i * dx * dir + this.boardSize) % this.boardSize;
+                let newCol = (col + i * dy * dir + this.boardSize) % this.boardSize;
+                
+                // Check if we've wrapped around
+                if ((row + i * dx * dir < 0) || (row + i * dx * dir >= this.boardSize) ||
+                    (col + i * dy * dir < 0) || (col + i * dy * dir >= this.boardSize)) {
+                    isWrap = true;
+                }
+                
+                if (boardState[newRow][newCol] === player) {
+                    count++;
+                    winningCells.push([newRow, newCol]);
+                } else {
+                    break;
+                }
             }
         }
         
-        // If we don't have enough in the positive direction, no need to check negative
+        // If we have 5 in a row
         if (count >= 5) {
-            return true;
+            // If this is a wrapping win, it's always valid (even with missing teeth)
+            if (isWrap) {
+                return true;
+            }
+            
+            // If missing teeth rule is enabled, check for gaps
+            if (missingTeethRuleEnabled) {
+                // Check if this is a major axis (full row, column, or main diagonal)
+                const isMajorAxis = this.isMajorAxis(dx, dy, row, col, winningCells);
+                
+                if (isMajorAxis) {
+                    // If it's a major axis, check for missing teeth
+                    return !this.hasMissingTeeth(boardState, winningCells, player);
+                } else {
+                    // If not a major axis, it's a valid win regardless of missing teeth
+                    return true;
+                }
+            } else {
+                // If missing teeth rule is disabled, it's always a valid win
+                return true;
+            }
         }
         
         // No win found
         return false;
     }
     
+    // Determine if a sequence is on a major axis (full row, column, or main diagonal)
+    isMajorAxis(dx, dy, startRow, startCol, winningCells) {
+        // Sort cells to find min and max positions
+        const sortedByRow = [...winningCells].sort((a, b) => a[0] - b[0]);
+        const sortedByCol = [...winningCells].sort((a, b) => a[1] - b[1]);
+        const minRow = sortedByRow[0][0];
+        const maxRow = sortedByRow[sortedByRow.length - 1][0];
+        const minCol = sortedByCol[0][1];
+        const maxCol = sortedByCol[sortedByCol.length - 1][1];
+        
+        // Check if it's a horizontal line (full row)
+        if (dx === 0 && minRow === maxRow) {
+            return true;
+        }
+        
+        // Check if it's a vertical line (full column)
+        if (dy === 0 && minCol === maxCol) {
+            return true;
+        }
+        
+        // Check if it's a main diagonal or anti-diagonal
+        if (Math.abs(dx) === 1 && Math.abs(dy) === 1) {
+            // Check if it's on a main diagonal (top-left to bottom-right)
+            if (dx === 1 && dy === 1) {
+                // Check if cells are on the main diagonal (where row - col is constant)
+                const mainDiagonalOffset = minRow - minCol;
+                const isMainDiagonal = winningCells.every(cell => cell[0] - cell[1] === mainDiagonalOffset);
+                
+                if (isMainDiagonal && (mainDiagonalOffset === 0 || 
+                    Math.abs(mainDiagonalOffset) === this.boardSize - 1)) {
+                    return true;
+                }
+            }
+            
+            // Check if it's on an anti-diagonal (top-right to bottom-left)
+            if (dx === 1 && dy === -1) {
+                // Check if cells are on the anti-diagonal (where row + col is constant)
+                const antiDiagonalSum = minRow + maxCol;
+                const isAntiDiagonal = winningCells.every(cell => cell[0] + cell[1] === antiDiagonalSum);
+                
+                if (isAntiDiagonal && (antiDiagonalSum === this.boardSize - 1 || 
+                    antiDiagonalSum === 2 * (this.boardSize - 1))) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    // Check if a sequence has missing teeth
+    hasMissingTeeth(board, winningCells, player) {
+        // Sort cells to find min and max positions
+        const sortedByRow = [...winningCells].sort((a, b) => a[0] - b[0]);
+        const sortedByCol = [...winningCells].sort((a, b) => a[1] - b[1]);
+        const minRow = sortedByRow[0][0];
+        const maxRow = sortedByRow[sortedByRow.length - 1][0];
+        const minCol = sortedByCol[0][1];
+        const maxCol = sortedByCol[sortedByCol.length - 1][1];
+        
+        // Create a set of occupied positions for quick lookup
+        const occupiedPositions = new Set(winningCells.map(cell => `${cell[0]},${cell[1]}`));
+        
+        // Horizontal line (check for gaps in a row)
+        if (minRow === maxRow) {
+            for (let col = minCol; col <= maxCol; col++) {
+                if (!occupiedPositions.has(`${minRow},${col}`)) {
+                    return true; // Found a gap (missing tooth)
+                }
+            }
+        } 
+        // Vertical line (check for gaps in a column)
+        else if (minCol === maxCol) {
+            for (let row = minRow; row <= maxRow; row++) {
+                if (!occupiedPositions.has(`${row},${minCol}`)) {
+                    return true; // Found a gap (missing tooth)
+                }
+            }
+        } 
+        // Main diagonal (top-left to bottom-right)
+        else if (maxRow - minRow === maxCol - minCol) {
+            for (let i = 0; i <= maxRow - minRow; i++) {
+                if (!occupiedPositions.has(`${minRow + i},${minCol + i}`)) {
+                    return true; // Found a gap (missing tooth)
+                }
+            }
+        } 
+        // Anti-diagonal (top-right to bottom-left)
+        else if (maxRow - minRow === minCol - maxCol) {
+            for (let i = 0; i <= maxRow - minRow; i++) {
+                if (!occupiedPositions.has(`${minRow + i},${minCol - i}`)) {
+                    return true; // Found a gap (missing tooth)
+                }
+            }
+        }
+        
+        return false; // No gaps found
+    }
+    
     // Check for bounce patterns from a specific position
-    checkBounceFromPosition(boardState, startRow, startCol, dx, dy, player, targetLength) {
+    checkBounceFromPosition(boardState, startRow, startCol, dx, dy, player, targetLength, missingTeethRuleEnabled) {
         // Skip non-diagonal directions
         if (dx === 0 || dy === 0) return { length: 0, path: [], bounceIndex: -1 };
         
@@ -238,8 +412,16 @@ class WinChecker {
                 }
             }
             
-            // If we found a valid pattern of the target length, return it
+            // If we found a valid pattern of the target length
             if (length >= targetLength && bounceFound) {
+                // If missing teeth rule is enabled, check for gaps in the bounced pattern
+                if (missingTeethRuleEnabled) {
+                    // Check if the bounced pattern has missing teeth
+                    if (this.hasMissingTeeth(boardState, path, player)) {
+                        continue; // Not a valid win, try the next direction
+                    }
+                }
+                
                 return { length, path, bounceIndex };
             }
         }
@@ -329,8 +511,16 @@ class WinChecker {
                 }
             }
             
-            // If we found a valid pattern of the target length, return it
+            // If we found a valid pattern of the target length
             if (length >= targetLength && bounceFound) {
+                // If missing teeth rule is enabled, check for gaps in the bounced pattern
+                if (missingTeethRuleEnabled) {
+                    // Check if the bounced pattern has missing teeth
+                    if (this.hasMissingTeeth(boardState, path, player)) {
+                        continue; // Not a valid win, try the next direction
+                    }
+                }
+                
                 return { length, path, bounceIndex };
             }
         }

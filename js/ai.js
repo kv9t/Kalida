@@ -9,17 +9,17 @@ class GameAI {
     }
     
     // Get a move based on the difficulty level
-    getMove(board, gameMode, player, bounceRuleEnabled) {
+    getMove(board, gameMode, player, bounceRuleEnabled, missingTeethRuleEnabled) {
         switch (gameMode) {
             case 'easy':
                 return this.getRandomMove(board);
             case 'medium':
                 // 50% chance to make a strategic move, 50% chance to make a random move
-                return Math.random() < 0.5 ? this.findBestMove(board, player, 1, bounceRuleEnabled) : this.getRandomMove(board);
+                return Math.random() < 0.5 ? this.findBestMove(board, player, 1, bounceRuleEnabled, missingTeethRuleEnabled) : this.getRandomMove(board);
             case 'hard':
-                return this.findBestMove(board, player, 2, bounceRuleEnabled);
+                return this.findBestMove(board, player, 2, bounceRuleEnabled, missingTeethRuleEnabled);
             case 'extrahard':
-                return this.findMinimaxMove(board, player, bounceRuleEnabled);
+                return this.findMinimaxMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled);
             default:
                 return this.getRandomMove(board);
         }
@@ -44,21 +44,21 @@ class GameAI {
     }
 
     // Find the best move for the computer using basic heuristics
-    findBestMove(board, player, depth, bounceRuleEnabled) {
+    findBestMove(board, player, depth, bounceRuleEnabled, missingTeethRuleEnabled) {
         const opponent = player === 'X' ? 'O' : 'X';
         
         // First priority: Win if possible
-        const winningMove = this.findWinningMove(board, player, bounceRuleEnabled);
+        const winningMove = this.findWinningMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled);
         if (winningMove) return winningMove;
         
         // Second priority: Block opponent from winning
-        const blockingMove = this.findWinningMove(board, opponent, bounceRuleEnabled);
+        const blockingMove = this.findWinningMove(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
         if (blockingMove) return blockingMove;
         
         // If we're at depth 2 (hard difficulty), look for creating opportunities
         if (depth >= 2) {
             // Try to find a move that creates a "fork" (multiple winning paths)
-            const forkingMove = this.findForkingMove(board, player, bounceRuleEnabled);
+            const forkingMove = this.findForkingMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled);
             if (forkingMove) return forkingMove;
         }
         
@@ -74,7 +74,7 @@ class GameAI {
     }
 
     // Find a move that would win the game for the specified player
-    findWinningMove(board, player, bounceRuleEnabled) {
+    findWinningMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
         // Make a copy of the board to simulate moves
         const tempBoard = board.map(row => [...row]);
         
@@ -86,7 +86,7 @@ class GameAI {
                     tempBoard[row][col] = player;
                     
                     // Check if this move would win 
-                    const winResult = this.winChecker.checkWin(tempBoard, row, col, bounceRuleEnabled);
+                    const winResult = this.winChecker.checkWin(tempBoard, row, col, bounceRuleEnabled, missingTeethRuleEnabled);
                     if (winResult.winner === player) {
                         return {row, col};
                     }
@@ -101,13 +101,13 @@ class GameAI {
     }
 
     // Find a move that creates multiple winning opportunities (a fork)
-    findForkingMove(board, player, bounceRuleEnabled) {
+    findForkingMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
         // Try each empty cell
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
                 if (board[row][col] === '') {
                     // Check if placing here creates multiple potential winning paths
-                    if (this.countPotentialWins(board, row, col, player, bounceRuleEnabled) >= 2) {
+                    if (this.countPotentialWins(board, row, col, player, bounceRuleEnabled, missingTeethRuleEnabled) >= 2) {
                         return {row, col};
                     }
                 }
@@ -118,7 +118,7 @@ class GameAI {
     }
 
     // Count how many potential wins a move would create
-    countPotentialWins(board, row, col, player, bounceRuleEnabled) {
+    countPotentialWins(board, row, col, player, bounceRuleEnabled, missingTeethRuleEnabled) {
         let potentialWins = 0;
         const tempBoard = board.map(row => [...row]);
         tempBoard[row][col] = player;
@@ -137,6 +137,7 @@ class GameAI {
             let count = 1; // Current position
             let emptySpaces = 0;
             let blocked = false;
+            let path = [[row, col]]; // Track the path for missing teeth check
             
             // Check in both directions
             for (let dir = -1; dir <= 1; dir += 2) {
@@ -149,6 +150,7 @@ class GameAI {
                     
                     if (tempBoard[newRow][newCol] === player) {
                         count++;
+                        path.push([newRow, newCol]);
                     } else if (tempBoard[newRow][newCol] === '') {
                         emptySpaces++;
                     } else {
@@ -160,7 +162,17 @@ class GameAI {
             
             // If we have 3 or 4 in a row with enough spaces to make 5, it's a potential win
             if (count >= 3 && count + emptySpaces >= 5 && !blocked) {
-                potentialWins++;
+                // If missing teeth rule is enabled, check if this would create a valid win
+                if (missingTeethRuleEnabled) {
+                    // Only check for major axes
+                    const isMajorAxis = this.winChecker.isMajorAxis(dx, dy, row, col, path);
+                    
+                    if (!isMajorAxis || !this.winChecker.hasMissingTeeth(tempBoard, path, player)) {
+                        potentialWins++;
+                    }
+                } else {
+                    potentialWins++;
+                }
             }
         }
         
@@ -172,7 +184,7 @@ class GameAI {
             ];
             
             for (const [dx, dy] of diagonalDirections) {
-                const bounceResults = this.winChecker.checkBounceFromPosition(tempBoard, row, col, dx, dy, player, 4);
+                const bounceResults = this.winChecker.checkBounceFromPosition(tempBoard, row, col, dx, dy, player, 4, missingTeethRuleEnabled);
                 if (bounceResults.length >= 3) {
                     potentialWins++;
                 }
@@ -183,7 +195,7 @@ class GameAI {
     }
 
     // Find the best move using minimax with alpha-beta pruning
-    findMinimaxMove(board, player, bounceRuleEnabled) {
+    findMinimaxMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
         // Maximum depth to search (higher = stronger but slower)
         const maxDepth = 3;
         const opponent = player === 'X' ? 'O' : 'X';
@@ -200,7 +212,7 @@ class GameAI {
                     tempBoard[row][col] = player;
                     
                     // Use minimax to evaluate this move
-                    const score = this.minimax(tempBoard, maxDepth, -Infinity, Infinity, false, player, opponent, bounceRuleEnabled);
+                    const score = this.minimax(tempBoard, maxDepth, -Infinity, Infinity, false, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
                     
                     // Update the best move if this one is better
                     if (score > bestScore) {
@@ -215,12 +227,12 @@ class GameAI {
     }
 
     // Minimax algorithm with alpha-beta pruning
-    minimax(boardState, depth, alpha, beta, isMaximizing, aiPlayer, humanPlayer, bounceRuleEnabled) {
+    minimax(boardState, depth, alpha, beta, isMaximizing, aiPlayer, humanPlayer, bounceRuleEnabled, missingTeethRuleEnabled) {
         // Check for terminal states
-        const winner = this.winChecker.checkGameWinner(boardState, bounceRuleEnabled);
+        const winner = this.winChecker.checkGameWinner(boardState, bounceRuleEnabled, missingTeethRuleEnabled);
         if (winner === aiPlayer) return 1000 + depth; // AI wins
         if (winner === humanPlayer) return -1000 - depth; // Opponent wins
-        if (this.isBoardFull(boardState) || depth === 0) return this.evaluateBoard(boardState, aiPlayer, humanPlayer, bounceRuleEnabled); // Draw or max depth
+        if (this.isBoardFull(boardState) || depth === 0) return this.evaluateBoard(boardState, aiPlayer, humanPlayer, bounceRuleEnabled, missingTeethRuleEnabled); // Draw or max depth
         
         if (isMaximizing) {
             // AI's turn - trying to maximize score
@@ -234,7 +246,7 @@ class GameAI {
                         boardState[row][col] = aiPlayer;
                         
                         // Evaluate this move
-                        const evalScore = this.minimax(boardState, depth - 1, alpha, beta, false, aiPlayer, humanPlayer, bounceRuleEnabled);
+                        const evalScore = this.minimax(boardState, depth - 1, alpha, beta, false, aiPlayer, humanPlayer, bounceRuleEnabled, missingTeethRuleEnabled);
                         
                         // Undo the move
                         boardState[row][col] = '';
@@ -262,7 +274,7 @@ class GameAI {
                         boardState[row][col] = humanPlayer;
                         
                         // Evaluate this move
-                        const evalScore = this.minimax(boardState, depth - 1, alpha, beta, true, aiPlayer, humanPlayer, bounceRuleEnabled);
+                        const evalScore = this.minimax(boardState, depth - 1, alpha, beta, true, aiPlayer, humanPlayer, bounceRuleEnabled, missingTeethRuleEnabled);
                         
                         // Undo the move
                         boardState[row][col] = '';
@@ -294,7 +306,7 @@ class GameAI {
     }
 
     // Evaluate the board position (heuristic function)
-    evaluateBoard(boardState, aiPlayer, humanPlayer, bounceRuleEnabled) {
+    evaluateBoard(boardState, aiPlayer, humanPlayer, bounceRuleEnabled, missingTeethRuleEnabled) {
         let score = 0;
         
         // Define directions
@@ -318,7 +330,7 @@ class GameAI {
                     // For each position that has a marker, check all directions
                     for (const [dx, dy] of directions) {
                         // Check this direction for sequences
-                        const sequenceValue = this.evaluateSequence(boardState, row, col, dx, dy);
+                        const sequenceValue = this.evaluateSequence(boardState, row, col, dx, dy, missingTeethRuleEnabled);
                         
                         // Add to score (positive for AI, negative for human)
                         if (boardState[row][col] === aiPlayer) {
@@ -332,7 +344,7 @@ class GameAI {
                     if (bounceRuleEnabled) {
                         // Only check diagonal directions for bounces
                         for (const [dx, dy] of diagonalDirections) {
-                            const bounceValue = this.evaluateBounceSequence(boardState, row, col, dx, dy, bounceRuleEnabled);
+                            const bounceValue = this.evaluateBounceSequence(boardState, row, col, dx, dy, bounceRuleEnabled, missingTeethRuleEnabled);
                             
                             // Add to score (positive for AI, negative for human)
                             if (boardState[row][col] === aiPlayer) {
@@ -350,10 +362,11 @@ class GameAI {
     }
 
     // Evaluate a sequence starting at a position and going in a direction
-    evaluateSequence(boardState, row, col, dx, dy) {
+    evaluateSequence(boardState, row, col, dx, dy, missingTeethRuleEnabled) {
         const player = boardState[row][col];
         let count = 1;
         let openEnds = 0;
+        let path = [[row, col]]; // Track the path for missing teeth check
         
         // Check forward
         let forwardOpen = false;
@@ -363,6 +376,7 @@ class GameAI {
             
             if (boardState[newRow][newCol] === player) {
                 count++;
+                path.push([newRow, newCol]);
             } else if (boardState[newRow][newCol] === '') {
                 forwardOpen = true;
                 break;
@@ -379,6 +393,7 @@ class GameAI {
             
             if (boardState[newRow][newCol] === player) {
                 count++;
+                path.push([newRow, newCol]);
             } else if (boardState[newRow][newCol] === '') {
                 backwardOpen = true;
                 break;
@@ -392,24 +407,43 @@ class GameAI {
         if (backwardOpen) openEnds++;
         
         // Calculate value based on sequence length and open ends
-        if (count >= 5) return 1000; // Winning sequence
-        if (count === 4 && openEnds >= 1) return 100; // Four in a row with an open end
-        if (count === 3 && openEnds === 2) return 50; // Three in a row with two open ends
-        if (count === 3 && openEnds === 1) return 10; // Three in a row with one open end
-        if (count === 2 && openEnds === 2) return 5; // Two in a row with two open ends
+        let value = 0;
         
-        return 0; // No significant pattern
+        if (count >= 5) {
+            // If missing teeth rule is enabled and this is a major axis, check for missing teeth
+            if (missingTeethRuleEnabled) {
+                const isMajorAxis = this.winChecker.isMajorAxis(dx, dy, row, col, path);
+                if (isMajorAxis && this.winChecker.hasMissingTeeth(boardState, path, player)) {
+                    // This is not a valid win due to missing teeth
+                    value = 50; // Still valuable but not a win
+                } else {
+                    value = 1000; // Winning sequence
+                }
+            } else {
+                value = 1000; // Winning sequence
+            }
+        } else if (count === 4 && openEnds >= 1) {
+            value = 100; // Four in a row with an open end
+        } else if (count === 3 && openEnds === 2) {
+            value = 50; // Three in a row with two open ends
+        } else if (count === 3 && openEnds === 1) {
+            value = 10; // Three in a row with one open end
+        } else if (count === 2 && openEnds === 2) {
+            value = 5; // Two in a row with two open ends
+        }
+        
+        return value;
     }
 
     // Evaluate a bounce sequence starting at a position and going in a diagonal direction
-    evaluateBounceSequence(boardState, row, col, dx, dy, bounceRuleEnabled) {
+    evaluateBounceSequence(boardState, row, col, dx, dy, bounceRuleEnabled, missingTeethRuleEnabled) {
         // Only evaluate if we're using diagonal directions and bounce rule is enabled
         if (!bounceRuleEnabled || (dx === 0 || dy === 0)) return 0;
         
         const player = boardState[row][col];
         
         // Try bounces from this position
-        const bounceResults = this.winChecker.checkBounceFromPosition(boardState, row, col, dx, dy, player, 5);
+        const bounceResults = this.winChecker.checkBounceFromPosition(boardState, row, col, dx, dy, player, 5, missingTeethRuleEnabled);
         
         // Calculate value based on the longest sequence with a bounce
         if (bounceResults.length >= 5) return 1000; // Winning sequence with bounce

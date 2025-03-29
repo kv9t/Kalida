@@ -14,6 +14,7 @@ class Game {
         };
         this.lastMove = null;
         this.bounceRuleEnabled = false;
+        this.missingTeethRuleEnabled = true; // New rule, enabled by default
         this.gameMode = 'human'; // Default game mode
         this.computerPlayer = 'O'; // Computer will play as O
         
@@ -50,6 +51,7 @@ class Game {
         this.scoreO = document.getElementById('score-o');
         this.gameModeSelect = document.getElementById('game-mode-select');
         this.bounceToggle = document.getElementById('bounce-toggle');
+        this.missingTeethToggle = document.getElementById('missing-teeth-toggle');
         
         // Event listeners
         this.resetButton.addEventListener('click', () => this.resetGame());
@@ -61,6 +63,11 @@ class Game {
         
         this.bounceToggle.addEventListener('change', () => {
             this.bounceRuleEnabled = this.bounceToggle.checked;
+            this.resetGame();
+        });
+        
+        this.missingTeethToggle.addEventListener('change', () => {
+            this.missingTeethRuleEnabled = this.missingTeethToggle.checked;
             this.resetGame();
         });
     }
@@ -86,7 +93,7 @@ class Game {
         this.boardUI.highlightLastMove(this.lastMove);
         
         // Check for a win
-        const winResult = this.winChecker.checkWin(this.board, row, col, this.bounceRuleEnabled);
+        const winResult = this.winChecker.checkWin(this.board, row, col, this.bounceRuleEnabled, this.missingTeethRuleEnabled);
         if (winResult.winner) {
             this.playerTurn.textContent = `Player ${this.currentPlayer} wins!`;
             this.gameActive = false;
@@ -119,7 +126,7 @@ class Game {
     makeComputerMove() {
         if (!this.gameActive) return;
         
-        const move = this.ai.getMove(this.board, this.gameMode, this.computerPlayer, this.bounceRuleEnabled);
+        const move = this.ai.getMove(this.board, this.gameMode, this.computerPlayer, this.bounceRuleEnabled, this.missingTeethRuleEnabled);
         
         if (move) {
             this.makeMove(move.row, move.col);

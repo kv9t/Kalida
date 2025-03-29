@@ -39,6 +39,12 @@
                 <input type="checkbox" id="bounce-toggle">
                 <label for="bounce-toggle">Enable Bounce Rule</label>
             </div>
+            <div class="checkbox-container">
+                <input type="checkbox" id="missing-teeth-toggle" checked>
+                <label for="missing-teeth-toggle">Enable Missing Teeth Rule</label>
+                <span class="tooltip-icon">?</span>
+                <div class="tooltip">When enabled, players can't win with gaps in rows, columns, or main diagonals</div>
+            </div>
         </div>
     </div>
     
@@ -55,6 +61,7 @@
                 </ul>
             </li>
             <li><strong>Bounce (Optional):</strong> When enabled, diagonals can also "bounce" off an edge once to form a winning line. A bounced diagonal changes direction but continues the line. Only one bounce is allowed per winning line. Each square can only be counted once in a winning pattern (no revisiting squares).</li>
+            <li><strong>Missing Teeth (Optional):</strong> When enabled, a winning line cannot have any gaps or opponent's pieces in it when on a full row, column, or main diagonal. However, wrapping lines can still have gaps.</li>
         </ul>
         <p>These features create new strategic possibilities for connecting five in a row!</p>
     </div>
