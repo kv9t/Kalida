@@ -1,3 +1,9 @@
+/* Add this to initialize the CSS variables */
+:root {
+    --board-max-width: 400px;
+    --board-width: 90%;
+}
+
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -7,6 +13,9 @@ body {
     touch-action: manipulation;
     min-height: 100vh;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 h1 {
@@ -26,14 +35,21 @@ h1 {
     color: #333;
 }
 
+
 .board {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-gap: 5px;
-    margin: 0 auto;
-    max-width: 400px;
-    width: 90%;
+    margin: 0 auto 20px auto; /* Add bottom margin to separate from controls */
+    max-width: var(--board-max-width, 400px);
+    width: var(--board-width, 90%);
+    /* Remove the contain property that was causing issues */
+    /* contain: layout size style; */
+    /* Use a lighter approach for optimization */
+    will-change: transform;
+    position: relative; /* Keep the board in the normal flow */
 }
+
 
 .cell {
     width: 100%;
@@ -47,7 +63,10 @@ h1 {
     justify-content: center;
     font-size: 24px;
     font-weight: bold;
-    transition: all 0.3s;
+    /* Only transition specific properties, not 'all' */
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    /* Keep box-sizing for consistent cell sizing */
+    box-sizing: border-box;
 }
 
 .cell:hover {
@@ -96,7 +115,7 @@ h1 {
     display: flex;
     justify-content: center;
     gap: 30px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     font-size: 18px;
 }
 
@@ -109,6 +128,11 @@ h1 {
 
 .controls {
     margin-top: 20px;
+    width: 100%;
+    max-width: 600px; /* Match the game description width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .game-mode {
@@ -204,14 +228,28 @@ button:hover {
 }
 
 .game-description {
+    margin-top: 30px;
+    width: 95%;
     max-width: 600px;
-    margin: 30px auto;
     text-align: left;
     background-color: #fff;
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+
+.board-size-control {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.slider {
+    width: 150px;
+}
+
 
 @media (max-width: 500px) {
     .board {
@@ -243,5 +281,19 @@ button:hover {
         display: flex;
         flex-direction: column;
         align-items: center;
+    }
+
+    .board-size-control {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .controls > * {
+        margin-bottom: 10px;
+    }
+    
+    /* Make the slider wider on mobile */
+    .slider {
+        width: 200px;
     }
 }

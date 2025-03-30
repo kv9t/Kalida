@@ -34,13 +34,25 @@ class BoardUI {
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
                 const index = row * this.boardSize + col;
-                this.cells[index].textContent = boardState[row][col];
-                this.cells[index].classList.remove('player-x', 'player-o');
+                const cell = this.cells[index];
+                const cellValue = boardState[row][col];
                 
-                if (boardState[row][col] === 'X') {
-                    this.cells[index].classList.add('player-x');
-                } else if (boardState[row][col] === 'O') {
-                    this.cells[index].classList.add('player-o');
+                // Only update if the content has changed
+                if (cell.textContent !== cellValue) {
+                    cell.textContent = cellValue;
+                    
+                    // Batch class changes to minimize reflows
+                    const classesToRemove = ['player-x', 'player-o'];
+                    const classToAdd = cellValue === 'X' ? 'player-x' : 
+                                       cellValue === 'O' ? 'player-o' : null;
+                    
+                    // Remove classes in a batch
+                    cell.classList.remove(...classesToRemove);
+                    
+                    // Add new class if needed
+                    if (classToAdd) {
+                        cell.classList.add(classToAdd);
+                    }
                 }
             }
         }

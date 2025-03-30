@@ -46,7 +46,17 @@
                 <div class="tooltip">When enabled, players can't win with gaps in rows, columns, or main diagonals</div>
             </div>
         </div>
+        
+        <!-- Add this to the controls div in index.html, after the game-rules div -->
+        <div class="board-size-control">
+            <label for="board-size-slider">Board Size: </label>
+            <input type="range" id="board-size-slider" min="50" max="100" value="90" class="slider">
+            <span id="size-value">90%</span>
+        </div>
+
     </div>
+    
+
     
     <div class="game-description">
         <h3>How to Play:</h3>
