@@ -4,9 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalida - A Game by Koert Voorhees</title>
-    <link rel="stylesheet" href="css/styles.css">
+
+        <!-- Add this line to check if there's any CSS issue -->
+        <style>
+            /* Inline CSS as a fallback/test */
+            .css-loaded-indicator {
+                display: block;
+                position: fixed;
+                top: 5px;
+                right: 5px;
+                background: #3498db;
+                color: white;
+                padding: 2px 5px;
+                font-size: 10px;
+                z-index: 9999;
+            }
+            /* Test CSS variable */
+            :root {
+                --test-variable: "inline-css";
+            }
+        </style>
+
+<link rel="stylesheet" href="css/styles.css?v=1.0.1">
 </head>
 <body>
+    <div class="css-loaded-indicator">CSS Loaded</div>
     <h1>Kalida</h1>
     <div class="game-info">A game created by Koert Voorhees, brought to digital life</div>
     
