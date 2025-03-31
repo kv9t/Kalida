@@ -13,7 +13,7 @@ class Game {
             'O': 0
         };
         this.lastMove = null;
-        this.bounceRuleEnabled = false;
+        this.bounceRuleEnabled = true;
         this.missingTeethRuleEnabled = true; // New rule, enabled by default
         this.gameMode = 'human'; // Default game mode
         this.computerPlayer = 'O'; // Computer will play as O
