@@ -1,5 +1,5 @@
 /**
- * improved-win-checker.js - Checks for win conditions in the game with proper order
+ * win-checker.js - Checks for win conditions in the game with proper order
  */
 
 class WinChecker {
@@ -103,9 +103,13 @@ class WinChecker {
                     winningCells.sort((a, b) => a[0] - b[0]);
                 }
                 
+                // Check if this is a great diagonal
+                const isGreatDiagonal = this.isGreatDiagonal(winningCells);
+                
                 // If missing teeth rule is enabled, check for gaps
                 if (missingTeethRuleEnabled) {
-                    const hasTeeth = this.checkForMissingTeeth(board, winningCells, player, dx, dy);
+                    // Exempt great diagonals from missing teeth rule
+                    const hasTeeth = this.checkForMissingTeeth(board, winningCells, player, dx, dy, isGreatDiagonal);
                     if (!hasTeeth) {
                         // This is a win!
                         return {
@@ -168,17 +172,20 @@ class WinChecker {
                 const allSameRow = winningCells.every(cell => cell[0] === winningCells[0][0]);
                 const allSameCol = winningCells.every(cell => cell[1] === winningCells[0][1]);
                 
+                // Check if this is a great diagonal
+                const isGreatDiagonal = this.isGreatDiagonal(winningCells);
+                
                 // If all cells are in a single row or column, we need to check for missing teeth
                 if ((allSameRow || allSameCol) && missingTeethRuleEnabled) {
-                    if (this.checkForMissingTeeth(board, winningCells, player, dx, dy)) {
+                    if (this.checkForMissingTeeth(board, winningCells, player, dx, dy, false)) {
                         continue; // Has missing teeth, not a win
                     }
                 }
                 
                 // Check if this is a great diagonal (where wrap is still subject to missing teeth rule)
-                const isGreatDiagonal = this.isGreatDiagonal(winningCells);
                 if (isGreatDiagonal && missingTeethRuleEnabled) {
-                    if (this.checkForMissingTeeth(board, winningCells, player, dx, dy)) {
+                    // Exempt great diagonals from missing teeth rule
+                    if (this.checkForMissingTeeth(board, winningCells, player, dx, dy, true)) {
                         continue; // Has missing teeth, not a win
                     }
                 }
@@ -217,7 +224,13 @@ class WinChecker {
     }
     
     // Check for missing teeth in a line of cells
-    checkForMissingTeeth(board, cells, player, dx, dy) {
+    // Added exemptGreatDiagonal parameter to bypass check for main diagonals when true
+    checkForMissingTeeth(board, cells, player, dx, dy, exemptGreatDiagonal = false) {
+        // If we're exempting great diagonals and this is a great diagonal, skip the check
+        if (exemptGreatDiagonal && this.isGreatDiagonal(cells)) {
+            return false; // Return false = no missing teeth found
+        }
+        
         // Sort cells to find boundaries
         const sortedByRow = [...cells].sort((a, b) => a[0] - b[0]);
         const sortedByCol = [...cells].sort((a, b) => a[1] - b[1]);
@@ -390,6 +403,11 @@ class WinChecker {
             if (length >= targetLength && bounceFound) {
                 // If missing teeth rule is enabled, check for gaps
                 if (missingTeethRuleEnabled) {
+                    // Check if this is a great diagonal
+                    const isGreatDiagonal = this.isGreatDiagonal(path);
+                    
+                    // For bounce patterns with great diagonals, we still need to check
+                    // since they don't follow the standard great diagonal path
                     if (this.checkForMissingTeethInBounce(board, path, player, bounceIndex)) {
                         continue; // Has missing teeth, not a win
                     }

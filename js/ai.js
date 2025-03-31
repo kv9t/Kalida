@@ -166,8 +166,11 @@ class GameAI {
                 if (missingTeethRuleEnabled) {
                     // Check if this is on a major axis (horizontal, vertical, or great diagonal)
                     if (this.isOnMajorAxis(dx, dy, row, col, path)) {
-                        // Check for missing teeth in the path
-                        if (!this.checkForMissingTeeth(tempBoard, path, player, dx, dy)) {
+                        // Check if this is a great diagonal and exempt from missing teeth
+                        const isGreatDiagonal = this.isGreatDiagonal(path);
+                        
+                        // Check for missing teeth in the path (exempt great diagonals)
+                        if (!this.checkForMissingTeeth(tempBoard, path, player, dx, dy, isGreatDiagonal)) {
                             potentialWins++;
                         }
                     } else {
@@ -209,14 +212,32 @@ class GameAI {
         const allSameCol = path.every(cell => cell[1] === path[0][1]);
         
         // Check if it's a great diagonal
-        const onMainGreatDiagonal = path.every(cell => cell[0] === cell[1]);
-        const onAntiGreatDiagonal = path.every(cell => cell[0] + cell[1] === this.boardSize - 1);
+        const isGreatDiag = this.isGreatDiagonal(path);
         
-        return allSameRow || allSameCol || onMainGreatDiagonal || onAntiGreatDiagonal;
+        return allSameRow || allSameCol || isGreatDiag;
+    }
+    
+    // Check if cells are part of a great diagonal
+    isGreatDiagonal(cells) {
+        if (cells.length < 3) return false;
+        
+        // Main great diagonal (A1 to F6): cells where row == col
+        const onMainGreatDiagonal = cells.every(cell => cell[0] === cell[1]);
+        
+        // Anti great diagonal (A6 to F1): cells where row + col = boardSize - 1
+        const onAntiGreatDiagonal = cells.every(cell => cell[0] + cell[1] === this.boardSize - 1);
+        
+        return onMainGreatDiagonal || onAntiGreatDiagonal;
     }
     
     // Check for missing teeth in a line of cells (adapted from WinChecker.checkForMissingTeeth)
-    checkForMissingTeeth(board, cells, player, dx, dy) {
+    // Added exemptGreatDiagonal parameter to match the WinChecker implementation
+    checkForMissingTeeth(board, cells, player, dx, dy, exemptGreatDiagonal = false) {
+        // If we're exempting great diagonals and this is a great diagonal, skip the check
+        if (exemptGreatDiagonal && this.isGreatDiagonal(cells)) {
+            return false; // Return false = no missing teeth found
+        }
+        
         // Sort cells to find boundaries
         const sortedByRow = [...cells].sort((a, b) => a[0] - b[0]);
         const sortedByCol = [...cells].sort((a, b) => a[1] - b[1]);
@@ -714,8 +735,11 @@ class GameAI {
             if (missingTeethRuleEnabled) {
                 // Check if this is on a major axis
                 if (this.isOnMajorAxis(dx, dy, row, col, path)) {
-                    // Check for missing teeth
-                    if (this.checkForMissingTeeth(boardState, path, player, dx, dy)) {
+                    // Check if this is a great diagonal (exempt from missing teeth rule)
+                    const isGreatDiagonal = this.isGreatDiagonal(path);
+                    
+                    // Check for missing teeth (exempt great diagonals)
+                    if (this.checkForMissingTeeth(boardState, path, player, dx, dy, isGreatDiagonal)) {
                         value = 50; // Still valuable but not a win due to missing teeth
                     } else {
                         value = 1000; // Winning sequence without missing teeth
@@ -731,7 +755,10 @@ class GameAI {
             
             // Check for missing teeth in a potential 4-in-a-row
             if (missingTeethRuleEnabled && this.isOnMajorAxis(dx, dy, row, col, path)) {
-                if (this.checkForMissingTeeth(boardState, path, player, dx, dy)) {
+                // Check if this is a great diagonal (exempt from missing teeth rule)
+                const isGreatDiagonal = this.isGreatDiagonal(path);
+                
+                if (this.checkForMissingTeeth(boardState, path, player, dx, dy, isGreatDiagonal)) {
                     value = 40; // Reduced value due to missing teeth
                 }
             } else {
