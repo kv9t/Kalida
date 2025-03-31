@@ -93,14 +93,34 @@ class Game {
         this.boardUI.highlightLastMove(this.lastMove);
         
         // Check for a win
-        const winResult = this.winChecker.checkWin(this.board, row, col, this.bounceRuleEnabled, this.missingTeethRuleEnabled);
-        if (winResult.winner) {
-            this.playerTurn.textContent = `Player ${this.currentPlayer} wins!`;
+        // Check all cells for winning patterns
+        const winner = this.winChecker.checkGameWinner(this.board, this.bounceRuleEnabled, this.missingTeethRuleEnabled);
+        
+        // Need to also get the winning cells to highlight them
+        let winningPattern = null;
+        if (winner) {
+            // Find the winning pattern by checking all cells
+            for (let r = 0; r < this.boardSize; r++) {
+                for (let c = 0; c < this.boardSize; c++) {
+                    if (this.board[r][c] === winner) {
+                        const result = this.winChecker.checkWin(this.board, r, c, this.bounceRuleEnabled, this.missingTeethRuleEnabled);
+                        if (result.winner) {
+                            winningPattern = result;
+                            break;
+                        }
+                    }
+                }
+                if (winningPattern) break;
+            }
+        }
+        
+        if (winner) {
+            this.playerTurn.textContent = `Player ${winner} wins!`;
             this.gameActive = false;
-            this.boardUI.highlightWinningCells(winResult.winningCells, winResult.bounceCellIndex, winResult.secondBounceCellIndex);
+            this.boardUI.highlightWinningCells(winningPattern.winningCells, winningPattern.bounceCellIndex, winningPattern.secondBounceCellIndex);
             
             // Update score
-            this.scores[this.currentPlayer]++;
+            this.scores[winner]++;
             this.updateScoreDisplay();
             return;
         }

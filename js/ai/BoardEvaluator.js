@@ -142,22 +142,32 @@ function countPotentialWins(board, row, col, player, boardSize, winChecker, boun
     }
     
     // Also check bounce patterns if enabled
-    // In countPotentialWins function, update the bounce pattern section:
     if (bounceRuleEnabled) {
+        // Check both diagonal directions for bounces
         const diagonalDirections = [
             [1, 1],  // diagonal
             [1, -1]  // anti-diagonal
         ];
         
+        // Check BOTH diagonal directions, not just one random one
         for (const [dx, dy] of diagonalDirections) {
-            const bounceResults = winChecker.checkBounceFromPosition(tempBoard, row, col, dx, dy, player, 4, missingTeethRuleEnabled);
-            // Count both single and double bounce patterns
-            if (bounceResults.length >= 3) {
-                potentialWins++;
-                // Give an extra point for double bounce patterns
-                if (bounceResults.secondBounceIndex !== -1) {
-                    potentialWins++;
-                }
+            const bounceValue = evaluateBounceSequence(
+                boardState, 
+                row, 
+                col, 
+                dx, 
+                dy, 
+                boardSize,
+                winChecker, 
+                bounceRuleEnabled, 
+                missingTeethRuleEnabled
+            );
+            
+            // Add to score (positive for AI, negative for human)
+            if (boardState[row][col] === aiPlayer) {
+                score += bounceValue;
+            } else {
+                score -= bounceValue;
             }
         }
     }
