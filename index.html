@@ -47,11 +47,12 @@
         <div class="game-mode">
             <label for="game-mode-select">Play Against: </label>
             <select id="game-mode-select">
-                <option value="human">Another Player</option>
-                <option value="easy">Computer (Easy)</option>
-                <option value="medium">Computer (Medium)</option>
-                <option value="hard">Computer (Hard)</option>
-                <option value="extrahard">Computer (Extra Hard)</option>
+                <option value="human">Human vs Human</option>
+                <option value="easy">Easy AI</option>
+                <option value="medium">Medium AI</option>
+                <option value="hard">Hard AI</option>
+                <option value="extrahard">Extra Hard AI</option>
+                <option value="impossible">Impossible AI</option>
             </select>
         </div>
         
@@ -107,8 +108,9 @@
     <script src="js/ai/BoardEvaluator.js"></script>
     <script src="js/ai/BasicStrategies.js"></script>
     <script src="js/ai/MinimaxStrategy.js"></script>
+    
     <script src="js/ai/GameAI.js"></script>
-
+    <script src="js/ai/ImpossibleStrategy.js"></script>
     <script src="js/game.js"></script>
     <script src="js/main.js"></script>
 </body>
