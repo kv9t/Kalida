@@ -97,7 +97,7 @@ class Game {
         if (winResult.winner) {
             this.playerTurn.textContent = `Player ${this.currentPlayer} wins!`;
             this.gameActive = false;
-            this.boardUI.highlightWinningCells(winResult.winningCells, winResult.bounceCellIndex);
+            this.boardUI.highlightWinningCells(winResult.winningCells, winResult.bounceCellIndex, winResult.secondBounceCellIndex);
             
             // Update score
             this.scores[this.currentPlayer]++;

@@ -81,7 +81,7 @@ class BoardUI {
     }
 
     // Highlight the winning cells
-    highlightWinningCells(winningCells, bounceCellIndex) {
+    highlightWinningCells(winningCells, bounceCellIndex, secondBounceCellIndex = -1) {
         if (!winningCells || winningCells.length === 0) return;
         
         for (let i = 0; i < winningCells.length; i++) {
@@ -89,8 +89,13 @@ class BoardUI {
             const index = row * this.boardSize + col;
             this.cells[index].classList.add('winning-cell');
             
-            // If this is the bounce cell, add the bounce indicator
+            // If this is the first bounce cell, add the bounce indicator
             if (i === bounceCellIndex) {
+                this.cells[index].classList.add('bounce-cell');
+            }
+            
+            // If this is the second bounce cell, also add the bounce indicator
+            if (i === secondBounceCellIndex && secondBounceCellIndex !== -1) {
                 this.cells[index].classList.add('bounce-cell');
             }
         }
