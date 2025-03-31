@@ -1,14 +1,21 @@
 # Kalida
 Kalida - a game by Koert Voorhees
 
-kalida/
-├── index.html           (HTML structure)
+```
+Kalida/
+├── index.html
 ├── css/
-│   └── styles.css       (CSS styles)
-├── js/
-│   ├── main.js          (Main script, initializes game)
-│   ├── game.js          (Game state and core logic)
-│   ├── board.js         (Board UI and interaction)
-│   ├── ai.js            (Computer player logic)
-│   └── win-checker.js   (Win condition checking)
-└── README.md            (Documentation)
+│   └── styles.css
+└── js/
+    ├── board.js
+    ├── win-checker.js
+    ├── game.js
+    ├── main.js
+    └── ai/
+        ├── MissingTeethHelper.js
+        ├── BounceRuleHelper.js
+        ├── BoardEvaluator.js
+        ├── BasicStrategies.js
+        ├── MinimaxStrategy.js
+        └── GameAI.js
+```

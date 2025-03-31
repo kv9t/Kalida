@@ -82,7 +82,7 @@
     
     <div class="game-description">
         <h3>How to Play:</h3>
-        <p>Kalida is played on a 6x6 grid, created by Koert Voorhees. Players take turns placing their markers (X or O) on the board.</p>
+        <p>Kalida is a game of strategy, played on a 6x6 grid. Players take turns placing their markers (X or O) on the board.</p>
         <p>The goal is to place five markers in a row, column, or diagonal.</p>
         <p><strong>Unique Features:</strong></p>
         <ul>
@@ -93,15 +93,22 @@
                 </ul>
             </li>
             <li><strong>Bounce (Optional):</strong> When enabled, diagonals can also "bounce" off an edge once to form a winning line. A bounced diagonal changes direction but continues the line. Only one bounce is allowed per winning line. Each square can only be counted once in a winning pattern (no revisiting squares).</li>
-            <li><strong>Missing Teeth (Optional):</strong> When enabled, a winning line cannot have any gaps or opponent's pieces in it when on a full row, column, or main diagonal. However, wrapping lines can still have gaps.</li>
+            <li><strong>Missing Teeth (Optional):</strong> When enabled, a winning line cannot have any gaps or opponent's pieces in it when on a full row or column. However, wrapping lines can still have gaps.</li>
         </ul>
-        <p>These features create new strategic possibilities for connecting five in a row!</p>
+        <p>Have fun!</p>
     </div>
 
     <!-- Load JavaScript files -->
     <script src="js/board.js"></script>
     <script src="js/win-checker.js"></script>
-    <script src="js/ai.js"></script>
+    <!-- Updated AI module references -->
+    <script src="js/ai/MissingTeethHelper.js"></script>
+    <script src="js/ai/BounceRuleHelper.js"></script>
+    <script src="js/ai/BoardEvaluator.js"></script>
+    <script src="js/ai/BasicStrategies.js"></script>
+    <script src="js/ai/MinimaxStrategy.js"></script>
+    <script src="js/ai/GameAI.js"></script>
+
     <script src="js/game.js"></script>
     <script src="js/main.js"></script>
 </body>
