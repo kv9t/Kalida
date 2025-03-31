@@ -1,0 +1,260 @@
+/**
+ * MinimaxAlgorithm.js - Enhanced minimax algorithm for the Impossible AI
+ * Contains the improved minimax implementation with alpha-beta pruning
+ */
+
+/**
+ * Improved minimax algorithm with enhanced pruning and evaluation
+ * @param {Array} boardState - 2D array representing the game board
+ * @param {number} depth - Current depth in the search tree
+ * @param {number} alpha - Alpha value for alpha-beta pruning
+ * @param {number} beta - Beta value for alpha-beta pruning
+ * @param {boolean} isMaximizing - Whether the current player is maximizing
+ * @param {string} aiPlayer - AI player marker ('X' or 'O')
+ * @param {string} humanPlayer - Human player marker ('O' or 'X')
+ * @param {number} boardSize - Size of the game board
+ * @param {Object} winChecker - WinChecker instance for win validation
+ * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
+ * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+ * @param {number} bestScore - Current best score (for improved pruning)
+ * @param {number} parentBestScore - Parent's best score (for improved pruning)
+ * @param {Object} lastMove - Last move made
+ * @returns {number} - The score of the board position
+ */
+function improvedMinimax(boardState, depth, alpha, beta, isMaximizing, aiPlayer, humanPlayer, boardSize, winChecker, bounceRuleEnabled, missingTeethRuleEnabled, bestScore, parentBestScore, lastMove) {
+    // Early termination: Check for terminal states
+    const winner = winChecker.checkGameWinner(boardState, bounceRuleEnabled, missingTeethRuleEnabled);
+    if (winner === aiPlayer) return 1000 + depth; // AI wins
+    if (winner === humanPlayer) return -1000 - depth; // Opponent wins
+    if (isBoardFull(boardState, boardSize) || depth === 0) {
+        return improvedEvaluateBoard(boardState, aiPlayer, humanPlayer, boardSize, winChecker, bounceRuleEnabled, missingTeethRuleEnabled, lastMove);
+    }
+    
+    // Get prioritized moves with potential diagonal threats having higher priority
+    const candidateMoves = getPrioritizedMovesFull(
+        boardState, 
+        isMaximizing ? aiPlayer : humanPlayer, 
+        isMaximizing ? humanPlayer : aiPlayer, 
+        boardSize,
+        winChecker,
+        bounceRuleEnabled,
+        missingTeethRuleEnabled
+    );
+    
+    // Special handling for early game (first 8-10 moves)
+    const pieceCount = countPieces(boardState, boardSize);
+    const movesToConsider = pieceCount < 10 ? 15 : 10; // Consider more moves in early game
+    
+    if (isMaximizing) {
+        // AI's turn - trying to maximize score
+        let maxEval = -Infinity;
+        
+        // Try each possible move, focusing on highest priority moves first
+        for (const {row, col} of candidateMoves.slice(0, movesToConsider)) {
+            // Make the move
+            boardState[row][col] = aiPlayer;
+            
+            // Evaluate this move
+            const evalScore = improvedMinimax(
+                boardState, 
+                depth - 1, 
+                alpha, 
+                beta, 
+                false, 
+                aiPlayer, 
+                humanPlayer, 
+                boardSize,
+                winChecker, 
+                bounceRuleEnabled, 
+                missingTeethRuleEnabled,
+                maxEval,
+                parentBestScore,
+                {row, col}
+            );
+            
+            // Undo the move
+            boardState[row][col] = '';
+            
+            // Update best score
+            maxEval = Math.max(maxEval, evalScore);
+            
+            // Alpha-beta pruning with enhancements
+            alpha = Math.max(alpha, evalScore);
+            if (beta <= alpha) break; // Beta cutoff
+            
+            // Enhanced pruning: if we've found a score better than parent's best,
+            // we can often prune (parent will choose another path)
+            if (parentBestScore !== Infinity && maxEval > -parentBestScore) {
+                break;
+            }
+        }
+        
+        return maxEval;
+    } else {
+        // Opponent's turn - trying to minimize score
+        let minEval = Infinity;
+        
+        // Try each possible move
+        for (const {row, col} of candidateMoves.slice(0, movesToConsider)) {
+            // Make the move
+            boardState[row][col] = humanPlayer;
+            
+            // Evaluate this move
+            const evalScore = improvedMinimax(
+                boardState, 
+                depth - 1, 
+                alpha, 
+                beta, 
+                true, 
+                aiPlayer, 
+                humanPlayer, 
+                boardSize,
+                winChecker, 
+                bounceRuleEnabled, 
+                missingTeethRuleEnabled,
+                minEval,
+                parentBestScore,
+                {row, col}
+            );
+            
+            // Undo the move
+            boardState[row][col] = '';
+            
+            // Update best score
+            minEval = Math.min(minEval, evalScore);
+            
+            // Alpha-beta pruning
+            beta = Math.min(beta, evalScore);
+            if (beta <= alpha) break; // Alpha cutoff
+            
+            // Enhanced pruning
+            if (parentBestScore !== -Infinity && minEval < -parentBestScore) {
+                break;
+            }
+        }
+        
+        return minEval;
+    }
+}
+
+/**
+ * Get prioritized moves for minimax search
+ * @param {Array} board - 2D array representing the game board
+ * @param {string} aiPlayer - Current AI player ('X' or 'O')
+ * @param {string} humanPlayer - Opponent player ('O' or 'X')
+ * @param {number} boardSize - Size of the game board
+ * @param {Object} winChecker - WinChecker instance for win validation
+ * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
+ * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+ * @returns {Array} - Array of move objects with row, column, and priority
+ */
+function getPrioritizedMovesFull(board, aiPlayer, humanPlayer, boardSize, winChecker, bounceRuleEnabled, missingTeethRuleEnabled) {
+    const moves = [];
+    const seenMoves = new Set(); // Track seen positions to avoid duplicates
+    const centerRow = Math.floor(boardSize / 2);
+    const centerCol = Math.floor(boardSize / 2);
+    
+    // First check for blocks to diagonal threats
+    const diagonalThreatMove = findDiagonalThreatMove(board, aiPlayer, humanPlayer, boardSize);
+    if (diagonalThreatMove) {
+        const moveKey = `${diagonalThreatMove.row},${diagonalThreatMove.col}`;
+        moves.push({row: diagonalThreatMove.row, col: diagonalThreatMove.col, priority: 1000}); // Highest priority
+        seenMoves.add(moveKey);
+    }
+    
+    // 1. Check cells adjacent to existing pieces
+    // Define adjacent directions (including diagonals)
+    const directions = [
+        [-1, -1], [-1, 0], [-1, 1],
+        [0, -1],           [0, 1],
+        [1, -1],  [1, 0],  [1, 1]
+    ];
+    
+    // Find all occupied cells
+    for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+            if (board[row][col] !== '') {
+                // Look at adjacent cells
+                for (const [dx, dy] of directions) {
+                    const newRow = row + dx;
+                    const newCol = col + dy;
+                    
+                    // Check if the adjacent cell is valid and empty
+                    if (newRow >= 0 && newRow < boardSize && 
+                        newCol >= 0 && newCol < boardSize && 
+                        board[newRow][newCol] === '') {
+                        
+                        const moveKey = `${newRow},${newCol}`;
+                        if (!seenMoves.has(moveKey)) {
+                            // Calculate a priority score based on position
+                            let priority = 100; // Base priority for adjacent moves
+                            
+                            // Add threat evaluation
+                            const aiThreats = countThreats(board, newRow, newCol, aiPlayer, boardSize, winChecker, bounceRuleEnabled, missingTeethRuleEnabled);
+                            const humanThreats = countThreats(board, newRow, newCol, humanPlayer, boardSize, winChecker, bounceRuleEnabled, missingTeethRuleEnabled);
+                            
+                            // Special diagonal threat detection
+                            const diagonalThreatBonus = checkForDiagonalThreatPotential(board, newRow, newCol, humanPlayer, boardSize);
+                            
+                            // Prioritize moves that create AI threats or block human threats
+                            priority += aiThreats * 50;
+                            priority += humanThreats * 40;
+                            priority += diagonalThreatBonus * 30; // Add diagonal threat bonus
+                            
+                            // Check if this move is on a diagonal
+                            const isOnDiagonal = (Math.abs(newRow - centerRow) === Math.abs(newCol - centerCol));
+                            if (isOnDiagonal) {
+                                priority += 20; // Bonus for diagonal moves
+                            }
+                            
+                            // Add distance from center as a factor
+                            const distFromCenter = Math.sqrt(
+                                Math.pow(newRow - centerRow, 2) + 
+                                Math.pow(newCol - centerCol, 2)
+                            );
+                            
+                            // Closer to center is slightly better
+                            priority += (boardSize - distFromCenter) * 2;
+                            
+                            moves.push({row: newRow, col: newCol, priority});
+                            seenMoves.add(moveKey);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // 2. Add other empty cells with lower priority
+    for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+            const moveKey = `${row},${col}`;
+            
+            if (board[row][col] === '' && !seenMoves.has(moveKey)) {
+                // Calculate priority based on position
+                const distFromCenter = Math.sqrt(
+                    Math.pow(row - centerRow, 2) + 
+                    Math.pow(col - centerCol, 2)
+                );
+                
+                // Lower base priority for non-adjacent moves
+                let priority = 50;
+                
+                // Check if this move is on a diagonal
+                const isOnDiagonal = (Math.abs(row - centerRow) === Math.abs(col - centerCol));
+                if (isOnDiagonal) {
+                    priority += 15; // Bonus for diagonal moves
+                }
+                
+                // Closer to center is better
+                priority += (boardSize - distFromCenter) * 2;
+                
+                moves.push({row, col, priority});
+                seenMoves.add(moveKey);
+            }
+        }
+    }
+    
+    // Sort moves by priority (descending)
+    return moves.sort((a, b) => b.priority - a.priority);
+}

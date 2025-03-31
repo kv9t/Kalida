@@ -43,6 +43,7 @@ class Game {
     }
     
     // Initialize event listeners
+    // Initialize event listeners - updated with impossible option
     initEventListeners() {
         // DOM elements
         this.playerTurn = document.querySelector('.player-turn');
@@ -142,14 +143,41 @@ class Game {
         }
     }
     
-    // Make a computer move
+    // Make a computer move - updated to handle impossible mode
     makeComputerMove() {
         if (!this.gameActive) return;
         
-        const move = this.ai.getMove(this.board, this.gameMode, this.computerPlayer, this.bounceRuleEnabled, this.missingTeethRuleEnabled);
-        
-        if (move) {
-            this.makeMove(move.row, move.col);
+        // When in impossible mode on larger boards, show a "thinking" message
+        if (this.gameMode === 'impossible' && this.boardSize >= 8) {
+            this.playerTurn.textContent = "AI is thinking...";
+            
+            // Use setTimeout to allow the UI to update before the expensive computation
+            setTimeout(() => {
+                const move = this.ai.getMove(
+                    this.board, 
+                    this.gameMode, 
+                    this.computerPlayer, 
+                    this.bounceRuleEnabled, 
+                    this.missingTeethRuleEnabled
+                );
+                
+                if (move) {
+                    this.makeMove(move.row, move.col);
+                }
+            }, 100);
+        } else {
+            // For other modes, make the move immediately
+            const move = this.ai.getMove(
+                this.board, 
+                this.gameMode, 
+                this.computerPlayer, 
+                this.bounceRuleEnabled, 
+                this.missingTeethRuleEnabled
+            );
+            
+            if (move) {
+                this.makeMove(move.row, move.col);
+            }
         }
     }
     
