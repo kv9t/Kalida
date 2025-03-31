@@ -142,6 +142,7 @@ function countPotentialWins(board, row, col, player, boardSize, winChecker, boun
     }
     
     // Also check bounce patterns if enabled
+    // In countPotentialWins function, update the bounce pattern section:
     if (bounceRuleEnabled) {
         const diagonalDirections = [
             [1, 1],  // diagonal
@@ -150,8 +151,13 @@ function countPotentialWins(board, row, col, player, boardSize, winChecker, boun
         
         for (const [dx, dy] of diagonalDirections) {
             const bounceResults = winChecker.checkBounceFromPosition(tempBoard, row, col, dx, dy, player, 4, missingTeethRuleEnabled);
+            // Count both single and double bounce patterns
             if (bounceResults.length >= 3) {
                 potentialWins++;
+                // Give an extra point for double bounce patterns
+                if (bounceResults.secondBounceIndex !== -1) {
+                    potentialWins++;
+                }
             }
         }
     }
@@ -283,9 +289,18 @@ function evaluateBounceSequence(boardState, row, col, dx, dy, boardSize, winChec
     const bounceResults = winChecker.checkBounceFromPosition(boardState, row, col, dx, dy, player, 5, missingTeethRuleEnabled);
     
     // Calculate value based on the longest sequence with a bounce
-    if (bounceResults.length >= 5) return 1000; // Winning sequence with bounce
-    if (bounceResults.length === 4) return 80; // Four in a row with a bounce
-    if (bounceResults.length === 3) return 30; // Three in a row with a bounce
+    if (bounceResults.length >= 5) {
+        // Give a higher value to double bounces
+        return bounceResults.secondBounceIndex !== -1 ? 1200 : 1000; // Winning sequence with bounce
+    }
+    if (bounceResults.length === 4) {
+        // Give a higher value to double bounces
+        return bounceResults.secondBounceIndex !== -1 ? 100 : 80; // Four in a row with a bounce
+    }
+    if (bounceResults.length === 3) {
+        // Give a higher value to double bounces
+        return bounceResults.secondBounceIndex !== -1 ? 40 : 30; // Three in a row with a bounce
+    }
     
     return 0; // No significant pattern with bounce
 }
