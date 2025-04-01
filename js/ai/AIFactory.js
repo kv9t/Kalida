@@ -50,11 +50,20 @@ class AIFactory {
                 break;
                 
             case 'impossible':
+                // Create the component modules first
+                const patternDetector = new BouncePatternDetector(this.boardSize, this.rules);
+                const minimaxSearch = new MinimaxSearch(this.boardSize, this.rules, this.boardEvaluator);
+                const openingBook = new OpeningBook(this.boardSize);
+                
+                // Pass them to the ImpossibleStrategy constructor
                 ai = new ImpossibleStrategy(
                     this.boardSize, 
                     this.rules, 
                     this.boardEvaluator, 
-                    this.threatDetector
+                    this.threatDetector,
+                    patternDetector,
+                    minimaxSearch,
+                    openingBook
                 );
                 break;
                 
