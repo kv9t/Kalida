@@ -5,27 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalida - A Game by Koert Voorhees</title>
 
-        <!-- Add this line to check if there's any CSS issue -->
-        <style>
-            /* Inline CSS as a fallback/test */
-            .css-loaded-indicator {
-                display: block;
-                position: fixed;
-                top: 5px;
-                right: 5px;
-                background: #3498db;
-                color: white;
-                padding: 2px 5px;
-                font-size: 10px;
-                z-index: 9999;
-            }
-            /* Test CSS variable */
-            :root {
-                --test-variable: "inline-css";
-            }
-        </style>
+    <!-- Add this line to check if there's any CSS issue -->
+    <style>
+        /* Inline CSS as a fallback/test */
+        .css-loaded-indicator {
+            display: block;
+            position: fixed;
+            top: 5px;
+            right: 5px;
+            background: #3498db;
+            color: white;
+            padding: 2px 5px;
+            font-size: 10px;
+            z-index: 9999;
+        }
+        /* Test CSS variable */
+        :root {
+            --test-variable: "inline-css";
+        }
+    </style>
 
-<link rel="stylesheet" href="css/styles.css?v=1.0.1">
+    <link rel="stylesheet" href="css/styles.css?v=1.0.1">
 </head>
 <body>
     <div class="css-loaded-indicator">CSS Loaded</div>
@@ -70,16 +70,12 @@
             </div>
         </div>
         
-        <!-- Add this to the controls div in index.html, after the game-rules div -->
         <div class="board-size-control">
             <label for="board-size-slider">Board Size: </label>
             <input type="range" id="board-size-slider" min="50" max="100" value="90" class="slider">
             <span id="size-value">90%</span>
         </div>
-
     </div>
-    
-
     
     <div class="game-description">
         <h3>How to Play:</h3>
@@ -99,39 +95,37 @@
         <p>Have fun!</p>
     </div>
 
-    <!-- Load JavaScript files -->
-    <script src="js/board.js"></script>
-    <script src="js/win-checker.js"></script>
-    <!-- Updated AI module references -->
-    <script src="js/ai/MissingTeethHelper.js"></script>
-    <script src="js/ai/BounceRuleHelper.js"></script>
-    <script src="js/ai/BoardEvaluator.js"></script>
-    <script src="js/ai/BasicStrategies.js"></script>
-    <script src="js/ai/MinimaxStrategy.js"></script>
+    <!-- Core files (load first) -->
+    <script src="js/core/Board.js"></script>
+    <script src="js/core/Rules.js"></script>
+    <script src="js/core/Game.js"></script>
     
-    <!-- Board utilities and helper functions -->
-    <script src="js/ai/BoardUtils.js"></script>
-
-    <!-- Diagonal threat detection -->
-    <script src="js/ai/DiagonalThreatDetection.js"></script>
-
-    <!-- Evaluation functions -->
-    <script src="js/ai/EvaluationFunctions.js"></script>
-
-    <!-- Opening strategy -->
-    <script src="js/ai/OpeningStrategy.js"></script>
-
-    <!-- Minimax algorithm -->
-    <script src="js/ai/MinimaxAlgorithm.js"></script>
-
-    <!-- Impossible AI core -->
-    <script src="js/ai/ImpossibleCore.js"></script>
-
-    <!-- Then load GameAI.js -->
-    <script src="js/ai/GameAI.js"></script>
-    <script src="js/ai/GameAI.js"></script>
-    <script src="js/ai/ImpossibleStrategy.js"></script>
-    <script src="js/game.js"></script>
+    <!-- Utils -->
+    <script src="js/utils/GameUtils.js"></script>
+    <script src="js/utils/BounceUtils.js"></script>
+    <!-- AI Base and Utils -->
+    <script src="js/ai/AIPlayer.js"></script>
+    <script src="js/ai/utils/AIUtils.js"></script>
+    
+    <!-- AI Evaluation -->
+    <script src="js/ai/evaluation/BoardEvaluator.js"></script>
+    <script src="js/ai/utils/ThreatDetector.js"></script>
+    
+    <!-- AI Strategies (lowest to highest difficulty) -->
+    <script src="js/ai/strategies/RandomStrategy.js"></script>
+    <script src="js/ai/strategies/MediumStrategy.js"></script>
+    <script src="js/ai/strategies/HardStrategy.js"></script>
+    <script src="js/ai/strategies/MinimaxStrategy.js"></script>
+    <script src="js/ai/strategies/ImpossibleStrategy.js"></script>
+    
+    <!-- AI Factory -->
+    <script src="js/ai/AIFactory.js"></script>
+    
+    <!-- UI Components -->
+    <script src="js/ui/BoardUI.js"></script>
+    <script src="js/ui/GameUI.js"></script>
+    
+    <!-- Main entry point -->
     <script src="js/main.js"></script>
 </body>
 </html>

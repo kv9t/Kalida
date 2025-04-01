@@ -1,8 +1,15 @@
 /**
- * win-checker.js - Checks for win conditions in the game with proper order
+ * Rules.js - Game rules including win conditions for Kalida
+ * 
+ * Contains all the game rules including win conditions (regular,
+ * wrap, bounce) and special rules like missing teeth.
+ * 
  */
-
-class WinChecker {
+class Rules {
+    /**
+     * Create a new rules engine
+     * @param {number} boardSize - Size of the game board
+     */
     constructor(boardSize) {
         this.boardSize = boardSize;
         
@@ -21,8 +28,55 @@ class WinChecker {
         ];
     }
 
-    // Main entry point: Check if a move results in a win
-    checkWin(board, row, col, bounceRuleEnabled, missingTeethRuleEnabled) {
+    /**
+     * Check if a game is over (win or draw)
+     * @param {Array} board - 2D array representing the game board
+     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @returns {Object} - { isOver, winner, winningCells, isDraw }
+     */
+    checkGameStatus(board, bounceRuleEnabled, missingTeethRuleEnabled) {
+        // Check all occupied cells for a win
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                if (board[row][col] === '') continue;
+                
+                const result = this.checkWin(board, row, col, bounceRuleEnabled, missingTeethRuleEnabled);
+                if (result.winner) {
+                    return {
+                        isOver: true,
+                        winner: result.winner,
+                        winningCells: result.winningCells,
+                        isDraw: false,
+                        bounceCellIndex: result.bounceCellIndex,
+                        secondBounceCellIndex: result.secondBounceCellIndex
+                    };
+                }
+            }
+        }
+        
+        // Check for a draw (full board)
+        const isDraw = this.checkDraw(board);
+        return {
+            isOver: isDraw,
+            winner: null,
+            winningCells: [],
+            isDraw,
+            bounceCellIndex: -1,
+            secondBounceCellIndex: -1
+        };
+    }
+
+    /**
+     * Check if a move results in a win
+     * @param {Array} board - 2D array representing the game board
+     * @param {number} row - Row of the move
+     * @param {number} col - Column of the move
+     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @returns {Object} - { winner, winningCells, bounceCellIndex, secondBounceCellIndex }
+     */
+    checkWin(board, row, col, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
         const player = board[row][col];
         
         // No need to check if the cell is empty
@@ -32,9 +86,8 @@ class WinChecker {
         
         // Order of checking:
         // 1. Regular win (straight line without wrapping) without missing teeth
-        // 2. Great diagonal win without missing teeth
-        // 3. Wrap win without missing teeth (if not in single row/column/great diagonal)
-        // 4. Bounce win without missing teeth (if enabled)
+        // 2. Wrap win without missing teeth (if not in single row/column/great diagonal)
+        // 3. Bounce win without missing teeth (if enabled)
         
         // 1. Check for regular win (straight line without wrapping)
         const regularWin = this.checkRegularWin(board, row, col, player, missingTeethRuleEnabled);
@@ -42,15 +95,14 @@ class WinChecker {
             return regularWin;
         }
         
-        // 2. Great diagonal win is handled within the straight line check
-        
-        // 3. Check for wrap win
+
+        // 2. Check for wrap win
         const wrapWin = this.checkWrapWin(board, row, col, player, missingTeethRuleEnabled);
         if (wrapWin.winner) {
             return wrapWin;
         }
         
-        // 4. Check for bounce win if enabled
+        // 3. Check for bounce win if enabled
         if (bounceRuleEnabled) {
             const bounceWin = this.checkBounceWin(board, row, col, player, missingTeethRuleEnabled);
             if (bounceWin.winner) {
@@ -62,7 +114,15 @@ class WinChecker {
         return { winner: null, winningCells: [], bounceCellIndex: -1, secondBounceCellIndex: -1 };
     }
     
-    // Check for a regular win (straight line without wrapping)
+    /**
+     * Check for a regular win (straight line without wrapping)
+     * @param {Array} board - 2D array representing the game board
+     * @param {number} row - Row of the move
+     * @param {number} col - Column of the move
+     * @param {string} player - Current player
+     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @returns {Object} - { winner, winningCells, bounceCellIndex, secondBounceCellIndex }
+     */
     checkRegularWin(board, row, col, player, missingTeethRuleEnabled) {
         for (const [dx, dy] of this.directions) {
             // Collect all cells in this direction (both ways)
@@ -135,7 +195,15 @@ class WinChecker {
         return { winner: null, winningCells: [], bounceCellIndex: -1, secondBounceCellIndex: -1 };
     }
     
-    // Check for a wrap win
+    /**
+     * Check for a wrap win
+     * @param {Array} board - 2D array representing the game board
+     * @param {number} row - Row of the move
+     * @param {number} col - Column of the move
+     * @param {string} player - Current player
+     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @returns {Object} - { winner, winningCells, bounceCellIndex, secondBounceCellIndex }
+     */
     checkWrapWin(board, row, col, player, missingTeethRuleEnabled) {
         for (const [dx, dy] of this.directions) {
             let winningCells = [[row, col]];
@@ -206,29 +274,294 @@ class WinChecker {
         return { winner: null, winningCells: [], bounceCellIndex: -1, secondBounceCellIndex: -1 };
     }
     
-    // Check for a bounce win
+    
+
+    /**
+     * Check for a bounce win
+     * @param {Array} board - 2D array representing the game board
+     * @param {number} row - Row of the move
+     * @param {number} col - Column of the move
+     * @param {string} player - Current player
+     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @returns {Object} - { winner, winningCells, bounceCellIndex, secondBounceCellIndex }
+     */
     checkBounceWin(board, row, col, player, missingTeethRuleEnabled) {
-        // Only check diagonal directions for bounces
-        for (const [dx, dy] of this.diagonalDirections) {
-            const bounceResult = this.checkBounceFromPosition(board, row, col, dx, dy, player, 5, missingTeethRuleEnabled);
-            
-            if (bounceResult.length >= 5) {
-                // This is a valid bounce win!
-                return {
-                    winner: player,
-                    winningCells: bounceResult.path,
-                    bounceCellIndex: bounceResult.bounceIndex,
-                    secondBounceCellIndex: bounceResult.secondBounceIndex
-                };
+        // Use the BounceUtils to find any bounce patterns
+        const result = BounceUtils.findBouncePattern(
+            board,
+            row,
+            col,
+            player,
+            this.boardSize,
+            5  // Required length for a win
+        );
+        
+        // If a valid pattern was found
+        if (result && result.path.length >= 5) {
+            // Check for missing teeth if required
+            if (missingTeethRuleEnabled && BounceUtils.hasMissingTeeth(result.path)) {
+                return { winner: null, winningCells: [], bounceCellIndex: -1, secondBounceCellIndex: -1 };
             }
+            
+            // Log bounce data for debugging
+            console.log("Bounce pattern found:", result.path);
+            console.log("Bounce indices:", result.bounceIndices);
+            
+            // Extract bounce indices, ensuring we pass exactly what the UI expects
+            const bounceCellIndex = result.bounceIndices && result.bounceIndices.length > 0 ? 
+                                result.bounceIndices[0] : -1;
+            
+            const secondBounceCellIndex = result.bounceIndices && result.bounceIndices.length > 1 ? 
+                                    result.bounceIndices[1] : -1;
+            
+            console.log("Extracted bounce indices:", bounceCellIndex, secondBounceCellIndex);
+            
+            // Return the win information with explicit bounce cell indices
+            return {
+                winner: player,
+                winningCells: result.path,
+                bounceCellIndex: bounceCellIndex,
+                secondBounceCellIndex: secondBounceCellIndex
+            };
         }
         
         // No bounce win
         return { winner: null, winningCells: [], bounceCellIndex: -1, secondBounceCellIndex: -1 };
     }
     
-    // Check for missing teeth in a line of cells
-    // Added exemptGreatDiagonal parameter to bypass check for main diagonals when true
+    /**
+     * Check for bounce patterns from a specific position
+     * @param {Array} board - 2D array representing the game board
+     * @param {number} startRow - Row of the starting position
+     * @param {number} startCol - Column of the starting position
+     * @param {number} dx - X direction for checking
+     * @param {number} dy - Y direction for checking
+     * @param {string} player - Current player ('X' or 'O')
+     * @param {number} targetLength - Target length for a winning sequence
+     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @returns {Object} - { length, path, bounceIndex, secondBounceIndex }
+     */
+    FromPosition(board, startRow, startCol, dx, dy, player, targetLength, missingTeethRuleEnabled) {
+        // Skip non-diagonal directions
+        if (dx === 0 || dy === 0) return { length: 0, path: [], bounceIndex: -1, secondBounceIndex: -1 };
+        
+        // Start with the current position
+        let path = [[startRow, startCol]];
+        let length = 1;
+        let bounceFound = false;
+        let bounceIndex = -1;
+        let secondBounceFound = false;
+        let secondBounceIndex = -1;
+        
+        // Track all cells in the path to prevent double-counting
+        const visitedCells = new Set();
+        visitedCells.add(`${startRow},${startCol}`);
+        
+        // Try both directions from the starting point
+        for (let firstDir = -1; firstDir <= 1; firstDir += 2) {
+            if (firstDir === 0) continue; // Skip center
+            
+            // Reset for this direction
+            path = [[startRow, startCol]];
+            length = 1;
+            bounceFound = false;
+            bounceIndex = -1;
+            secondBounceFound = false;
+            secondBounceIndex = -1;
+            visitedCells.clear();
+            visitedCells.add(`${startRow},${startCol}`);
+            
+            // Follow the pattern in the initial direction (without bounce)
+            let currentRow = startRow;
+            let currentCol = startCol;
+            
+            // Check up to 4 steps in the initial direction
+            for (let i = 1; i < 5 && length < targetLength; i++) {
+                const newRow = currentRow + firstDir * dx;
+                const newCol = currentCol + firstDir * dy;
+                
+                // If we hit a boundary, this is where we need to bounce
+                if (newRow < 0 || newRow >= this.boardSize || 
+                    newCol < 0 || newCol >= this.boardSize) {
+                    bounceFound = true;
+                    
+                    // Calculate bounce direction: flip the appropriate component
+                    let bounceDx = dx;
+                    let bounceDy = dy;
+                    
+                    if (newRow < 0 || newRow >= this.boardSize) bounceDx = -dx;
+                    if (newCol < 0 || newCol >= this.boardSize) bounceDy = -dy;
+                    
+                    // Now follow the bounced pattern
+                    let bounceRow = currentRow;
+                    let bounceCol = currentCol;
+                    
+                    // Check positions after the first bounce
+                    for (let j = 1; j < targetLength - i + 1 && length < targetLength; j++) {
+                        const newBounceRow = bounceRow + firstDir * bounceDx;
+                        const newBounceCol = bounceCol + firstDir * bounceDy;
+                        
+                        // Check if we hit a second boundary for double bounce
+                        if (newBounceRow < 0 || newBounceRow >= this.boardSize || 
+                            newBounceCol < 0 || newBounceCol >= this.boardSize) {
+                            
+                            // Only proceed with second bounce if we don't have 5 in a row yet
+                            if (length < targetLength) {
+                                secondBounceFound = true;
+                                
+                                // Calculate second bounce direction
+                                let secondBounceDx = bounceDx;
+                                let secondBounceDy = bounceDy;
+                                
+                                if (newBounceRow < 0 || newBounceRow >= this.boardSize) secondBounceDx = -bounceDx;
+                                if (newBounceCol < 0 || newBounceCol >= this.boardSize) secondBounceDy = -bounceDy;
+                                
+                                // Follow the second bounce pattern
+                                let secondBounceRow = bounceRow;
+                                let secondBounceCol = bounceCol;
+                                
+                                // Check positions after the second bounce
+                                for (let k = 1; k < targetLength - (i + j) + 1 && length < targetLength; k++) {
+                                    const newSecondBounceRow = secondBounceRow + firstDir * secondBounceDx;
+                                    const newSecondBounceCol = secondBounceCol + firstDir * secondBounceDy;
+                                    
+                                    // Check if we're still on the board
+                                    if (newSecondBounceRow < 0 || newSecondBounceRow >= this.boardSize || 
+                                        newSecondBounceCol < 0 || newSecondBounceCol >= this.boardSize) {
+                                        break; // Hit a third boundary, not allowed
+                                    }
+                                    
+                                    const secondBounceCellKey = `${newSecondBounceRow},${newSecondBounceCol}`;
+                                    
+                                    // Prevent double-counting cells
+                                    if (visitedCells.has(secondBounceCellKey)) {
+                                        break;
+                                    }
+                                    
+                                    if (board[newSecondBounceRow][newSecondBounceCol] === player) {
+                                        path.push([newSecondBounceRow, newSecondBounceCol]);
+                                        visitedCells.add(secondBounceCellKey);
+                                        length++;
+                                        
+                                        // Mark the first cell after the second bounce
+                                        if (secondBounceIndex === -1) {
+                                            secondBounceIndex = path.length - 1;
+                                        }
+                                        
+                                        secondBounceRow = newSecondBounceRow;
+                                        secondBounceCol = newSecondBounceCol;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                
+                                // Check if we've found a winning line after the second bounce
+                                if (length >= targetLength) {
+                                    // Fix: Store the bounce indices correctly
+                                    let firstBounceIdx = -1;
+                                    for (let idx = 1; idx < path.length; idx++) {
+                                        if (path[idx][0] !== path[idx-1][0] + firstDir * dx || 
+                                            path[idx][1] !== path[idx-1][1] + firstDir * dy) {
+                                            firstBounceIdx = idx;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    return {
+                                        length,
+                                        path,
+                                        bounceIndex: firstBounceIdx,
+                                        secondBounceIndex
+                                    };
+                                }
+                            }
+                            break; // Exit the first bounce loop
+                        }
+                        
+                        const bounceCellKey = `${newBounceRow},${newBounceCol}`;
+                        
+                        // Prevent double-counting cells
+                        if (visitedCells.has(bounceCellKey)) {
+                            break;
+                        }
+                        
+                        if (board[newBounceRow][newBounceCol] === player) {
+                            path.push([newBounceRow, newBounceCol]);
+                            visitedCells.add(bounceCellKey);
+                            length++;
+                            
+                            // Mark the first cell after the first bounce
+                            if (bounceIndex === -1) {
+                                bounceIndex = path.length - 1;
+                            }
+                            
+                            bounceRow = newBounceRow;
+                            bounceCol = newBounceCol;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    break; // Exit the pre-bounce loop
+                }
+                
+                // Continue in the initial direction if we haven't hit a boundary
+                const cellKey = `${newRow},${newCol}`;
+                
+                // Check if we're still on the board
+                if (newRow < 0 || newRow >= this.boardSize || 
+                    newCol < 0 || newCol >= this.boardSize) {
+                    break;
+                }
+                
+                if (board[newRow][newCol] === player) {
+                    path.push([newRow, newCol]);
+                    visitedCells.add(cellKey);
+                    length++;
+                    currentRow = newRow;
+                    currentCol = newCol;
+                } else {
+                    break;
+                }
+            }
+            
+            // If we found a valid pattern of the target length (with either single or double bounce)
+            if (length >= targetLength && bounceFound) {
+                // If missing teeth rule is enabled, check for gaps
+                if (missingTeethRuleEnabled) {
+                    if (this.checkForMissingTeethInBounce(board, path, player)) {
+                        continue; // Has missing teeth, not a win
+                    }
+                }
+                
+                return { 
+                    length, 
+                    path, 
+                    bounceIndex,
+                    secondBounceIndex: secondBounceFound ? secondBounceIndex : -1
+                };
+            }
+        }
+        
+        // No valid bounce pattern found
+        return { 
+            length: 0, 
+            path: [], 
+            bounceIndex: -1,
+            secondBounceIndex: -1
+        };
+    }
+    
+    /**
+     * Check for missing teeth in a line of cells
+     * @param {Array} board - 2D array representing the game board
+     * @param {Array} cells - Array of cell coordinates in the path
+     * @param {string} player - Current player
+     * @param {number} dx - X direction of the line
+     * @param {number} dy - Y direction of the line
+     * @param {boolean} exemptGreatDiagonal - Whether great diagonals are exempt from missing teeth check
+     * @returns {boolean} - Whether missing teeth are found
+     */
     checkForMissingTeeth(board, cells, player, dx, dy, exemptGreatDiagonal = false) {
         // If we're exempting great diagonals and this is a great diagonal, skip the check
         if (exemptGreatDiagonal && this.isGreatDiagonal(cells)) {
@@ -262,9 +595,6 @@ class WinChecker {
                 }
             }
         } else if (dx === dy) { // Main diagonal (top-left to bottom-right)
-            // Get the diagonal offset (constant for this diagonal)
-            const diagonalOffset = minRow - minCol;
-            
             // Check all positions in this diagonal segment
             for (let i = 0; i <= maxRow - minRow; i++) {
                 if (!occupiedPositions.has(`${minRow + i},${minCol + i}`)) {
@@ -283,214 +613,17 @@ class WinChecker {
         return false; // No missing teeth found
     }
     
-    // Check if cells are part of a great diagonal
-    isGreatDiagonal(cells) {
-        if (cells.length < 5) return false;
+    /**
+     * Check for missing teeth in a bounce pattern
+     * @param {Array} board - 2D array representing the game board
+     * @param {Array} path - Array of cell coordinates in the bounce path
+     * @param {string} player - Current player
+     * @returns {boolean} - Whether missing teeth are found
+     */
+    checkForMissingTeethInBounce(board, path, player) {
+        if (path.length < 5) return true;
         
-        // Main great diagonal (A1 to F6): cells where row == col
-        const onMainGreatDiagonal = cells.every(cell => cell[0] === cell[1]);
-        
-        // Anti great diagonal (A6 to F1): cells where row + col = boardSize - 1
-        const onAntiGreatDiagonal = cells.every(cell => cell[0] + cell[1] === this.boardSize - 1);
-        
-        return onMainGreatDiagonal || onAntiGreatDiagonal;
-    }
-    
-    // Check for bounce patterns from a specific position - UPDATED FOR DOUBLE BOUNCE
-    checkBounceFromPosition(board, startRow, startCol, dx, dy, player, targetLength, missingTeethRuleEnabled) {
-        // Skip non-diagonal directions
-        if (dx === 0 || dy === 0) return { length: 0, path: [], bounceIndex: -1, secondBounceIndex: -1 };
-        
-        // Start with the current position
-        let path = [[startRow, startCol]];
-        let length = 1;
-        let bounceFound = false;
-        let bounceIndex = -1;
-        let secondBounceFound = false;
-        let secondBounceIndex = -1;
-        
-        // Track all cells in the path to prevent double-counting
-        const visitedCells = new Set();
-        visitedCells.add(`${startRow},${startCol}`);
-        
-        // Try both directions from the starting point
-        for (let firstDir = -1; firstDir <= 1; firstDir += 2) {
-            if (firstDir === 0) continue; // Skip center
-            
-            // Reset for this direction
-            path = [[startRow, startCol]];
-            length = 1;
-            bounceFound = false;
-            bounceIndex = -1;
-            secondBounceFound = false;
-            secondBounceIndex = -1;
-            visitedCells.clear();
-            visitedCells.add(`${startRow},${startCol}`);
-            
-            // Follow the pattern in the initial direction (without bounce)
-            let currentRow = startRow;
-            let currentCol = startCol;
-            let preBounceSteps = 0;
-            
-            // Check up to 4 steps in the initial direction
-            for (let i = 1; i < 5 && length < targetLength; i++) {
-                const newRow = currentRow + firstDir * dx;
-                const newCol = currentCol + firstDir * dy;
-                
-                // If we hit a boundary, this is where we can bounce
-                if (newRow < 0 || newRow >= this.boardSize || 
-                    newCol < 0 || newCol >= this.boardSize) {
-                    bounceFound = true;
-                    bounceIndex = path.length - 1;
-                    preBounceSteps = i - 1; // Number of steps before the bounce
-                    
-                    // Calculate bounce direction: flip the appropriate component
-                    let bounceDx = dx;
-                    let bounceDy = dy;
-                    
-                    if (newRow < 0 || newRow >= this.boardSize) bounceDx = -dx;
-                    if (newCol < 0 || newCol >= this.boardSize) bounceDy = -dy;
-                    
-                    // Now follow the bounced pattern
-                    let bounceRow = currentRow;
-                    let bounceCol = currentCol;
-                    let postFirstBounceSteps = 0;
-                    
-                    // Check positions after the first bounce
-                    for (let j = 1; j < targetLength - preBounceSteps && length < targetLength; j++) {
-                        const newBounceRow = bounceRow + firstDir * bounceDx;
-                        const newBounceCol = bounceCol + firstDir * bounceDy;
-                        
-                        // Check if we hit a second boundary for double bounce
-                        if (newBounceRow < 0 || newBounceRow >= this.boardSize || 
-                            newBounceCol < 0 || newBounceCol >= this.boardSize) {
-                            
-                            // Only proceed with second bounce if we don't have 5 in a row yet
-                            if (length < targetLength) {
-                                secondBounceFound = true;
-                                secondBounceIndex = path.length - 1;
-                                postFirstBounceSteps = j - 1; // Steps after first bounce
-                                
-                                // Calculate second bounce direction
-                                let secondBounceDx = bounceDx;
-                                let secondBounceDy = bounceDy;
-                                
-                                if (newBounceRow < 0 || newBounceRow >= this.boardSize) secondBounceDx = -bounceDx;
-                                if (newBounceCol < 0 || newBounceCol >= this.boardSize) secondBounceDy = -bounceDy;
-                                
-                                // Follow the second bounce pattern
-                                let secondBounceRow = bounceRow;
-                                let secondBounceCol = bounceCol;
-                                
-                                // Check positions after the second bounce
-                                for (let k = 1; k < targetLength - preBounceSteps - postFirstBounceSteps && length < targetLength; k++) {
-                                    const newSecondBounceRow = secondBounceRow + firstDir * secondBounceDx;
-                                    const newSecondBounceCol = secondBounceCol + firstDir * secondBounceDy;
-                                    
-                                    // Check if we're still on the board
-                                    if (newSecondBounceRow < 0 || newSecondBounceRow >= this.boardSize || 
-                                        newSecondBounceCol < 0 || newSecondBounceCol >= this.boardSize) {
-                                        break; // Hit a third boundary
-                                    }
-                                    
-                                    const secondBounceCellKey = `${newSecondBounceRow},${newSecondBounceCol}`;
-                                    
-                                    // Prevent double-counting cells
-                                    if (visitedCells.has(secondBounceCellKey)) {
-                                        break;
-                                    }
-                                    
-                                    if (board[newSecondBounceRow][newSecondBounceCol] === player) {
-                                        path.push([newSecondBounceRow, newSecondBounceCol]);
-                                        visitedCells.add(secondBounceCellKey);
-                                        length++;
-                                        secondBounceRow = newSecondBounceRow;
-                                        secondBounceCol = newSecondBounceCol;
-                                    } else {
-                                        break;
-                                    }
-                                }
-                            }
-                            break; // Exit the first bounce loop
-                        }
-                        
-                        const bounceCellKey = `${newBounceRow},${newBounceCol}`;
-                        
-                        // Prevent double-counting cells
-                        if (visitedCells.has(bounceCellKey)) {
-                            break;
-                        }
-                        
-                        if (board[newBounceRow][newBounceCol] === player) {
-                            path.push([newBounceRow, newBounceCol]);
-                            visitedCells.add(bounceCellKey);
-                            length++;
-                            bounceRow = newBounceRow;
-                            bounceCol = newBounceCol;
-                        } else {
-                            break;
-                        }
-                    }
-                    
-                    break; // Exit the pre-bounce loop
-                }
-                
-                // Continue in the initial direction if we haven't hit a boundary
-                const cellKey = `${newRow},${newCol}`;
-                
-                // Check if we're still on the board
-                if (newRow < 0 || newRow >= this.boardSize || 
-                    newCol < 0 || newCol >= this.boardSize) {
-                    break;
-                }
-                
-                if (board[newRow][newCol] === player) {
-                    path.push([newRow, newCol]);
-                    visitedCells.add(cellKey);
-                    length++;
-                    currentRow = newRow;
-                    currentCol = newCol;
-                } else {
-                    break;
-                }
-            }
-            
-            // If we found a valid pattern of the target length (with either single or double bounce)
-            if (length >= targetLength && (bounceFound || secondBounceFound)) {
-                // If missing teeth rule is enabled, check for gaps
-                if (missingTeethRuleEnabled) {
-                    // For bounce patterns with great diagonals, we still need to check
-                    // since they don't follow the standard great diagonal path
-                    if (this.checkForMissingTeethInBounce(board, path, player, bounceIndex)) {
-                        continue; // Has missing teeth, not a win
-                    }
-                }
-                
-                return { 
-                    length, 
-                    path, 
-                    bounceIndex,
-                    secondBounceIndex: secondBounceFound ? secondBounceIndex : -1
-                };
-            }
-        }
-        
-        // No valid bounce pattern found
-        return { length: 0, path: [], bounceIndex: -1, secondBounceIndex: -1 };
-    }
-    
-    // Check for missing teeth in a bounce pattern
-    checkForMissingTeethInBounce(board, path, player, bounceIndex) {
-        if (path.length < 5 || bounceIndex < 0) return true;
-        
-        // For a bounce pattern, we check two segments:
-        // 1. From start to bounce point
-        // 2. From bounce point to end
-        
-        // Since bounce patterns don't have a simple linear formula like straight lines,
-        // we need to check if there are any gaps between consecutive points
-        
-        // Check for gaps in the path (missing teeth)
+        // For a bounce pattern, we check if there are any gaps between consecutive points
         for (let i = 1; i < path.length; i++) {
             const prev = path[i-1];
             const curr = path[i];
@@ -507,8 +640,29 @@ class WinChecker {
         
         return false; // No missing teeth found
     }
-
-    // Check if the board is full (draw)
+    
+    /**
+     * Check if cells are part of a great diagonal
+     * @param {Array} cells - Array of cell coordinates [row, col]
+     * @returns {boolean} - Whether the cells are part of a great diagonal
+     */
+    isGreatDiagonal(cells) {
+        if (cells.length < 3) return false;
+        
+        // Main great diagonal (A1 to F6): cells where row == col
+        const onMainGreatDiagonal = cells.every(cell => cell[0] === cell[1]);
+        
+        // Anti great diagonal (A6 to F1): cells where row + col = boardSize - 1
+        const onAntiGreatDiagonal = cells.every(cell => cell[0] + cell[1] === this.boardSize - 1);
+        
+        return onMainGreatDiagonal || onAntiGreatDiagonal;
+    }
+    
+    /**
+     * Check if the board is full (draw)
+     * @param {Array} board - 2D array representing the game board
+     * @returns {boolean} - Whether the board is full
+     */
     checkDraw(board) {
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
@@ -520,20 +674,37 @@ class WinChecker {
         return true;
     }
     
-    // Check the game state (for AI)
-    checkGameWinner(boardState, bounceRuleEnabled, missingTeethRuleEnabled) {
-        // Check all occupied cells
+    /**
+     * Get a winning move for a player if one exists
+     * @param {Array} board - 2D array representing the game board
+     * @param {string} player - Player to check for ('X' or 'O')
+     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @returns {Object|null} - { row, col } of winning move or null if none exists
+     */
+    findWinningMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+        // Make a copy of the board to simulate moves
+        const tempBoard = board.map(row => [...row]);
+        
+        // Try each empty cell
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
-                if (boardState[row][col] === '') continue;
-                
-                const result = this.checkWin(boardState, row, col, bounceRuleEnabled, missingTeethRuleEnabled);
-                if (result.winner) {
-                    return result.winner;
+                if (tempBoard[row][col] === '') {
+                    // Place the player's marker
+                    tempBoard[row][col] = player;
+                    
+                    // Check if this move would win
+                    const result = this.checkWin(tempBoard, row, col, bounceRuleEnabled, missingTeethRuleEnabled);
+                    if (result.winner === player) {
+                        return { row, col };
+                    }
+                    
+                    // Reset the cell
+                    tempBoard[row][col] = '';
                 }
             }
         }
         
-        return null; // No winner yet
+        return null;
     }
 }

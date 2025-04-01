@@ -47,7 +47,7 @@ h1 {
 }
 
 .board::after {
-    content: attr(style);
+    content: attr(data-size-info);
     position: absolute;
     bottom: -15px;
     left: 0;
@@ -122,8 +122,19 @@ h1 {
     position: absolute;
     top: -10px;
     right: 0px;
-    font-size: 30px;
-    color: #ffffff;
+    font-size: 20px;
+    color: #9b59b6;
+}
+
+.bounce-cell-second {
+    background-color: #f39c12 !important;
+}
+
+.bounce-cell-second::after {
+    color: #9b59b6;
+    content: "↻";
+    top: -10px;
+    right: 2px;
 }
 
 .score-board {

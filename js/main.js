@@ -1,50 +1,71 @@
 /**
- * main.js - Direct approach to board sizing
+ * main.js - Entry point for the Kalida game
  */
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Constants for the game
+    console.log('Initializing Kalida game...');
+    
+    // Constants
     const BOARD_SIZE = 6; // 6x6 grid for Kalida
     
-    // Create a new Game instance
-    const kalidaGame = new Game(BOARD_SIZE);
-    
-    // Direct board size control without CSS variables
-    const boardSizeSlider = document.getElementById('board-size-slider');
-    const sizeValueDisplay = document.getElementById('size-value');
-    const gameBoard = document.getElementById('game-board');
-    
-    if (boardSizeSlider && sizeValueDisplay && gameBoard) {
-        console.log('Setting up direct board sizing');
+    try {
+        // Create core components
+        const rules = new Rules(BOARD_SIZE);
+        const board = new Board(BOARD_SIZE);
+        const game = new Game(BOARD_SIZE);
         
-        // Initialize with current value
-        const initialSize = boardSizeSlider.value;
-        sizeValueDisplay.textContent = `${initialSize}%`;
+        // Create AI factory
+        const boardEvaluator = new BoardEvaluator(BOARD_SIZE, rules);
+        const threatDetector = new ThreatDetector(BOARD_SIZE, rules);
+        const aiFactory = new AIFactory(BOARD_SIZE, rules);
         
-        // Apply initial size directly to the board element
-        gameBoard.style.width = `${initialSize}%`;
+        // Set AI factory on game if needed
+        if (typeof game.setAIFactory === 'function') {
+            game.setAIFactory(aiFactory);
+        }
         
-        // Update when slider moves
-        // Update main.js slider event listener
-        boardSizeSlider.addEventListener('input', function() {
-            const percentage = this.value;
-            sizeValueDisplay.textContent = `${percentage}%`;
-            
-            // Calculate actual pixel width based on default max width
-            const defaultMaxWidth = 400; // Same as in CSS
-            const pixelWidth = (percentage / 100) * defaultMaxWidth;
-            
-            // Set specific pixel width
-            gameBoard.style.width = `${pixelWidth}px`;
-            console.log('New width in pixels:', pixelWidth);
+        // Create UI components
+        const boardUI = new BoardUI('game-board', BOARD_SIZE, (row, col) => {
+            game.makeMove(row, col);
         });
-    } else {
-        console.error('Required elements not found!');
-        console.log('Slider found:', !!boardSizeSlider);
-        console.log('Size display found:', !!sizeValueDisplay);
-        console.log('Game board found:', !!gameBoard);
+        
+        // Create game UI and connect to game instance
+        const gameUI = new GameUI(game);
+        
+        // Add board resize slider functionality
+        const sizeSlider = document.getElementById('board-size-slider');
+        const sizeValue = document.getElementById('size-value');
+        
+        if (sizeSlider && sizeValue) {
+            // Set initial size
+            boardUI.resize(sizeSlider.value);
+            
+            // Add event listener for slider changes
+            sizeSlider.addEventListener('input', () => {
+                const newSize = sizeSlider.value;
+                boardUI.resize(newSize);
+                sizeValue.textContent = `${newSize}%`;
+            });
+        }
+        
+        // Initialize the game
+        game.initialize();
+        
+        console.log('Kalida game initialized successfully!');
+        
+        // Export key components to window for debugging if needed
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            window._kalida = {
+                game,
+                rules,
+                board,
+                boardUI,
+                gameUI,
+                aiFactory
+            };
+            console.log('Debug objects exposed as window._kalida');
+        }
+    } catch (error) {
+        console.error('Error initializing Kalida game:', error);
+        console.error('Stack trace:', error.stack);
     }
-    
-    // Game is now initialized and ready to play
-    console.log('Kalida game initialized!');
 });
