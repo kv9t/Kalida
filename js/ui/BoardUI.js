@@ -146,8 +146,9 @@ class BoardUI {
      * @param {Array} winningCells - Array of [row, col] pairs
      * @param {number} bounceCellIndex - Index of the bounce cell in the winning pattern
      * @param {number} secondBounceCellIndex - Index of the second bounce cell
+     * @param {Object} lastMove - The last move that caused the win { row, col, player }
      */
-    highlightWinningCells(winningCells, bounceCellIndex = -1, secondBounceCellIndex = -1) {
+    highlightWinningCells(winningCells, bounceCellIndex = -1, secondBounceCellIndex = -1, lastMove = null) {
         if (!winningCells || winningCells.length === 0) return;
         
         // Clear any existing highlights
@@ -179,6 +180,13 @@ class BoardUI {
                         cellElement.classList.add('bounce-cell');
                         cellElement.classList.add('bounce-cell-second');
                     }
+
+                    // If this is the last move that caused the win, add a special class
+                    if (lastMove && row === lastMove.row && col === lastMove.col) {
+                        console.log("Highlighting final winning move at", row, col);
+                        cellElement.classList.add('winning-move');
+                    }
+
                 }, i * 50); // Stagger the animation
             }
         });
@@ -194,7 +202,8 @@ class BoardUI {
                 'last-move-x', 
                 'last-move-o', 
                 'bounce-cell',
-                'bounce-cell-second'
+                'bounce-cell-second',
+                'winning-move'
             );
         });
     }

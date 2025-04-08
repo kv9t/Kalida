@@ -113,7 +113,7 @@ h1 {
 }
 
 .bounce-cell {
-    background-color: #f39c12;
+    background-color: #FFD580;
     position: relative;
 }
 
@@ -127,7 +127,7 @@ h1 {
 }
 
 .bounce-cell-second {
-    background-color: #f39c12 !important;
+    background-color: #FFD580 !important;
 }
 
 .bounce-cell-second::after {
@@ -136,6 +136,37 @@ h1 {
     top: -10px;
     right: 2px;
 }
+
+/* Styles for highlighting the winning move */
+.winning-move {
+    position: relative;
+    border: 3px solid #ffca28 !important; /* Gold border */
+    box-shadow: 0 0 10px #8a12f3 !important; /* Gold glow */
+    z-index: 10;
+}
+
+/* Add a star or marker to indicate the winning move */
+.winning-move::after {
+    content: "★";  /* Unicode star character */
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 14px;
+    color: #ffca28;
+    text-shadow: 0 0 3px #000;
+}
+
+/* Make it pulse to draw attention */
+@keyframes winning-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.winning-move {
+    animation: winning-pulse 1.5s infinite;
+}
+
 
 .score-board {
     display: flex;

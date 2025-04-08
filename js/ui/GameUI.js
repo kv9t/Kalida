@@ -159,7 +159,8 @@ class GameUI {
                     this.boardUI.highlightWinningCells(
                         data.winningCells,
                         data.bounceCellIndex,
-                        data.secondBounceCellIndex
+                        data.secondBounceCellIndex,
+                        data.lastMove  // Pass the last move to the highlightWinningCells method
                     );
                 }
             } else {

@@ -94,7 +94,8 @@ class Game {
                     winningCells: gameStatus.winningCells,
                     bounceCellIndex: gameStatus.bounceCellIndex,
                     secondBounceCellIndex: gameStatus.secondBounceCellIndex,
-                    board: this.board.getState()
+                    board: this.board.getState(),
+                    lastMove: this.lastMove  // Add the last move that caused the win
                 });
                 
                 // Update scores
