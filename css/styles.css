@@ -450,6 +450,98 @@ button:hover {
     width: 150px;
 }
 
+/* Add these styles to styles.css */
+
+/* Knight move indicator in player turn display */
+.knight-move-indicator {
+    background-color: #9b59b6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-size: 0.9em;
+    animation: pulse 1.5s infinite;
+    display: inline-block;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+/* Valid knight moves */
+.valid-knight-move {
+    position: relative;
+    border: 2px dashed #9b59b6 !important;
+    background-color: rgba(155, 89, 182, 0.15) !important;
+}
+
+.valid-knight-move::before {
+    content: "♘";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 14px;
+    color: #9b59b6;
+}
+
+/* Invalid moves when knight move is required */
+.invalid-move {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+.invalid-move:hover {
+    background-color: #f8d7da !important; /* Light red */
+}
+
+.invalid-move-hover {
+    background-color: #f8d7da !important;
+    cursor: not-allowed !important;
+}
+
+/* Board state when knight move is required */
+.knight-move-required {
+    position: relative;
+}
+
+.knight-move-required::before {
+    content: "Knight Move Required";
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #9b59b6;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+/* First move reference (origin of knight move) */
+.first-move-reference {
+    box-shadow: 0 0 0 3px #9b59b6 !important;
+    position: relative;
+    z-index: 5;
+}
+
+.first-move-reference::after {
+    content: "Origin";
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #9b59b6;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
 @media (max-width: 600px) {
     .score-container {
         flex-direction: column;

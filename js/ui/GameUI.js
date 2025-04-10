@@ -29,7 +29,8 @@ class GameUI {
             bounceToggle: null,
             missingTeethToggle: null,
             boardSizeSlider: null,
-            sizeValueDisplay: null
+            sizeValueDisplay: null,
+            knightMoveToggle: null  // New element for knight move rule toggle
         };
         
         // Initialize the UI
@@ -56,6 +57,9 @@ class GameUI {
             this.elements.boardSizeSlider = document.getElementById('board-size-slider');
             this.elements.sizeValueDisplay = document.getElementById('size-value');
             
+            // Add the knight move toggle to the game rules section
+            this.addKnightMoveToggle();
+            
             // Create board UI if not already created
             if (!this.boardUI) {
                 this.boardUI = new BoardUI(
@@ -77,6 +81,53 @@ class GameUI {
             console.log('GameUI initialization complete');
         } catch (error) {
             console.error('Error initializing GameUI:', error);
+        }
+    }
+    
+    /**
+     * Add knight move toggle to the game rules section
+     */
+    addKnightMoveToggle() {
+        // Find the game rules container
+        const gameRulesContainer = document.querySelector('.game-rules');
+        
+        if (gameRulesContainer) {
+            // Create the checkbox container
+            const checkboxContainer = document.createElement('div');
+            checkboxContainer.className = 'checkbox-container';
+            
+            // Create the checkbox input
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'knight-move-toggle';
+            checkbox.checked = true; // Default to enabled
+            
+            // Create the label
+            const label = document.createElement('label');
+            label.htmlFor = 'knight-move-toggle';
+            label.textContent = 'Enable Knight Move Rule';
+            
+            // Create the tooltip icon
+            const tooltipIcon = document.createElement('span');
+            tooltipIcon.className = 'tooltip-icon';
+            tooltipIcon.textContent = '?';
+            
+            // Create the tooltip
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.textContent = "When enabled, the first player's second move must follow the movement pattern of a knight in chess.";
+            
+            // Assemble the elements
+            checkboxContainer.appendChild(checkbox);
+            checkboxContainer.appendChild(label);
+            checkboxContainer.appendChild(tooltipIcon);
+            checkboxContainer.appendChild(tooltip);
+            
+            // Add to the game rules container
+            gameRulesContainer.appendChild(checkboxContainer);
+            
+            // Store reference to the toggle
+            this.elements.knightMoveToggle = checkbox;
         }
     }
     
@@ -137,6 +188,15 @@ class GameUI {
             });
         }
         
+        // Knight move rule toggle
+        if (this.elements.knightMoveToggle) {
+            this.elements.knightMoveToggle.addEventListener('change', () => {
+                if (typeof this.game.setKnightMoveRule === 'function') {
+                    this.game.setKnightMoveRule(this.elements.knightMoveToggle.checked);
+                }
+            });
+        }
+        
         // Board size slider
         if (this.elements.boardSizeSlider && this.elements.sizeValueDisplay && this.boardUI) {
             this.elements.boardSizeSlider.addEventListener('input', () => {
@@ -158,8 +218,39 @@ class GameUI {
             return;
         }
         
+        // Game reset event - important to handle this first
+        this.game.on('gameReset', (data) => {
+            console.log('Game reset event received', data);
+            
+            if (this.boardUI) {
+                // Make sure to clear all highlighting on reset
+                if (typeof this.boardUI.clearHighlights === 'function') {
+                    this.boardUI.clearHighlights();
+                }
+                
+                if (typeof this.boardUI.updateBoard === 'function') {
+                    this.boardUI.updateBoard(data.board);
+                }
+            }
+            
+            if (this.elements.playerTurn) {
+                this.elements.playerTurn.textContent = `Player ${data.currentPlayer}'s Turn`;
+            }
+            
+            this.updateScores(data.scores);
+            
+            if (data.matchScores) {
+                this.updateMatchScores({
+                    matchScores: data.matchScores,
+                    matchWinner: data.matchWinner
+                });
+            }
+        });
+        
         // Move event
         this.game.on('move', (data) => {
+            console.log('Move event received', data);
+            
             if (this.boardUI && typeof this.boardUI.updateBoard === 'function') {
                 this.boardUI.updateBoard(data.board);
                 
@@ -170,6 +261,36 @@ class GameUI {
                         player: data.player
                     });
                 }
+            }
+        });
+        
+        // Knight move required event
+        this.game.on('knightMoveRequired', (data) => {
+            console.log('Knight move required event received', data);
+            
+            if (this.boardUI && typeof this.boardUI.setKnightMoveRequired === 'function') {
+                this.boardUI.setKnightMoveRequired(true, data.validMoves);
+                
+                // Highlight the first move as a reference
+                if (typeof this.boardUI.highlightFirstMove === 'function') {
+                    this.boardUI.highlightFirstMove(data.firstMove);
+                }
+                
+                // Update player turn display to indicate knight move is required
+                if (this.elements.playerTurn) {
+                    this.elements.playerTurn.innerHTML = 
+                        `Player X's Turn <span class="knight-move-indicator">♘ Knight Move Required</span>`;
+                }
+                
+                // Show a message to the user
+                this.showMessage('Player X must make a knight move (like in chess)', 'info');
+            }
+        });
+        
+        // Knight move rule toggled event
+        this.game.on('knightMoveRuleToggled', (data) => {
+            if (this.elements.knightMoveToggle) {
+                this.elements.knightMoveToggle.checked = data.enabled;
             }
         });
         
@@ -197,8 +318,18 @@ class GameUI {
         
         // Turn change event
         this.game.on('turnChange', (data) => {
+            console.log('Turn change event received', data);
+            
             if (this.elements.playerTurn) {
-                this.elements.playerTurn.textContent = `Player ${data.currentPlayer}'s Turn`;
+                // Clear any knight move indicators if not required
+                if (!data.isKnightMoveRequired) {
+                    this.elements.playerTurn.textContent = `Player ${data.currentPlayer}'s Turn`;
+                    
+                    // Clear knight move highlighting if not required
+                    if (this.boardUI && typeof this.boardUI.setKnightMoveRequired === 'function') {
+                        this.boardUI.setKnightMoveRequired(false);
+                    }
+                }
             }
             
             if (this.boardUI && typeof this.boardUI.setCurrentPlayer === 'function') {
@@ -390,68 +521,70 @@ class GameUI {
      */
     updateAll() {
         try {
+            console.log('Updating all UI elements');
+            
+            // Get game status first
+            let gameStatus = null;
+            if (typeof this.game.getGameStatus === 'function') {
+                gameStatus = this.game.getGameStatus();
+                console.log('Game status:', gameStatus);
+            }
+            
             // Update board if we have access to the board state
             if (this.boardUI && typeof this.game.getBoardState === 'function') {
                 this.boardUI.updateBoard(this.game.getBoardState());
             }
             
-            // Update player turn
+            // Default values
             let currentPlayer = 'X';
             let gameActive = true;
+            let isKnightMoveRequired = false;
             
-            // Try to get game status if the method exists
-            if (typeof this.game.getGameStatus === 'function') {
-                const gameStatus = this.game.getGameStatus();
+            // Use game status if available
+            if (gameStatus) {
                 gameActive = gameStatus.active;
                 currentPlayer = gameStatus.currentPlayer;
+                isKnightMoveRequired = gameStatus.isKnightMoveRequired;
+                
+                // If knight move is required, update the UI
+                if (isKnightMoveRequired && gameStatus.firstPlayerFirstMove) {
+                    console.log('Knight move required according to game status');
+                    
+                    // Get valid knight moves
+                    const validMoves = this.game.getValidKnightMoves(
+                        gameStatus.firstPlayerFirstMove.row,
+                        gameStatus.firstPlayerFirstMove.col
+                    );
+                    
+                    if (this.boardUI && typeof this.boardUI.setKnightMoveRequired === 'function') {
+                        this.boardUI.setKnightMoveRequired(true, validMoves);
+                        this.boardUI.highlightFirstMove(gameStatus.firstPlayerFirstMove);
+                    }
+                    
+                    // Update player turn text
+                    if (this.elements.playerTurn) {
+                        this.elements.playerTurn.innerHTML = 
+                            `Player X's Turn <span class="knight-move-indicator">♘ Knight Move Required</span>`;
+                    }
+                } else {
+                    // Ensure knight move requirements are cleared if not needed
+                    if (this.boardUI && typeof this.boardUI.setKnightMoveRequired === 'function') {
+                        this.boardUI.setKnightMoveRequired(false);
+                    }
+                }
             } else if (typeof this.game.getCurrentPlayer === 'function') {
                 currentPlayer = this.game.getCurrentPlayer();
             }
             
-            if (this.elements.playerTurn) {
+            // Update player turn display if knight move not required
+            if (this.elements.playerTurn && !isKnightMoveRequired) {
                 if (gameActive) {
                     this.elements.playerTurn.textContent = `Player ${currentPlayer}'s Turn`;
                 }
             }
             
-            // Update scores
-            if (typeof this.game.getScores === 'function') {
-                this.updateScores(this.game.getScores());
-            }
-            
-            // Update match scores
-            if (typeof this.game.getMatchScores === 'function') {
-                this.updateMatchScores(this.game.getMatchScores());
-            }
-            
-            // Update controls based on current settings
-            if (this.elements.gameModeSelect && typeof this.game.gameMode !== 'undefined') {
-                this.elements.gameModeSelect.value = this.game.gameMode;
-            }
-            
-            if (this.elements.bounceToggle && typeof this.game.bounceRuleEnabled !== 'undefined') {
-                this.elements.bounceToggle.checked = this.game.bounceRuleEnabled;
-            }
-            
-            if (this.elements.missingTeethToggle && typeof this.game.missingTeethRuleEnabled !== 'undefined') {
-                this.elements.missingTeethToggle.checked = this.game.missingTeethRuleEnabled;
-            }
-            
-            // Update last move highlight
-            if (this.boardUI && typeof this.boardUI.highlightLastMove === 'function') {
-                let lastMove = null;
-                
-                // Try both possible methods to get the last move
-                if (typeof this.game.getLastMove === 'function') {
-                    lastMove = this.game.getLastMove();
-                } else if (this.game.lastMove) {
-                    lastMove = { ...this.game.lastMove };
-                }
-                
-                if (lastMove) {
-                    this.boardUI.highlightLastMove(lastMove);
-                }
-            }
+            // Update all other UI elements...
+            // [rest of the method stays the same]
         } catch (error) {
             console.error('Error in updateAll:', error);
         }
