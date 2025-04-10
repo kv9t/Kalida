@@ -34,9 +34,22 @@
     
     <div class="player-turn">Player X's Turn</div>
     
-    <div class="score-board">
-        <div class="score">Player X: <span id="score-x">0</span></div>
-        <div class="score">Player O: <span id="score-o">0</span></div>
+    <div class="score-container">
+        <!-- Round scores -->
+        <div class="score-board">
+            <div class="score-header">Round Wins</div>
+            <div class="score">Player X: <span id="score-x">0</span></div>
+            <div class="score">Player O: <span id="score-o">0</span></div>
+            <button id="clear-scores-button">Clear Scores</button>
+        </div>
+        
+        <!-- Match scores -->
+        <div class="score-board match-score-board">
+            <div class="score-header">Matches Won</div>
+            <div class="score">Player X: <span id="match-score-x">0</span></div>
+            <div class="score">Player O: <span id="match-score-o">0</span></div>
+            <div class="match-status" id="match-status">First to 8 (win by 2)</div>
+        </div>
     </div>
     
     <div class="board" id="game-board"></div>
@@ -91,6 +104,13 @@
             </li>
             <li><strong>Bounce (Optional):</strong> When enabled, diagonals can also "bounce" off edges to form a winning line. A bounced diagonal changes direction but continues the line. Up to two bounces are allowed per winning line. Each square can only be counted once in a winning pattern (no revisiting squares).</li>
             <li><strong>Missing Teeth (Optional):</strong> When enabled, a winning line cannot have any gaps or opponent's pieces in it when on a full row or column. However, wrapping lines can still have gaps.</li>
+        </ul>
+        <p><strong>Match Scoring System:</strong></p>
+        <ul>
+            <li><strong>Round Wins:</strong> Each time a player wins a game, they get a point in the Round Wins counter.</li>
+            <li><strong>Match Win:</strong> A player wins a match when they reach 8 round wins AND have at least 2 more wins than their opponent.</li>
+            <li><strong>Matches Won:</strong> After winning a match, the player's Match counter increments by one.</li>
+            <li><strong>Example:</strong> If Player X has 8 wins and Player O has 7 wins, the match continues until either Player X reaches 9 wins (winning by 2) or Player O catches up.</li>
         </ul>
         <p>Have fun!</p>
     </div>

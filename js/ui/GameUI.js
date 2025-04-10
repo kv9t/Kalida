@@ -20,7 +20,11 @@ class GameUI {
             playerTurn: null,
             scoreX: null,
             scoreO: null,
+            matchScoreX: null,
+            matchScoreO: null,
+            matchStatus: null,
             resetButton: null,
+            clearScoresButton: null,
             gameModeSelect: null,
             bounceToggle: null,
             missingTeethToggle: null,
@@ -41,7 +45,11 @@ class GameUI {
             this.elements.playerTurn = document.querySelector('.player-turn');
             this.elements.scoreX = document.getElementById('score-x');
             this.elements.scoreO = document.getElementById('score-o');
+            this.elements.matchScoreX = document.getElementById('match-score-x');
+            this.elements.matchScoreO = document.getElementById('match-score-o');
+            this.elements.matchStatus = document.getElementById('match-status');
             this.elements.resetButton = document.getElementById('reset-button');
+            this.elements.clearScoresButton = document.getElementById('clear-scores-button');
             this.elements.gameModeSelect = document.getElementById('game-mode-select');
             this.elements.bounceToggle = document.getElementById('bounce-toggle');
             this.elements.missingTeethToggle = document.getElementById('missing-teeth-toggle');
@@ -79,7 +87,24 @@ class GameUI {
         // Reset button
         if (this.elements.resetButton) {
             this.elements.resetButton.addEventListener('click', () => {
+                // Change button text back to normal if it was modified
+                if (this.elements.resetButton.textContent !== 'New Game') {
+                    this.elements.resetButton.textContent = 'New Game';
+                    this.elements.resetButton.classList.remove('new-match-button');
+                }
+                
                 this.game.resetGame();
+            });
+        }
+        
+        // Clear scores button
+        if (this.elements.clearScoresButton) {
+            this.elements.clearScoresButton.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all scores?')) {
+                    if (typeof this.game.clearScores === 'function') {
+                        this.game.clearScores();
+                    }
+                }
             });
         }
         
@@ -186,6 +211,29 @@ class GameUI {
             this.updateScores(data.scores);
         });
         
+        // Match score update event
+        this.game.on('matchScoreUpdate', (data) => {
+            this.updateMatchScores(data);
+        });
+        
+        // Match won event
+        this.game.on('matchWon', (data) => {
+            // Show prominent victory message
+            this.showMatchVictory(data.winner);
+            
+            // Update UI
+            this.updateMatchScores({
+                matchScores: data.matchScores,
+                matchWinner: data.winner
+            });
+            
+            // Change the reset button to indicate starting a new match
+            if (this.elements.resetButton) {
+                this.elements.resetButton.textContent = 'Start New Match';
+                this.elements.resetButton.classList.add('new-match-button');
+            }
+        });
+        
         // Game reset event
         this.game.on('gameReset', (data) => {
             if (this.boardUI) {
@@ -203,6 +251,13 @@ class GameUI {
             }
             
             this.updateScores(data.scores);
+            
+            if (data.matchScores) {
+                this.updateMatchScores({
+                    matchScores: data.matchScores,
+                    matchWinner: data.matchWinner
+                });
+            }
         });
         
         // AI thinking event
@@ -246,6 +301,91 @@ class GameUI {
     }
     
     /**
+     * Display a match victory celebration
+     * @param {string} winner - The winner of the match
+     */
+    showMatchVictory(winner) {
+        // Show a special victory message
+        this.showMessage(`🏆 Player ${winner} has won the match! 🏆`, 'victory');
+        
+        // Add match winner notification to player turn text
+        if (this.elements.playerTurn) {
+            this.elements.playerTurn.innerHTML = 
+                `<span class="match-champion">Player ${winner} is the Match Champion!</span>`;
+        }
+        
+        // You could add a confetti effect here in the future
+    }
+    
+    /**
+     * Update match scores display
+     * @param {Object} data - Match data { matchScores, matchWinner, roundScores }
+     */
+    updateMatchScores(data) {
+        // Update match scores - these are matches won (not rounds won)
+        if (this.elements.matchScoreX) {
+            this.elements.matchScoreX.textContent = data.matchScores?.X || 0;
+        }
+        
+        if (this.elements.matchScoreO) {
+            this.elements.matchScoreO.textContent = data.matchScores?.O || 0;
+        }
+        
+        // Update match status message
+        if (this.elements.matchStatus) {
+            if (data.matchWinner) {
+                // There's a winner for the current match sequence
+                this.elements.matchStatus.textContent = `Player ${data.matchWinner} wins the match!`;
+                this.elements.matchStatus.classList.add('match-winner');
+                
+                // Change the reset button text to indicate starting a new match
+                if (this.elements.resetButton) {
+                    this.elements.resetButton.textContent = 'Start New Match';
+                    this.elements.resetButton.classList.add('new-match-button');
+                }
+            } else {
+                // Calculate progress toward match win
+                const roundScores = data.roundScores || { X: 0, O: 0 };
+                const xScore = roundScores.X || 0;
+                const oScore = roundScores.O || 0;
+                const threshold = this.game.matchWinThreshold || 8;
+                const margin = this.game.matchWinMargin || 2;
+                
+                // Show progress toward match win
+                if (xScore >= threshold && xScore - oScore === margin - 1) {
+                    this.elements.matchStatus.textContent = "Player X needs 1 more win for match!";
+                } else if (oScore >= threshold && oScore - xScore === margin - 1) {
+                    this.elements.matchStatus.textContent = "Player O needs 1 more win for match!";
+                } else if (xScore >= threshold - 1 && oScore <= xScore - margin + 1) {
+                    this.elements.matchStatus.textContent = "Player X nearing match win!";
+                } else if (oScore >= threshold - 1 && xScore <= oScore - margin + 1) {
+                    this.elements.matchStatus.textContent = "Player O nearing match win!";
+                } else {
+                    // Show progress toward threshold
+                    const xNeeded = threshold - xScore;
+                    const oNeeded = threshold - oScore;
+                    
+                    if (xNeeded <= 3 && xNeeded < oNeeded) {
+                        this.elements.matchStatus.textContent = `X needs ${xNeeded} more for potential match`;
+                    } else if (oNeeded <= 3 && oNeeded < xNeeded) {
+                        this.elements.matchStatus.textContent = `O needs ${oNeeded} more for potential match`;
+                    } else {
+                        this.elements.matchStatus.textContent = `First to ${threshold} (win by ${margin})`;
+                    }
+                }
+                
+                this.elements.matchStatus.classList.remove('match-winner');
+                
+                // Reset the button text if it was changed
+                if (this.elements.resetButton && this.elements.resetButton.textContent !== 'New Game') {
+                    this.elements.resetButton.textContent = 'New Game';
+                    this.elements.resetButton.classList.remove('new-match-button');
+                }
+            }
+        }
+    }
+    
+    /**
      * Update all UI elements based on current game state
      */
     updateAll() {
@@ -277,6 +417,11 @@ class GameUI {
             // Update scores
             if (typeof this.game.getScores === 'function') {
                 this.updateScores(this.game.getScores());
+            }
+            
+            // Update match scores
+            if (typeof this.game.getMatchScores === 'function') {
+                this.updateMatchScores(this.game.getMatchScores());
             }
             
             // Update controls based on current settings
@@ -315,7 +460,7 @@ class GameUI {
     /**
      * Display a game message to the user
      * @param {string} message - Message to display
-     * @param {string} type - Message type ('info', 'success', 'error')
+     * @param {string} type - Message type ('info', 'success', 'error', 'victory')
      */
     showMessage(message, type = 'info') {
         try {
@@ -349,6 +494,9 @@ class GameUI {
             // Add to container
             messageContainer.appendChild(messageElement);
             
+            // For victory messages, keep them visible longer
+            const displayTime = type === 'victory' ? 8000 : 3000;
+            
             // Remove after delay
             setTimeout(() => {
                 messageElement.classList.add('message-fade');
@@ -357,7 +505,7 @@ class GameUI {
                         messageElement.parentNode.removeChild(messageElement);
                     }
                 }, 500);
-            }, 3000);
+            }, displayTime);
         } catch (error) {
             console.error('Error showing message:', error);
         }

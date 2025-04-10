@@ -12,7 +12,17 @@ class Game {
         this.rules = new Rules(boardSize);
         this.currentPlayer = 'X';
         this.gameActive = true;
+        
+        // Round scores - single game wins
         this.scores = { 'X': 0, 'O': 0 };
+        
+        // Match scores - tracking of matches won (when a player reaches 8 round wins with 2+ margin)
+        this.matchScores = { 'X': 0, 'O': 0 };
+        this.matchWinThreshold = 8; // Need 8 round wins to potentially win a match
+        this.matchWinMargin = 2;    // Must have 2 more round wins than opponent
+        this.matchWinner = null;    // Tracks if current round sequence has a match winner
+        this.matchJustWon = false;  // Flag to track if a match was just won (for resetting on next game)
+        
         this.lastMove = null;
         this.bounceRuleEnabled = true;
         this.missingTeethRuleEnabled = true;
@@ -29,6 +39,8 @@ class Game {
             'gameEnd': [],
             'turnChange': [],
             'scoreUpdate': [],
+            'matchScoreUpdate': [], // New event for match score updates
+            'matchWon': [],         // New event for when a match is won
             'gameReset': [],
             'aiThinking': [],
             'aiMoveComplete': []
@@ -43,7 +55,9 @@ class Game {
         this.triggerEvent('gameReset', {
             board: this.board.getState(),
             currentPlayer: this.currentPlayer,
-            scores: { ...this.scores }
+            scores: { ...this.scores },
+            matchScores: { ...this.matchScores },
+            matchWinner: this.matchWinner
         });
     }
     
@@ -85,8 +99,11 @@ class Game {
             this.gameActive = false;
             
             if (gameStatus.winner) {
-                // Handle win
+                // Update round score
                 this.scores[gameStatus.winner]++;
+                
+                // Check if this round win leads to a match win
+                this.checkForMatchWin(gameStatus.winner);
                 
                 this.triggerEvent('gameEnd', {
                     type: 'win',
@@ -126,6 +143,83 @@ class Game {
         }
         
         return true;
+    }
+    
+    /**
+     * Check if a player has won a match based on round wins
+     * @param {string} lastWinner - The player who just won a round ('X' or 'O')
+     */
+    checkForMatchWin(lastWinner) {
+        // Only check if no one has won the match yet
+        if (this.matchWinner === null) {
+            const opponent = lastWinner === 'X' ? 'O' : 'X';
+            const playerRoundWins = this.scores[lastWinner];
+            const opponentRoundWins = this.scores[opponent];
+            
+            // Check if player has reached win threshold and has required margin
+            if (playerRoundWins >= this.matchWinThreshold && 
+                (playerRoundWins - opponentRoundWins) >= this.matchWinMargin) {
+                
+                // This player has won the match!
+                this.matchWinner = lastWinner;
+                
+                // Increment their match score
+                this.matchScores[lastWinner]++;
+                
+                // Set flag that match was just won - scores will be reset on next game start
+                this.matchJustWon = true;
+                
+                // Trigger match won event
+                this.triggerEvent('matchWon', {
+                    winner: lastWinner,
+                    matchScores: { ...this.matchScores }
+                });
+                
+                // Trigger match score update
+                this.triggerEvent('matchScoreUpdate', {
+                    matchScores: { ...this.matchScores },
+                    matchWinner: this.matchWinner,
+                    roundScores: { ...this.scores }
+                });
+            } else {
+                // Just update the UI to show how close we are to a match win
+                this.triggerEvent('matchScoreUpdate', {
+                    matchScores: { ...this.matchScores },
+                    matchWinner: null,
+                    roundScores: { ...this.scores }
+                });
+            }
+        }
+    }
+    
+    /**
+     * Reset the game
+     */
+    resetGame() {
+        // If a match was just won, reset round scores before starting new game
+        if (this.matchJustWon) {
+            this.scores = { 'X': 0, 'O': 0 };
+            this.matchWinner = null;
+            this.matchJustWon = false;
+        }
+        
+        this.board.reset();
+        this.currentPlayer = 'X';
+        this.gameActive = true;
+        this.lastMove = null;
+        
+        this.triggerEvent('gameReset', {
+            board: this.board.getState(),
+            currentPlayer: this.currentPlayer,
+            scores: { ...this.scores },
+            matchScores: { ...this.matchScores },
+            matchWinner: this.matchWinner
+        });
+        
+        // If playing against computer and computer goes first, make a move
+        if (this.gameMode !== 'human' && this.computerPlayer === 'X') {
+            this.makeComputerMove();
+        }
     }
     
     /**
@@ -277,24 +371,34 @@ class Game {
     }
     
     /**
-     * Reset the game
+     * Clear the round scores and reset match state
      */
-    resetGame() {
-        this.board.reset();
-        this.currentPlayer = 'X';
-        this.gameActive = true;
-        this.lastMove = null;
+    clearScores() {
+        this.scores = { 'X': 0, 'O': 0 };
+        this.matchWinner = null; // Reset match winner when scores are cleared
+        this.matchJustWon = false;
         
-        this.triggerEvent('gameReset', {
-            board: this.board.getState(),
-            currentPlayer: this.currentPlayer,
-            scores: { ...this.scores }
+        this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
+        this.triggerEvent('matchScoreUpdate', {
+            matchScores: { ...this.matchScores },
+            matchWinner: this.matchWinner,
+            roundScores: { ...this.scores }
         });
+    }
+    
+    /**
+     * Reset match scores (used when starting a new match series)
+     */
+    resetMatchScores() {
+        this.matchScores = { 'X': 0, 'O': 0 };
+        this.matchWinner = null;
+        this.matchJustWon = false;
         
-        // If playing against computer and computer goes first, make a move
-        if (this.gameMode !== 'human' && this.computerPlayer === 'X') {
-            this.makeComputerMove();
-        }
+        this.triggerEvent('matchScoreUpdate', {
+            matchScores: { ...this.matchScores },
+            matchWinner: this.matchWinner,
+            roundScores: { ...this.scores }
+        });
     }
     
     /**
@@ -345,14 +449,6 @@ class Game {
     }
     
     /**
-     * Reset scores
-     */
-    resetScores() {
-        this.scores = { 'X': 0, 'O': 0 };
-        this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
-    }
-    
-    /**
      * Get the current board state
      * @returns {Array} - 2D array representing the current board state
      */
@@ -374,6 +470,19 @@ class Game {
      */
     getScores() {
         return { ...this.scores };
+    }
+    
+    /**
+     * Get the match scores
+     * @returns {Object} - Match scores object { scores: { X, O }, matchWinner, roundScores: { X, O } }
+     */
+    getMatchScores() {
+        return {
+            scores: { ...this.matchScores },
+            matchWinner: this.matchWinner,
+            roundScores: { ...this.scores },
+            matchJustWon: this.matchJustWon
+        };
     }
     
     /**
