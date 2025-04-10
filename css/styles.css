@@ -1,15 +1,73 @@
-/* Add this to initialize the CSS variables */
-:root {
+/* ==========================================================================
+   Table of Contents:
+   1. Variables
+   2. Base & Typography
+   3. Layout & Structure
+   4. Game Board
+   5. Cells & Game Pieces
+   6. Score Display
+   7. Controls & Inputs
+   8. Messages & Notifications
+   9. Knight Move Feature
+   10. Animations
+   11. Media Queries
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. Variables - Centralized configuration for colors, sizes, and other values
+   ========================================================================== */
+   :root {
+    /* Board dimensions */
     --board-max-width: 400px;
     --board-width: 90%;
+    
+    /* Colors */
+    --bg-color: #f5f5f5;
+    --text-color: #333;
+    --text-secondary: #555;
+    --border-color: #333;
+    
+    /* Player colors */
+    --player-x-color: #e74c3c;
+    --player-o-color: #3498db;
+    --highlight-color: #FFD580;
+    --hover-color: #89f88b;
+    
+    /* Button colors */
+    --primary-btn-color: #3498db;
+    --primary-btn-hover: #2980b9;
+    --victory-color: #f39c12;
+    --error-color: #e74c3c;
+    --success-color: #2ecc71;
+    
+    /* Knight move colors */
+    --knight-move-color: #9b59b6;
+    --invalid-move-color: #f8d7da;
+    
+    /* Spacing */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+    --spacing-xl: 30px;
+    
+    /* Shadows */
+    --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --glow-shadow-x: 0 0 8px rgba(231, 76, 60, 0.6);
+    --glow-shadow-o: 0 0 8px rgba(52, 152, 219, 0.6);
 }
 
+
+/* ==========================================================================
+   2. Base & Typography - Basic page styling and text formatting
+   ========================================================================== */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
     padding: 10px;
-    background-color: #f5f5f5;
+    background-color: var(--bg-color);
     touch-action: manipulation;
     min-height: 100vh;
     box-sizing: border-box;
@@ -19,138 +77,73 @@ body {
 }
 
 h1 {
-    color: #333;
-    margin-bottom: 10px;
+    color: var(--text-color);
+    margin-bottom: var(--spacing-sm);
 }
 
 .game-info {
-    margin-bottom: 20px;
-    color: #555;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-secondary);
 }
 
 .player-turn {
     font-weight: bold;
     font-size: 1.2em;
-    margin-bottom: 15px;
-    color: #333;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-color);
 }
 
-/* Score container styles - more compact */
-.score-container {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
+
+/* ==========================================================================
+   3. Layout & Structure - Main containers and structural elements
+   ========================================================================== */
+.game-description {
+    margin-top: var(--spacing-xl);
+    width: 95%;
+    max-width: 600px;
+    text-align: left;
+    background-color: #fff;
+    padding: var(--spacing-md);
+    border-radius: 5px;
+    box-shadow: var(--box-shadow);
+}
+
+.controls {
+    margin-top: var(--spacing-lg);
     width: 100%;
     max-width: 600px;
-    margin-bottom: 15px;
-}
-
-.score-board {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    max-width: 250px;
 }
 
-.match-score-board {
-    border: 2px solid #3498db;
+.game-messages {
+    margin: var(--spacing-sm) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 30px;
 }
 
-.score-header {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
-    font-size: 14px;
+.game-mode {
+    margin-top: var(--spacing-md);
 }
 
-.score {
-    padding: 6px 12px;
-    background-color: #f8f8f8;
-    border-radius: 5px;
-    min-width: 100px;
-    text-align: center;
-    font-size: 14px;
-}
-
-.match-status {
-    margin-top: 5px;
-    font-weight: bold;
-    color: #e74c3c;
-    min-height: 20px;
-    font-size: 14px;
+.game-rules {
+    margin-top: var(--spacing-md);
 }
 
 
-/* Match victory styling */
-.match-champion {
-    font-size: 1.2em;
-    color: #f39c12;
-    font-weight: bold;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
-    animation: champion-glow 2s infinite;
-}
-
-@keyframes champion-glow {
-    0% { text-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-    50% { text-shadow: 0 0 15px rgba(243, 156, 18, 0.8); }
-    100% { text-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-}
-
-.match-winner {
-    font-size: 1.2em;
-    color: #e67e22;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    animation: winner-pulse 2s infinite;
-}
-
-.message-victory {
-    background-color: #f39c12;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    font-size: 1.2em;
-    box-shadow: 0 0 10px rgba(243, 156, 18, 0.6);
-    animation: victory-pulse 1.5s infinite;
-}
-
-@keyframes victory-pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.9; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.new-match-button {
-    background-color: #f39c12 !important;
-    font-weight: bold;
-    animation: button-pulse 1.5s infinite;
-}
-
-@keyframes button-pulse {
-    0% { box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-    50% { box-shadow: 0 0 15px rgba(243, 156, 18, 0.8); }
-    100% { box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-}
-
-@keyframes winner-pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
-}
-
-/* Board styles - ensure these are not overridden */
+/* ==========================================================================
+   4. Game Board - Board container and sizing controls
+   ========================================================================== */
 .board {
     display: grid !important;
     grid-template-columns: repeat(6, 1fr) !important;
     grid-gap: 5px !important;
     margin: 0 auto 20px auto !important; 
-    max-width: 400px !important;
-    width: 90% !important; /* Default width, will be overridden by JS */
+    max-width: var(--board-max-width) !important;
+    width: var(--board-width) !important;
     position: relative !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -177,11 +170,27 @@ h1 {
     color: #999;
 }
 
+.board-size-control {
+    margin-top: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+.slider {
+    width: 150px;
+}
+
+
+/* ==========================================================================
+   5. Cells & Game Pieces - Cell styling, player markers, and state indicators
+   ========================================================================== */
 .cell {
     width: 100%;
     aspect-ratio: 1 / 1;
     background-color: #fff;
-    border: 2px solid #333;
+    border: 2px solid var(--border-color);
     border-radius: 5px;
     cursor: pointer;
     display: flex;
@@ -194,35 +203,57 @@ h1 {
 }
 
 .cell:hover {
-    background-color: #89f88b;
+    background-color: var(--hover-color);
 }
 
+/* Player markers */
 .player-x {
-    color: #e74c3c;
+    color: var(--player-x-color);
 }
 
 .player-o {
-    color: #3498db;
+    color: var(--player-o-color);
 }
 
+/* Last move highlighting */
 .last-move-x {
-    border: 3px solid #e74c3c;
-    box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+    border: 3px solid var(--player-x-color);
+    box-shadow: var(--glow-shadow-x);
     background-color: rgba(231, 76, 60, 0.1);
 }
 
 .last-move-o {
-    border: 3px solid #3498db;
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+    border: 3px solid var(--player-o-color);
+    box-shadow: var(--glow-shadow-o);
     background-color: rgba(52, 152, 219, 0.1);
 }
 
+/* Win condition highlighting */
 .winning-cell {
-    background-color: #FFD580;
+    background-color: var(--highlight-color);
 }
 
+.winning-move {
+    position: relative;
+    border: 3px solid #ffca28 !important;
+    box-shadow: 0 0 10px #8a12f3 !important;
+    z-index: 10;
+    animation: winning-pulse 1.5s infinite;
+}
+
+.winning-move::after {
+    content: "★";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 14px;
+    color: #ffca28;
+    text-shadow: 0 0 3px #000;
+}
+
+/* Bounce cells styling */
 .bounce-cell {
-    background-color: #FFD580;
+    background-color: var(--highlight-color);
     position: relative;
 }
 
@@ -232,55 +263,105 @@ h1 {
     top: -10px;
     right: 0px;
     font-size: 20px;
-    color: #9b59b6;
+    color: var(--knight-move-color);
 }
 
 .bounce-cell-second {
-    background-color: #FFD580 !important;
+    background-color: var(--highlight-color) !important;
 }
 
 .bounce-cell-second::after {
-    color: #9b59b6;
+    color: var(--knight-move-color);
     content: "↻";
     top: -10px;
     right: 2px;
 }
 
-/* Styles for highlighting the winning move */
-.winning-move {
-    position: relative;
-    border: 3px solid #ffca28 !important; /* Gold border */
-    box-shadow: 0 0 10px #8a12f3 !important; /* Gold glow */
-    z-index: 10;
+
+/* ==========================================================================
+   6. Score Display - Score boards and match status indicators
+   ========================================================================== */
+.score-container {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: var(--spacing-md);
 }
 
-/* Add a star or marker to indicate the winning move */
-.winning-move::after {
-    content: "★";  /* Unicode star character */
-    position: absolute;
-    top: 2px;
-    right: 2px;
+.score-board {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    max-width: 250px;
+}
+
+.match-score-board {
+    border: 2px solid var(--player-o-color);
+}
+
+.score-header {
+    font-weight: bold;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-color);
     font-size: 14px;
-    color: #ffca28;
-    text-shadow: 0 0 3px #000;
 }
 
-/* Make it pulse to draw attention */
-@keyframes winning-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+.score {
+    padding: 6px 12px;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+    min-width: 100px;
+    text-align: center;
+    font-size: 14px;
 }
 
-.winning-move {
-    animation: winning-pulse 1.5s infinite;
+.match-status {
+    margin-top: var(--spacing-xs);
+    font-weight: bold;
+    color: var(--error-color);
+    min-height: 20px;
+    font-size: 14px;
+}
+
+/* Match victory styling */
+.match-champion {
+    font-size: 1.2em;
+    color: var(--victory-color);
+    font-weight: bold;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+    animation: champion-glow 2s infinite;
+}
+
+.match-winner {
+    font-size: 1.2em;
+    color: #e67e22;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    animation: winner-pulse 2s infinite;
+}
+
+.message-victory {
+    background-color: var(--victory-color);
+    color: white;
+    font-weight: bold;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: 1.2em;
+    box-shadow: 0 0 10px rgba(243, 156, 18, 0.6);
+    animation: victory-pulse 1.5s infinite;
 }
 
 #clear-scores-button {
-    margin-top: 5px;
+    margin-top: var(--spacing-xs);
     padding: 4px 10px;
     font-size: 12px;
-    background-color: #e74c3c;
+    background-color: var(--error-color);
     color: white;
     border: none;
     border-radius: 4px;
@@ -291,105 +372,64 @@ h1 {
     background-color: #c0392b;
 }
 
-.game-messages {
-    margin: 10px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 30px;
-}
 
-.game-message {
-    padding: 8px 15px;
-    margin: 5px 0;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: opacity 0.5s;
-}
-
-.message-info {
-    background-color: #3498db;
-    color: white;
-}
-
-.message-success {
-    background-color: #2ecc71;
-    color: white;
-}
-
-.message-error {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.message-fade {
-    opacity: 0;
-}
-
-.controls {
-    margin-top: 20px;
-    width: 100%;
-    max-width: 600px; /* Match the game description width */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.game-mode {
-    margin-top: 15px;
-}
-
-.game-rules {
-    margin-top: 15px;
-}
-
+/* ==========================================================================
+   7. Controls & Inputs - Buttons, selectors, and interactive elements
+   ========================================================================== */
 select {
     padding: 8px;
     border-radius: 5px;
     border: 1px solid #ddd;
     font-size: 16px;
-    margin-left: 5px;
+    margin-left: var(--spacing-xs);
 }
 
 button {
-    padding: 10px 20px;
+    padding: var(--spacing-sm) var(--spacing-lg);
     font-size: 16px;
-    background-color: #3498db;
+    background-color: var(--primary-btn-color);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin: 0 5px;
+    margin: 0 var(--spacing-xs);
 }
 
 button:hover {
-    background-color: #2980b9;
+    background-color: var(--primary-btn-hover);
 }
 
+.new-match-button {
+    background-color: var(--victory-color) !important;
+    font-weight: bold;
+    animation: button-pulse 1.5s infinite;
+}
+
+/* Checkbox and tooltip styling */
 .checkbox-container {
     display: inline-flex;
     align-items: center;
-    margin-left: 10px;
+    margin-left: var(--spacing-sm);
     position: relative;
-    margin-bottom: 5px;
+    margin-bottom: var(--spacing-xs);
 }
 
 .checkbox-container input[type="checkbox"] {
-    margin-right: 5px;
+    margin-right: var(--spacing-xs);
 }
 
 .tooltip-icon {
     display: inline-block;
     width: 16px;
     height: 16px;
-    background-color: #3498db;
+    background-color: var(--primary-btn-color);
     color: white;
     border-radius: 50%;
     text-align: center;
     line-height: 16px;
     font-size: 12px;
     cursor: help;
-    margin-left: 5px;
+    margin-left: var(--spacing-xs);
 }
 
 .tooltip {
@@ -399,7 +439,7 @@ button:hover {
     color: #fff;
     text-align: center;
     border-radius: 6px;
-    padding: 5px;
+    padding: var(--spacing-xs);
     position: absolute;
     z-index: 1;
     bottom: 125%;
@@ -427,34 +467,43 @@ button:hover {
     opacity: 1;
 }
 
-.game-description {
-    margin-top: 30px;
-    width: 95%;
-    max-width: 600px;
-    text-align: left;
-    background-color: #fff;
-    padding: 15px;
+
+/* ==========================================================================
+   8. Messages & Notifications - Game messages and status indicators
+   ========================================================================== */
+.game-message {
+    padding: 8px 15px;
+    margin: var(--spacing-xs) 0;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: var(--box-shadow);
+    transition: opacity 0.5s;
 }
 
-.board-size-control {
-    margin-top: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+.message-info {
+    background-color: var(--primary-btn-color);
+    color: white;
 }
 
-.slider {
-    width: 150px;
+.message-success {
+    background-color: var(--success-color);
+    color: white;
 }
 
-/* Add these styles to styles.css */
+.message-error {
+    background-color: var(--error-color);
+    color: white;
+}
 
-/* Knight move indicator in player turn display */
+.message-fade {
+    opacity: 0;
+}
+
+
+/* ==========================================================================
+   9. Knight Move Feature - Styles for knight move game mode
+   ========================================================================== */
 .knight-move-indicator {
-    background-color: #9b59b6;
+    background-color: var(--knight-move-color);
     color: white;
     padding: 2px 8px;
     border-radius: 4px;
@@ -464,16 +513,9 @@ button:hover {
     display: inline-block;
 }
 
-@keyframes pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
-}
-
-/* Valid knight moves */
 .valid-knight-move {
     position: relative;
-    border: 2px dashed #9b59b6 !important;
+    border: 2px dashed var(--knight-move-color) !important;
     background-color: rgba(155, 89, 182, 0.15) !important;
 }
 
@@ -483,25 +525,23 @@ button:hover {
     top: 2px;
     right: 2px;
     font-size: 14px;
-    color: #9b59b6;
+    color: var(--knight-move-color);
 }
 
-/* Invalid moves when knight move is required */
 .invalid-move {
     opacity: 0.5;
     cursor: not-allowed !important;
 }
 
 .invalid-move:hover {
-    background-color: #f8d7da !important; /* Light red */
+    background-color: var(--invalid-move-color) !important;
 }
 
 .invalid-move-hover {
-    background-color: #f8d7da !important;
+    background-color: var(--invalid-move-color) !important;
     cursor: not-allowed !important;
 }
 
-/* Board state when knight move is required */
 .knight-move-required {
     position: relative;
 }
@@ -512,7 +552,7 @@ button:hover {
     top: -30px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #9b59b6;
+    background-color: var(--knight-move-color);
     color: white;
     padding: 4px 10px;
     border-radius: 4px;
@@ -521,9 +561,8 @@ button:hover {
     z-index: 10;
 }
 
-/* First move reference (origin of knight move) */
 .first-move-reference {
-    box-shadow: 0 0 0 3px #9b59b6 !important;
+    box-shadow: 0 0 0 3px var(--knight-move-color) !important;
     position: relative;
     z-index: 5;
 }
@@ -534,7 +573,7 @@ button:hover {
     bottom: -5px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #9b59b6;
+    background-color: var(--knight-move-color);
     color: white;
     padding: 2px 6px;
     border-radius: 3px;
@@ -542,34 +581,84 @@ button:hover {
     white-space: nowrap;
 }
 
+
+/* ==========================================================================
+   10. Animations - Keyframes and animation definitions
+   ========================================================================== */
+@keyframes champion-glow {
+    0% { text-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
+    50% { text-shadow: 0 0 15px rgba(243, 156, 18, 0.8); }
+    100% { text-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
+}
+
+@keyframes winner-pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+@keyframes victory-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes button-pulse {
+    0% { box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
+    50% { box-shadow: 0 0 15px rgba(243, 156, 18, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
+}
+
+@keyframes winning-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+
+/* ==========================================================================
+   11. Media Queries - Responsive adjustments for different screen sizes
+   ========================================================================== */
 @media (max-width: 600px) {
+    /* Score layout */
     .score-container {
         flex-direction: column;
         align-items: center;
-        gap: 10px;
+        gap: var(--spacing-sm);
     }
     
+    /* Board adjustments */
     .board {
         grid-gap: 3px;
         width: 95%;
     }
     
+    /* Cell sizing */
     .cell {
         font-size: 18px;
     }
     
+    /* Container sizing */
     .game-description {
         width: 95%;
         font-size: 14px;
     }
     
+    /* Score board adjustments */
     .score-board {
         width: 90%;
         max-width: none;
     }
     
+    /* Control adjustments */
     .checkbox-container {
-        margin-bottom: 10px;
+        margin-bottom: var(--spacing-sm);
         display: flex;
         margin-left: 0;
         justify-content: center;
@@ -583,11 +672,11 @@ button:hover {
 
     .board-size-control {
         flex-direction: column;
-        gap: 5px;
+        gap: var(--spacing-xs);
     }
     
     .controls > * {
-        margin-bottom: 10px;
+        margin-bottom: var(--spacing-sm);
     }
     
     /* Make the slider wider on mobile */
