@@ -340,12 +340,12 @@ class BoardUI {
         // Convert size percentage to actual CSS value
         const sizePercentage = Math.max(50, Math.min(100, size)); // Clamp between 50-100%
         
-        // Set both width AND max-width to allow proper scaling
-        this.gameBoard.style.width = `${sizePercentage}%`;
+        // Update CSS variables instead of setting inline styles
+        document.documentElement.style.setProperty('--board-width', `${sizePercentage}%`);
         
         // Set max-width proportionally
         const maxWidthPx = 400 * (sizePercentage / 100);
-        this.gameBoard.style.maxWidth = `${maxWidthPx}px`;
+        document.documentElement.style.setProperty('--board-max-width', `${maxWidthPx}px`);
         
         // Set a custom attribute for display purposes only
         this.gameBoard.setAttribute('data-size-info', `width: ${sizePercentage}%; max-width: ${maxWidthPx}px`);
