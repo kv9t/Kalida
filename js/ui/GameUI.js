@@ -56,9 +56,7 @@ class GameUI {
             this.elements.missingTeethToggle = document.getElementById('missing-teeth-toggle');
             this.elements.boardSizeSlider = document.getElementById('board-size-slider');
             this.elements.sizeValueDisplay = document.getElementById('size-value');
-            
-            // Add the knight move toggle to the game rules section
-            this.addKnightMoveToggle();
+            this.elements.knightMoveToggle = document.getElementById('knight-move-toggle');
             
             // Create board UI if not already created
             if (!this.boardUI) {
@@ -84,52 +82,7 @@ class GameUI {
         }
     }
     
-    /**
-     * Add knight move toggle to the game rules section
-     */
-    addKnightMoveToggle() {
-        // Find the game rules container
-        const gameRulesContainer = document.querySelector('.game-rules');
-        
-        if (gameRulesContainer) {
-            // Create the checkbox container
-            const checkboxContainer = document.createElement('div');
-            checkboxContainer.className = 'checkbox-container';
-            
-            // Create the checkbox input
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = 'knight-move-toggle';
-            checkbox.checked = true; // Default to enabled
-            
-            // Create the label
-            const label = document.createElement('label');
-            label.htmlFor = 'knight-move-toggle';
-            label.textContent = 'Enable Knight Move Rule';
-            
-            // Create the tooltip icon
-            const tooltipIcon = document.createElement('span');
-            tooltipIcon.className = 'tooltip-icon';
-            tooltipIcon.textContent = '?';
-            
-            // Create the tooltip
-            const tooltip = document.createElement('div');
-            tooltip.className = 'tooltip';
-            tooltip.textContent = "When enabled, the first player's second move must follow the movement pattern of a knight in chess.";
-            
-            // Assemble the elements
-            checkboxContainer.appendChild(checkbox);
-            checkboxContainer.appendChild(label);
-            checkboxContainer.appendChild(tooltipIcon);
-            checkboxContainer.appendChild(tooltip);
-            
-            // Add to the game rules container
-            gameRulesContainer.appendChild(checkboxContainer);
-            
-            // Store reference to the toggle
-            this.elements.knightMoveToggle = checkbox;
-        }
-    }
+    
     
     /**
      * Set up UI event listeners
