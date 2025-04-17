@@ -230,13 +230,20 @@ class GameUI {
                 }
                 
                 // Update player turn display to indicate knight move is required
-                if (this.elements.playerTurn) {
-                    this.elements.playerTurn.innerHTML = 
-                        `Player X's Turn <span class="knight-move-indicator">♘ Knight Move Required</span>`;
+                // Instead of modifying player-turn, use our new message container
+                const playerTurnElement = document.querySelector('.player-turn-indicator');
+                if (playerTurnElement) {
+                    playerTurnElement.textContent = 'Player X\'s Turn';
                 }
                 
-                // Show a message to the user
-                this.showMessage('Player X must make a knight move (like in chess)', 'info');
+                // Add the knight move message to the special message area
+                const specialMessageElement = document.getElementById('special-message');
+                if (specialMessageElement) {
+                    specialMessageElement.innerHTML = '<span class="knight-move-indicator">♘</span> Knight Move Required';
+                }
+                
+                // No need for the temporary message - removing this line
+                // this.showMessage('Player X must make a knight move (like in chess)', 'info');
             }
         });
         
@@ -273,15 +280,21 @@ class GameUI {
         this.game.on('turnChange', (data) => {
             console.log('Turn change event received', data);
             
-            if (this.elements.playerTurn) {
-                // Clear any knight move indicators if not required
-                if (!data.isKnightMoveRequired) {
-                    this.elements.playerTurn.textContent = `Player ${data.currentPlayer}'s Turn`;
-                    
-                    // Clear knight move highlighting if not required
-                    if (this.boardUI && typeof this.boardUI.setKnightMoveRequired === 'function') {
-                        this.boardUI.setKnightMoveRequired(false);
-                    }
+            const playerTurnElement = document.querySelector('.player-turn-indicator');
+            const specialMessageElement = document.getElementById('special-message');
+            
+            if (playerTurnElement) {
+                // Update player turn text
+                playerTurnElement.textContent = `Player ${data.currentPlayer}'s Turn`;
+            }
+            
+            // Clear any knight move indicators if not required
+            if (!data.isKnightMoveRequired && specialMessageElement) {
+                specialMessageElement.innerHTML = '';
+                
+                // Clear knight move highlighting if not required
+                if (this.boardUI && typeof this.boardUI.setKnightMoveRequired === 'function') {
+                    this.boardUI.setKnightMoveRequired(false);
                 }
             }
             
@@ -389,16 +402,35 @@ class GameUI {
      * @param {string} winner - The winner of the match
      */
     showMatchVictory(winner) {
-        // Show a special victory message
-        this.showMessage(`🏆 Player ${winner} has won the match! 🏆`, 'victory');
+        // Instead of calling this.showMessage, use the special-message div
+        const specialMessageElement = document.getElementById('special-message');
+        if (specialMessageElement) {
+            specialMessageElement.innerHTML = `<span class="victory-indicator">🏆 Player ${winner} has won the match! 🏆</span>`;
+            
+            // Clear the message after a delay (same as the original 8 seconds)
+            setTimeout(() => {
+                specialMessageElement.innerHTML = '';
+            }, 8000);
+        }
         
-        // Add match winner notification to player turn text
+        // The rest of your existing code
         if (this.elements.playerTurn) {
             this.elements.playerTurn.innerHTML = 
                 `<span class="match-champion">Player ${winner} is the Match Champion!</span>`;
         }
         
-        // You could add a confetti effect here in the future
+        // Update matchStatus message
+        const matchStatusElement = document.getElementById('match-status');
+        if (matchStatusElement) {
+            matchStatusElement.textContent = `Player ${winner} wins the match!`;
+            matchStatusElement.classList.add('match-winner');
+        }
+        
+        // Change the reset button to indicate starting a new match
+        if (this.elements.resetButton) {
+            this.elements.resetButton.textContent = 'Start New Match';
+            this.elements.resetButton.classList.add('new-match-button');
+        }
     }
     
     /**
@@ -415,12 +447,13 @@ class GameUI {
             this.elements.matchScoreO.textContent = data.matchScores?.O || 0;
         }
         
-        // Update match status message
-        if (this.elements.matchStatus) {
+        // Update match status message only for specific events, not for the generic text
+        const matchStatusElement = document.getElementById('match-status');
+        if (matchStatusElement) {
             if (data.matchWinner) {
                 // There's a winner for the current match sequence
-                this.elements.matchStatus.textContent = `Player ${data.matchWinner} wins the match!`;
-                this.elements.matchStatus.classList.add('match-winner');
+                matchStatusElement.textContent = `Player ${data.matchWinner} wins the match!`;
+                matchStatusElement.classList.add('match-winner');
                 
                 // Change the reset button text to indicate starting a new match
                 if (this.elements.resetButton) {
@@ -435,30 +468,21 @@ class GameUI {
                 const threshold = this.game.matchWinThreshold || 8;
                 const margin = this.game.matchWinMargin || 2;
                 
-                // Show progress toward match win
+                // Only show specific progress messages, not the default "First to 8" text
                 if (xScore >= threshold && xScore - oScore === margin - 1) {
-                    this.elements.matchStatus.textContent = "Player X needs 1 more win for match!";
+                    matchStatusElement.textContent = "Player X needs 1 more win for match!";
                 } else if (oScore >= threshold && oScore - xScore === margin - 1) {
-                    this.elements.matchStatus.textContent = "Player O needs 1 more win for match!";
+                    matchStatusElement.textContent = "Player O needs 1 more win for match!";
                 } else if (xScore >= threshold - 1 && oScore <= xScore - margin + 1) {
-                    this.elements.matchStatus.textContent = "Player X nearing match win!";
+                    matchStatusElement.textContent = "Player X nearing match win!";
                 } else if (oScore >= threshold - 1 && xScore <= oScore - margin + 1) {
-                    this.elements.matchStatus.textContent = "Player O nearing match win!";
+                    matchStatusElement.textContent = "Player O nearing match win!";
                 } else {
-                    // Show progress toward threshold
-                    const xNeeded = threshold - xScore;
-                    const oNeeded = threshold - oScore;
-                    
-                    if (xNeeded <= 3 && xNeeded < oNeeded) {
-                        this.elements.matchStatus.textContent = `X needs ${xNeeded} more for potential match`;
-                    } else if (oNeeded <= 3 && oNeeded < xNeeded) {
-                        this.elements.matchStatus.textContent = `O needs ${oNeeded} more for potential match`;
-                    } else {
-                        this.elements.matchStatus.textContent = `First to ${threshold} (win by ${margin})`;
-                    }
+                    // For the default state, leave the element empty as we'll use the static text
+                    matchStatusElement.textContent = ""; // Remove the "First to 8" text from here
                 }
                 
-                this.elements.matchStatus.classList.remove('match-winner');
+                matchStatusElement.classList.remove('match-winner');
                 
                 // Reset the button text if it was changed
                 if (this.elements.resetButton && this.elements.resetButton.textContent !== 'New Game') {

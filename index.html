@@ -28,30 +28,58 @@
     <link rel="stylesheet" href="css/styles.css?v=1.0.1">
 </head>
 <body>
-    <div class="css-loaded-indicator">CSS Loaded</div>
+    <div class="css-loaded-indicator">CSS Loaded</div> 
     <h1>Kalida</h1>
     <div class="game-info">A game created by Koert Voorhees, brought to digital life by Kristen Voorhees</div>
-    
-    <div class="player-turn">Player X's Turn</div>
     
     <div class="score-container">
         <!-- Round scores -->
         <div class="score-board">
             <div class="score-header">Round Wins</div>
-            <div class="score">Player X: <span id="score-x">0</span></div>
-            <div class="score">Player O: <span id="score-o">0</span></div>
-            <button id="clear-scores-button">Clear Scores</button>
+            <div class="player-scores">
+                <div class="player-score-container player-x-container">
+                    <div class="player-name">Player X</div>
+                    <span id="score-x" class="player-score-value">0</span>
+                </div>
+                <div class="player-score-container player-o-container">
+                    <div class="player-name">Player O</div>
+                    <span id="score-o" class="player-score-value">0</span>
+                </div>
+            </div>
+            <button id="clear-scores-button">Reset</button>
         </div>
         
         <!-- Match scores -->
         <div class="score-board match-score-board">
             <div class="score-header">Matches Won</div>
-            <div class="score">Player X: <span id="match-score-x">0</span></div>
-            <div class="score">Player O: <span id="match-score-o">0</span></div>
-            <div class="match-status" id="match-status">First to 8 (win by 2)</div>
+            <div class="player-scores">
+                <div class="player-score-container player-x-container">
+                    <div class="player-name">Player X</div>
+                    <span id="match-score-x" class="player-score-value">0</span>
+                </div>
+                <div class="player-score-container player-o-container">
+                    <div class="player-name">Player O</div>
+                    <span id="match-score-o" class="player-score-value">0</span>
+                </div>
+            </div>
+            <div class="match-rules">First to 8 (win by 2)</div>
         </div>
+
+        
     </div>
     
+    <!-- New message container -->
+    <div class="message-container">
+        <div class="player-turn-section">
+            <div class="player-turn-indicator">Player X's Turn</div>
+        </div>
+        <div class="game-status-section">
+            <div id="match-status" class="match-status">First to 8 (win by 2)</div>
+            <div id="special-message" class="special-message"></div>
+        </div>
+    </div>
+
+    <!-- Game Board container -->
     <div class="board" id="game-board"></div>
     
     <div class="controls">

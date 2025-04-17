@@ -358,7 +358,7 @@ class Game {
             
             // Need to have the minimum threshold AND be ahead by the required margin
             if (margin >= this.matchWinMargin) {
-                // This player has won the match!
+                // This player  match!
                 this.matchWinner = lastWinner;
                 this.matchJustWon = true;
                 
