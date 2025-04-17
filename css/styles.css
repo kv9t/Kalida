@@ -29,8 +29,9 @@
     --border-color: #333;
     
     /* Player colors */
-    --player-x-color: #e74c3c;
-    --player-o-color: #3498db;
+    --player-x-color: #e74c3c; /*red*/
+    --player-o-color: #3498db; /*blue*/
+
     --highlight-color: #FFD580;
     --hover-color: #89f88b;
     
@@ -55,9 +56,9 @@
     /* Shadows */
     --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     --glow-shadow-x: 0 0 8px rgba(231, 76, 60, 0.6);
-    --glow-shadow-o: 0 0 8px rgba(52, 152, 219, 0.6);
-}
-
+   --glow-shadow-o: 0 0 8px rgba(52, 152, 219, 0.6);
+    
+   }
 
 /* ==========================================================================
    2. Base & Typography - Basic page styling and text formatting
@@ -84,6 +85,8 @@ h1 {
 .game-info {
     margin-bottom: var(--spacing-lg);
     color: var(--text-secondary);
+    font-size: 1em;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
 }
 
 .player-turn {
@@ -343,13 +346,13 @@ h1 {
 }
 
 .player-name {
-    font-size: 9px;
+    font-size: 12px;
     color: var(--text-secondary);
     margin-bottom: 1px;
 }
 
 .player-score-value {
-    font-size: 22px;
+    font-size: 26px;
     font-weight: bold;
     line-height: 1;
 }
@@ -472,7 +475,7 @@ h1 {
 
 /* Disable hover effects when game is over */
 .game-over .cell:hover {
-    background-color: inherit !important; /* Prevent hover color change */
+    background-color: inherit !important; /* Prevent hover color change */ 
     cursor: default !important; /* Change cursor to default */
 }
 
@@ -492,7 +495,7 @@ h1 {
     
     
     .player-score-value {
-        font-size: 24px; /* Even larger on mobile */
+        font-size: 30px; /* Even larger on mobile */
     }
     
     /* Force them to stay side by side */
@@ -512,12 +515,12 @@ h1 {
 
     /* Make the player names smaller but still readable */
     .player-name {
-        font-size: 8px;
+        font-size: 12px;
     }
 
     /* Make the reset button smaller */
     #clear-scores-button {
-        font-size: 8px;
+        font-size: 14px;
         padding: 1px 4px;
     }
 
@@ -526,7 +529,7 @@ h1 {
     }
     
     .match-status {
-        font-size: 10px;
+        font-size: 13px;
     }
     
     /* For very small screens */
