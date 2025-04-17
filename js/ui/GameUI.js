@@ -467,7 +467,9 @@ class GameUI {
         
         // Update match status message only for specific events, not for the generic text
         const matchStatusElement = document.getElementById('match-status');
-        if (matchStatusElement) {
+        const specialMessageElement = document.getElementById('special-message');
+
+        if (matchStatusElement && specialMessageElement) {
             if (data.matchWinner) {
                 // There's a winner for the current match sequence
                 matchStatusElement.classList.add('match-winner');
@@ -485,20 +487,22 @@ class GameUI {
                 const threshold = this.game.matchWinThreshold || 8;
                 const margin = this.game.matchWinMargin || 2;
                 
-                // Only show specific progress messages, not the default "First to 8" text
+                // Only show specific progress messages, and put them in special-message instead
                 if (xScore >= threshold && xScore - oScore === margin - 1) {
-                    matchStatusElement.textContent = "Player X needs 1 more win for match!";
+                    specialMessageElement.innerHTML = "<span class='match-progress'>Player X needs 1 more win for match!</span>";
                 } else if (oScore >= threshold && oScore - xScore === margin - 1) {
-                    matchStatusElement.textContent = "Player O needs 1 more win for match!";
+                    specialMessageElement.innerHTML = "<span class='match-progress'>Player O needs 1 more win for match!</span>";
                 } else if (xScore >= threshold - 1 && oScore <= xScore - margin + 1) {
-                    matchStatusElement.textContent = "Player X nearing match win!";
+                    specialMessageElement.innerHTML = "<span class='match-progress'>Player X nearing match win!</span>";
                 } else if (oScore >= threshold - 1 && xScore <= oScore - margin + 1) {
-                    matchStatusElement.textContent = "Player O nearing match win!";
+                    specialMessageElement.innerHTML = "<span class='match-progress'>Player O nearing match win!</span>";
                 } else {
-                    // For the default state, leave the element empty as we'll use the static text
-                    matchStatusElement.textContent = ""; // Remove the "First to 8" text from here
+                    // Clear any existing messages
+                    specialMessageElement.innerHTML = "";
                 }
                 
+                // Always keep match-status empty as we're using the static text in match-rules
+                matchStatusElement.textContent = "";
                 matchStatusElement.classList.remove('match-winner');
                 
                 // Reset the button text if it was changed
