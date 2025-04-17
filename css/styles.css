@@ -464,6 +464,17 @@ h1 {
     min-height: 20px;
 }
 
+/* Disable hover effects when game is over */
+.game-over .cell:hover {
+    background-color: inherit !important; /* Prevent hover color change */
+    cursor: default !important; /* Change cursor to default */
+}
+
+.match-champion {
+    color: var(--victory-color);
+    font-weight: bold;
+}
+
 /* Media query updates for mobile */
 @media (max-width: 600px) {
     .player-score-value {

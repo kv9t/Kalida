@@ -256,23 +256,28 @@ class GameUI {
         
         // Game end event
         this.game.on('gameEnd', (data) => {
-            if (data.type === 'win') {
-                if (this.elements.playerTurn) {
-                    this.elements.playerTurn.textContent = `Player ${data.winner} wins!`;
+            // Disable hover effects on the game board
+            if (this.boardUI && this.boardUI.gameBoard) {
+                this.boardUI.gameBoard.classList.add('game-over');
+            }
+            
+            // Update player turn display to show game result instead of whose turn it is
+            const playerTurnElement = document.querySelector('.player-turn-indicator');
+            if (playerTurnElement) {
+                if (data.type === 'win') {
+                    playerTurnElement.textContent = `Player ${data.winner} wins!`;
+                } else {
+                    playerTurnElement.textContent = "It's a draw!";
                 }
-                
-                if (this.boardUI && typeof this.boardUI.highlightWinningCells === 'function') {
-                    this.boardUI.highlightWinningCells(
-                        data.winningCells,
-                        data.bounceCellIndex,
-                        data.secondBounceCellIndex,
-                        data.lastMove  // Pass the last move to the highlightWinningCells method
-                    );
-                }
-            } else {
-                if (this.elements.playerTurn) {
-                    this.elements.playerTurn.textContent = "It's a draw!";
-                }
+            }
+            
+            if (data.type === 'win' && this.boardUI && typeof this.boardUI.highlightWinningCells === 'function') {
+                this.boardUI.highlightWinningCells(
+                    data.winningCells,
+                    data.bounceCellIndex,
+                    data.secondBounceCellIndex,
+                    data.lastMove
+                );
             }
         });
         
@@ -334,17 +339,32 @@ class GameUI {
         // Game reset event
         this.game.on('gameReset', (data) => {
             if (this.boardUI) {
+                // Clear highlighting
+                if (typeof this.boardUI.clearHighlights === 'function') {
+                    this.boardUI.clearHighlights();
+                }
+                
+                // Update the board
                 if (typeof this.boardUI.updateBoard === 'function') {
                     this.boardUI.updateBoard(data.board);
                 }
                 
-                if (typeof this.boardUI.clearHighlights === 'function') {
-                    this.boardUI.clearHighlights();
+                // Re-enable hover effects by removing the game-over class
+                if (this.boardUI.gameBoard) {
+                    this.boardUI.gameBoard.classList.remove('game-over');
                 }
             }
             
-            if (this.elements.playerTurn) {
-                this.elements.playerTurn.textContent = `Player ${data.currentPlayer}'s Turn`;
+            // Restore the player turn indicator
+            const playerTurnElement = document.querySelector('.player-turn-indicator');
+            if (playerTurnElement) {
+                playerTurnElement.textContent = `Player ${data.currentPlayer}'s Turn`;
+            }
+            
+            // Clear any special messages
+            const specialMessageElement = document.getElementById('special-message');
+            if (specialMessageElement) {
+                specialMessageElement.innerHTML = '';
             }
             
             this.updateScores(data.scores);
@@ -407,29 +427,27 @@ class GameUI {
         if (specialMessageElement) {
             specialMessageElement.innerHTML = `<span class="victory-indicator">🏆 Player ${winner} has won the match! 🏆</span>`;
             
-            // Clear the message after a delay (same as the original 8 seconds)
+            // Clear the message after a delay
             setTimeout(() => {
                 specialMessageElement.innerHTML = '';
-            }, 8000);
+            }, 60000);
         }
         
-        // The rest of your existing code
-        if (this.elements.playerTurn) {
-            this.elements.playerTurn.innerHTML = 
-                `<span class="match-champion">Player ${winner} is the Match Champion!</span>`;
-        }
-        
-        // Update matchStatus message
-        const matchStatusElement = document.getElementById('match-status');
-        if (matchStatusElement) {
-            matchStatusElement.textContent = `Player ${winner} wins the match!`;
-            matchStatusElement.classList.add('match-winner');
+        // Change the player turn indicator to show match completion instead of turns
+        const playerTurnElement = document.querySelector('.player-turn-indicator');
+        if (playerTurnElement) {
+            playerTurnElement.innerHTML = `<span class="match-champion">Match Complete</span>`;
         }
         
         // Change the reset button to indicate starting a new match
         if (this.elements.resetButton) {
             this.elements.resetButton.textContent = 'Start New Match';
             this.elements.resetButton.classList.add('new-match-button');
+        }
+        
+        // Disable hover effects on the game board by adding a game-over class
+        if (this.boardUI && this.boardUI.gameBoard) {
+            this.boardUI.gameBoard.classList.add('game-over');
         }
     }
     
@@ -452,7 +470,6 @@ class GameUI {
         if (matchStatusElement) {
             if (data.matchWinner) {
                 // There's a winner for the current match sequence
-                matchStatusElement.textContent = `Player ${data.matchWinner} wins the match!`;
                 matchStatusElement.classList.add('match-winner');
                 
                 // Change the reset button text to indicate starting a new match
