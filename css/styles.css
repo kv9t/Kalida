@@ -85,8 +85,7 @@ h1 {
 .game-info {
     margin-bottom: var(--spacing-lg);
     color: var(--text-secondary);
-    font-size: 1em;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+    font-size: .8em;
 }
 
 .player-turn {
@@ -475,7 +474,7 @@ h1 {
 
 /* Disable hover effects when game is over */
 .game-over .cell:hover {
-    background-color: inherit !important; /* Prevent hover color change */ 
+   /* background-color: inherit !important; /* Prevent hover color change */ 
     cursor: default !important; /* Change cursor to default */
 }
 
@@ -489,13 +488,13 @@ h1 {
     /* Score board adjustments for mobile */
     .score-board {
         padding: 4px;  /* Reduce padding */
-        width: 48%;    /* Make them fit side by side with gap */
-        max-width: 48%;
+        width: 47%;    /* Make them fit side by side with gap */
+        max-width: 47%;
     }
     
     
     .player-score-value {
-        font-size: 30px; /* Even larger on mobile */
+        font-size: 24px; /* Even larger on mobile */
     }
     
     /* Force them to stay side by side */
@@ -515,7 +514,7 @@ h1 {
 
     /* Make the player names smaller but still readable */
     .player-name {
-        font-size: 12px;
+        font-size: 10px;
     }
 
     /* Make the reset button smaller */

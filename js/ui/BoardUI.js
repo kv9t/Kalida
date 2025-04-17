@@ -348,7 +348,7 @@ class BoardUI {
         document.documentElement.style.setProperty('--board-max-width', `${maxWidthPx}px`);
         
         // Set a custom attribute for display purposes only
-        this.gameBoard.setAttribute('data-size-info', `width: ${sizePercentage}%; max-width: ${maxWidthPx}px`);
+        this.gameBoard.setAttribute('data-size-info', `width: ${sizePercentage}%; width: ${maxWidthPx}px`);
     }
     
     /**
