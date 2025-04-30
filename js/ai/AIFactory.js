@@ -1,106 +1,61 @@
 /**
- * AIFactory.js - Factory for creating AI players based on difficulty level
+ * AIFactory.js - Factory for creating AI players
+ * 
+ * This factory creates different AI players with various 
+ * strategies and difficulty levels.
  */
 class AIFactory {
     /**
      * Create a new AI factory
      * @param {number} boardSize - Size of the game board
-     * @param {Rules} rules - Game rules instance
+     * @param {Rules} rules - Game rules reference
      */
     constructor(boardSize, rules) {
         this.boardSize = boardSize;
         this.rules = rules;
         
-        // Initialize shared components
-        this.boardEvaluator = new BoardEvaluator(boardSize, rules);
+        // Create shared components used by multiple AI strategies
+        this.evaluator = new BoardEvaluator(boardSize, rules);
         this.threatDetector = new ThreatDetector(boardSize, rules);
-        
-        // Cache created AIs by difficulty
-        this.aiCache = {};
+        this.winTrackGenerator = new WinTrackGenerator(boardSize, rules);
     }
-
+    
     /**
      * Create an AI player with the specified difficulty
      * @param {string} difficulty - Difficulty level ('easy', 'medium', 'hard', 'extrahard', 'impossible')
      * @returns {AIPlayer} - AI player instance
      */
     createAI(difficulty) {
-        // Return from cache if already created
-        if (this.aiCache[difficulty]) {
-            return this.aiCache[difficulty];
-        }
+        const ai = new AIPlayer(this.boardSize, this.rules);
         
-        let ai;
-        
+        // Set strategy based on difficulty
         switch (difficulty.toLowerCase()) {
             case 'easy':
-                ai = new RandomStrategy(this.boardSize, this.rules);
+                ai.setStrategy(new RandomStrategy(this.boardSize, this.rules));
                 break;
                 
             case 'medium':
-                ai = new MediumStrategy(this.boardSize, this.rules);
+                ai.setStrategy(new MediumStrategy(this.boardSize, this.rules, this.threatDetector));
                 break;
                 
             case 'hard':
-                ai = new HardStrategy(this.boardSize, this.rules, this.boardEvaluator);
+                ai.setStrategy(new HardStrategy(this.boardSize, this.rules, this.threatDetector, this.evaluator));
                 break;
                 
             case 'extrahard':
-                ai = new MinimaxStrategy(this.boardSize, this.rules, this.boardEvaluator);
+                ai.setStrategy(new MinimaxStrategy(this.boardSize, this.rules, 4)); // Higher depth
                 break;
                 
             case 'impossible':
-                // Create the component modules first
-                const patternDetector = new BouncePatternDetector(this.boardSize, this.rules);
-                const minimaxSearch = new MinimaxSearch(this.boardSize, this.rules, this.boardEvaluator);
-                const openingBook = new OpeningBook(this.boardSize);
-                
-                // Pass them to the ImpossibleStrategy constructor
-                ai = new ImpossibleStrategy(
-                    this.boardSize, 
-                    this.rules, 
-                    this.boardEvaluator, 
-                    this.threatDetector,
-                    patternDetector,
-                    minimaxSearch,
-                    openingBook
-                );
+                ai.setStrategy(new ImpossibleStrategy(this.boardSize, this.rules));
                 break;
                 
             default:
                 // Default to medium difficulty
-                console.warn(`Unknown difficulty "${difficulty}". Using medium difficulty instead.`);
-                ai = new MediumStrategy(this.boardSize, this.rules);
+                ai.setStrategy(new MediumStrategy(this.boardSize, this.rules, this.threatDetector));
                 break;
         }
         
-        // Cache the AI for future use
-        this.aiCache[difficulty] = ai;
-        
         return ai;
-    }
-    
-    /**
-     * Get a move from the AI with the specified difficulty
-     * @param {Array} board - Current board state
-     * @param {string} difficulty - Difficulty level
-     * @param {string} player - AI player marker ('X' or 'O')
-     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
-     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
-     * @returns {Object} - The selected move { row, col }
-     */
-    getMove(board, difficulty, player, bounceRuleEnabled, missingTeethRuleEnabled) {
-        const ai = this.createAI(difficulty);
-        const opponent = player === 'X' ? 'O' : 'X';
-        
-        return ai.getMove(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
-    }
-    
-    /**
-     * Clear the AI cache
-     * Useful when changing game parameters that would affect AI behavior
-     */
-    clearCache() {
-        this.aiCache = {};
     }
 }

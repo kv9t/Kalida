@@ -399,32 +399,42 @@ class Game {
         }
         
         // Use setTimeout to give UI time to update
-        setTimeout(() => {
-            // Get AI move
-            const move = this.ai.getMove(
-                this.board.getState(),
-                this.currentPlayer,
-                this.bounceRuleEnabled,
-                this.missingTeethRuleEnabled
-            );
-            
-            // Make the move
-            if (move) {
-                this.makeMove(move.row, move.col);
-            } else {
-                console.error('AI could not determine a move');
+        setTimeout(async () => { // Add 'async' keyword here
+            try {
+                // Get AI move - use await since it returns a Promise
+                const move = await this.ai.getMove(
+                    this.board.getState(),
+                    this.currentPlayer,
+                    this.bounceRuleEnabled,
+                    this.missingTeethRuleEnabled
+                );
                 
-                // Fall back to a random valid move
+                // Make the move
+                if (move && typeof move.row === 'number' && typeof move.col === 'number') {
+                    this.makeMove(move.row, move.col);
+                } else {
+                    console.error('AI returned invalid move:', move);
+                    
+                    // Fall back to a random valid move
+                    const validMoves = this.board.getEmptyPositions();
+                    if (validMoves.length > 0) {
+                        const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                        this.makeMove(randomMove.row, randomMove.col);
+                    }
+                }
+            } catch (error) {
+                console.error('Error during AI move:', error);
+                // Fall back to random move in case of error
                 const validMoves = this.board.getEmptyPositions();
                 if (validMoves.length > 0) {
                     const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
                     this.makeMove(randomMove.row, randomMove.col);
                 }
+            } finally {
+                // Notify that AI move is complete
+                this.triggerEvent('aiMoveComplete', {});
             }
-            
-            // Notify that AI move is complete
-            this.triggerEvent('aiMoveComplete', {});
-        }, 400); // Slight delay for better UX
+        }, 100); // Slight delay for better UX
     }
     
     /**

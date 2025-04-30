@@ -63,6 +63,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log('Kalida game initialized successfully!');
         
+        // Test to ensure game mode selection is working
+        document.getElementById('game-mode-select').addEventListener('change', function(e) {
+            console.log('Game mode changed to:', e.target.value);
+            if (game && typeof game.setGameMode === 'function') {
+                game.setGameMode(e.target.value);
+                console.log('Game mode set to:', game.gameMode, 'AI difficulty:', game.aiDifficulty);
+            } else {
+                console.error('Game instance not available or setGameMode not a function');
+            }
+        });
+
+
         // Export key components to window for debugging if needed
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             window._kalida = {

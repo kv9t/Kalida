@@ -1,192 +1,215 @@
 /**
- * MediumStrategy.js - Implementation of the Medium AI difficulty
- * This strategy uses basic heuristics but is not too smart
+ * MediumStrategy.js - Medium difficulty AI strategy
+ * 
+ * This strategy uses basic threat detection to make somewhat
+ * intelligent moves, but isn't as sophisticated as higher levels.
  */
-class MediumStrategy extends AIPlayer {
+class MediumStrategy {
     /**
-     * Create a new Medium Strategy AI
+     * Create a new medium strategy
      * @param {number} boardSize - Size of the game board
-     * @param {Rules} rules - Game rules instance
+     * @param {Rules} rules - Game rules reference
+     * @param {ThreatDetector} threatDetector - Threat detector instance or null
      */
-    constructor(boardSize, rules) {
-        super(boardSize, rules);
-        this.name = "Medium AI";
-        this.difficultyLevel = 2;
+    constructor(boardSize, rules, threatDetector = null) {
+        this.boardSize = boardSize;
+        this.rules = rules;
+        this.threatDetector = threatDetector || new ThreatDetector(boardSize, rules);
+        
+        // For medium difficulty, we'll mostly focus on the center region
+        this.centerRegion = this.defineCenterRegion();
+        
+        // Basic opening book
+        this.goodOpeningMoves = [
+            { row: 2, col: 2 },
+            { row: 2, col: 3 },
+            { row: 3, col: 2 },
+            { row: 3, col: 3 }
+        ];
     }
-
+    
     /**
-     * Get the next move for the AI player
-     * @param {Array} board - Current board state (2D array)
-     * @param {string} player - AI player marker ('X' or 'O')
-     * @param {string} opponent - Opponent player marker ('O' or 'X')
-     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
-     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
-     * @returns {Object} - The move to make { row, col }
+     * Define the center region (enhanced control area)
+     * @returns {Array} - Array of center positions
      */
-    getMove(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled) {
-        // Record the current board state for analysis
-        this.recordBoardState(board);
+    defineCenterRegion() {
+        const positions = [];
+        const centerStart = 1;
+        const centerEnd = this.boardSize - 2;
         
-        // First priority: Win if possible (80% of the time)
-        if (Math.random() < 0.8) {
-            const winningMove = this.findWinningMove(
-                board, player, bounceRuleEnabled, missingTeethRuleEnabled
-            );
-            if (winningMove) {
-                this.recordMove(board, winningMove.row, winningMove.col, player);
-                return winningMove;
+        for (let row = centerStart; row <= centerEnd; row++) {
+            for (let col = centerStart; col <= centerEnd; col++) {
+                positions.push({ row, col });
             }
         }
         
-        // Second priority: Block opponent from winning (70% of the time)
-        if (Math.random() < 0.7) {
-            const blockingMove = this.findWinningMove(
-                board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
-            );
-            if (blockingMove) {
-                this.recordMove(board, blockingMove.row, blockingMove.col, player);
-                return blockingMove;
+        return positions;
+    }
+    
+    /**
+     * Get a move using this strategy
+     * @param {Array} board - 2D array representing the board state
+     * @param {string} player - Current player ('X' or 'O')
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @returns {Object} - The selected move { row, col }
+     */
+    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+        const opponent = player === 'X' ? 'O' : 'X';
+        
+        // 1. Check if it's the first move
+        if (this.isFirstMove(board)) {
+            return this.getOpeningMove(board);
+        }
+        
+        // 2. Check if we can win immediately
+        const winningMove = this.rules.findWinningMove(
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+        );
+        
+        if (winningMove) {
+            return winningMove;
+        }
+        
+        // 3. Check if opponent can win and block
+        const blockingMove = this.rules.findWinningMove(
+            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
+        );
+        
+        if (blockingMove) {
+            return blockingMove;
+        }
+        
+        // 4. Look for threats
+        const threats = this.threatDetector.detectThreats(
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+        );
+        
+        if (threats.length > 0) {
+            // Sort threats by priority and take the highest
+            threats.sort((a, b) => b.priority - a.priority);
+            return { row: threats[0].row, col: threats[0].col };
+        }
+        
+        // 5. Try to place in the center region
+        const centerMoves = this.getCenterRegionMoves(board);
+        if (centerMoves.length > 0) {
+            // 80% chance to choose a center move
+            if (Math.random() < 0.8) {
+                return centerMoves[Math.floor(Math.random() * centerMoves.length)];
             }
         }
         
-        // Third priority: Take center if available (90% of the time)
-        if (Math.random() < 0.9) {
-            const centerMove = this.getCenterMove(board);
-            if (centerMove) {
-                this.recordMove(board, centerMove.row, centerMove.col, player);
-                return centerMove;
-            }
-        }
-        
-        // Fourth priority: Look for advantageous positions (50% of the time)
-        if (Math.random() < 0.5) {
-            const strategicMove = this.findStrategicMove(board, player, opponent);
-            if (strategicMove) {
-                this.recordMove(board, strategicMove.row, strategicMove.col, player);
-                return strategicMove;
-            }
-        }
-        
-        // Fifth priority: Choose a position adjacent to existing pieces
-        const adjacentMove = this.getAdjacentMove(board);
+        // 6. Fall back to a move that's adjacent to our existing pieces
+        const adjacentMove = this.findAdjacentMove(board, player);
         if (adjacentMove) {
-            this.recordMove(board, adjacentMove.row, adjacentMove.col, player);
             return adjacentMove;
         }
         
-        // Last resort: choose a random position
-        const randomMove = this.getRandomMove(board);
-        if (randomMove) {
-            this.recordMove(board, randomMove.row, randomMove.col, player);
-            return randomMove;
-        }
-        
-        return null; // No valid moves (should never happen unless board is full)
+        // 7. Last resort: random move
+        return this.getRandomMove(board);
     }
     
     /**
-     * Record the current board state for analysis
+     * Check if it's the first move of the game
      * @param {Array} board - Current board state
+     * @returns {boolean} - Whether it's the first move
      */
-    recordBoardState(board) {
-        // Make a deep copy to avoid reference issues
-        this.currentBoardState = board.map(row => [...row]);
-    }
-    
-    /**
-     * Find a strategic move (two in a row, etc.)
-     * @param {Array} board - 2D array representing the game board
-     * @param {string} player - AI player marker ('X' or 'O')
-     * @param {string} opponent - Opponent player marker ('O' or 'X')
-     * @returns {Object|null} - Strategic move { row, col } or null if none exists
-     */
-    findStrategicMove(board, player, opponent) {
-        // Define directions to check
-        const directions = [
-            [0, 1], // horizontal
-            [1, 0], // vertical
-            [1, 1], // diagonal
-            [1, -1]  // anti-diagonal
-        ];
-        
-        // Store potential moves with their scores
-        const potentialMoves = [];
-        
-        // Try each empty cell
+    isFirstMove(board) {
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
-                if (board[row][col] === '') {
-                    let score = 0;
-                    
-                    // Check each direction
+                if (board[row][col] !== '') {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Get an opening move
+     * @param {Array} board - Current board state
+     * @returns {Object} - Opening move { row, col }
+     */
+    getOpeningMove(board) {
+        // Randomize from good opening moves
+        return this.goodOpeningMoves[
+            Math.floor(Math.random() * this.goodOpeningMoves.length)
+        ];
+    }
+    
+    /**
+     * Get moves in the center region
+     * @param {Array} board - Current board state
+     * @returns {Array} - Array of available center moves
+     */
+    getCenterRegionMoves(board) {
+        return this.centerRegion.filter(pos => 
+            board[pos.row][pos.col] === ''
+        );
+    }
+    
+    /**
+     * Find a move adjacent to player's existing pieces
+     * @param {Array} board - Current board state
+     * @param {string} player - Current player
+     * @returns {Object|null} - Adjacent move or null if none found
+     */
+    findAdjacentMove(board, player) {
+        const directions = [
+            [-1, -1], [-1, 0], [-1, 1],
+            [0, -1],           [0, 1],
+            [1, -1],  [1, 0],  [1, 1]
+        ];
+        
+        const adjacentCells = [];
+        
+        // Find all cells adjacent to player's pieces
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                if (board[row][col] === player) {
+                    // Check adjacent cells
                     for (const [dx, dy] of directions) {
-                        // Count player's pieces in this direction
-                        const playerCount = this.countInDirection(board, row, col, dx, dy, player);
+                        const newRow = (row + dx + this.boardSize) % this.boardSize;
+                        const newCol = (col + dy + this.boardSize) % this.boardSize;
                         
-                        // Score based on number of pieces and open ends
-                        if (playerCount.count >= 3 && playerCount.openEnds >= 1) {
-                            score += 10; // Good potential for a win
-                        } else if (playerCount.count === 2 && playerCount.openEnds === 2) {
-                            score += 5; // Building a sequence
+                        if (board[newRow][newCol] === '') {
+                            adjacentCells.push({ row: newRow, col: newCol });
                         }
-                        
-                        // Count opponent's pieces in this direction
-                        const opponentCount = this.countInDirection(board, row, col, dx, dy, opponent);
-                        
-                        // Defensive scoring
-                        if (opponentCount.count >= 3 && opponentCount.openEnds >= 1) {
-                            score += 8; // Block opponent's potential win
-                        } else if (opponentCount.count === 2 && opponentCount.openEnds === 2) {
-                            score += 3; // Block opponent's building sequence
-                        }
-                    }
-                    
-                    // Center proximity bonus
-                    const centerRow = Math.floor(this.boardSize / 2);
-                    const centerCol = Math.floor(this.boardSize / 2);
-                    const distFromCenter = Math.abs(row - centerRow) + Math.abs(col - centerCol);
-                    score += Math.max(0, 5 - distFromCenter);
-                    
-                    // Add to potential moves if score is positive
-                    if (score > 0) {
-                        potentialMoves.push({
-                            row,
-                            col,
-                            score
-                        });
                     }
                 }
             }
         }
         
-        // Sort potential moves by score (highest first)
-        potentialMoves.sort((a, b) => b.score - a.score);
-        
-        // Return the best move if any found
-        if (potentialMoves.length > 0) {
-            return {
-                row: potentialMoves[0].row,
-                col: potentialMoves[0].col
-            };
+        // Return a random adjacent cell
+        if (adjacentCells.length > 0) {
+            return adjacentCells[Math.floor(Math.random() * adjacentCells.length)];
         }
         
         return null;
     }
     
     /**
-     * Get a move adjacent to existing pieces
-     * @param {Array} board - 2D array representing the game board
-     * @returns {Object|null} - Adjacent move { row, col } or null if none exists
+     * Get a random valid move
+     * @param {Array} board - Current board state
+     * @returns {Object} - Random move { row, col }
      */
-    getAdjacentMove(board) {
-        const adjacentPositions = this.getAdjacentEmptyPositions(board);
+    getRandomMove(board) {
+        const emptyCells = [];
         
-        if (adjacentPositions.length === 0) {
-            return null;
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                if (board[row][col] === '') {
+                    emptyCells.push({ row, col });
+                }
+            }
         }
         
-        // Randomly select one of the adjacent positions
-        const randomIndex = Math.floor(Math.random() * adjacentPositions.length);
-        return adjacentPositions[randomIndex];
+        if (emptyCells.length > 0) {
+            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        }
+        
+        console.error('No valid move found in MediumStrategy');
+        return null;
     }
 }

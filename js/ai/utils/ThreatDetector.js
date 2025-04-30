@@ -1,238 +1,195 @@
 /**
- * ThreatDetector.js - Detects and evaluates threats and opportunities on the board
- * Specialized utility for detecting patterns that create or block winning threats
+ * ThreatDetector.js - Enhanced threat detection for Kalida
+ * 
+ * Detects various threats on the board:
+ * - Immediate wins (4 in a row with an open end)
+ * - Forced wins (3 in a row with two open ends)
+ * - Developing threats (3 in a row with one open end)
+ * - Pattern-based threats
  */
 class ThreatDetector {
     /**
      * Create a new threat detector
      * @param {number} boardSize - Size of the game board
-     * @param {Rules} rules - Game rules instance
+     * @param {Rules} rules - Game rules reference
      */
     constructor(boardSize, rules) {
         this.boardSize = boardSize;
         this.rules = rules;
+        this.winTrackGenerator = new WinTrackGenerator(boardSize, rules);
         
-        // Directions to check
-        this.directions = [
-            [0, 1], // horizontal
-            [1, 0], // vertical
-            [1, 1], // diagonal
-            [1, -1]  // anti-diagonal
-        ];
-        
-        // Only diagonal directions (for bounce checking)
-        this.diagonalDirections = [
-            [1, 1],  // diagonal
-            [1, -1]  // anti-diagonal
-        ];
-    }
-
-    /**
-     * Find a move that creates multiple threats (a forcing move)
-     * @param {Array} board - 2D array representing the game board
-     * @param {string} player - Player to find moves for
-     * @param {string} opponent - Opponent player
-     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
-     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
-     * @returns {Object|null} - Forcing move { row, col } or null if none found
-     */
-    findForcingMove(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled) {
-        // Get all empty positions
-        const emptyPositions = this.getEmptyPositions(board);
-        
-        // Evaluate each position for threat creation
-        const threatMoves = [];
-        
-        for (const { row, col } of emptyPositions) {
-            // Count potential threats created by this move
-            const threatCount = this.countThreats(
-                board, row, col, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled
-            );
-            
-            // If this move creates multiple threats, it's a forcing move
-            if (threatCount >= 2) {
-                threatMoves.push({ row, col, threats: threatCount });
-            }
-        }
-        
-        // Sort by number of threats (highest first)
-        threatMoves.sort((a, b) => b.threats - a.threats);
-        
-        // Return the move that creates the most threats
-        return threatMoves.length > 0 ? { row: threatMoves[0].row, col: threatMoves[0].col } : null;
+        // Threat levels and their priorities
+        this.threatLevels = {
+            IMMEDIATE_WIN: 100,      // 4 in a row with open end
+            FORCED_WIN: 90,          // 3 in a row with two open ends
+            DEVELOPING_THREAT: 70,   // 3 in a row with one open end
+            POTENTIAL_THREAT: 50,    // 2 in a row with two open ends
+            EARLY_THREAT: 30         // 2 in a row with one open end
+        };
     }
     
     /**
-     * Find a critical defensive move to block opponent's threats
-     * @param {Array} board - 2D array representing the game board
-     * @param {string} player - AI player
-     * @param {string} opponent - Opponent player
-     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
-     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
-     * @returns {Object|null} - Defensive move { row, col } or null if none needed
+     * Detect all threats on the board
+     * @param {Array} board - 2D array representing the board state
+     * @param {string} player - Player to find threats for ('X' or 'O')
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @returns {Array} - Array of threat objects with position and priority
      */
-    findCriticalDefensiveMove(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled) {
-        // Get all empty positions
-        const emptyPositions = this.getEmptyPositions(board);
+    detectThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+        const threats = [];
+        const opponent = player === 'X' ? 'O' : 'X';
         
-        // Evaluate each position for threat blocking
-        const defensiveMoves = [];
-        
-        for (const { row, col } of emptyPositions) {
-            // Count potential threats by opponent if they played here
-            const opponentThreats = this.countThreats(
-                board, row, col, opponent, player, bounceRuleEnabled, missingTeethRuleEnabled
-            );
-            
-            // If opponent can create multiple threats, this is a critical position to block
-            if (opponentThreats >= 2) {
-                defensiveMoves.push({ row, col, threats: opponentThreats });
-            }
+        // 1. First check if we can win immediately
+        const immediateWins = this.findImmediateWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled);
+        if (immediateWins.length > 0) {
+            return immediateWins.map(pos => ({
+                row: pos[0],
+                col: pos[1],
+                priority: this.threatLevels.IMMEDIATE_WIN,
+                type: 'win'
+            }));
         }
         
-        // Sort by number of threats blocked (highest first)
-        defensiveMoves.sort((a, b) => b.threats - a.threats);
+        // 2. Check if opponent has immediate wins (that we need to block)
+        const opponentWins = this.findImmediateWins(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
+        if (opponentWins.length > 0) {
+            return opponentWins.map(pos => ({
+                row: pos[0],
+                col: pos[1],
+                priority: this.threatLevels.IMMEDIATE_WIN - 1, // Slightly lower than our own win
+                type: 'block'
+            }));
+        }
         
-        // Return the move that blocks the most threats
-        return defensiveMoves.length > 0 ? { row: defensiveMoves[0].row, col: defensiveMoves[0].col } : null;
+        // 3. Look for forced wins (3 in a row with two open ends)
+        threats.push(...this.findForcedWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled));
+        
+        // 4. Look for developing threats (3 in a row with one open end)
+        threats.push(...this.findDevelopingThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled));
+        
+        // 5. Look for potential threats (2 in a row with two open ends)
+        threats.push(...this.findPotentialThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled));
+        
+        // 6. Look for opponent's forced wins that we should block
+        const opponentForced = this.findForcedWins(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
+        if (opponentForced.length > 0) {
+            // Prioritize blocking opponent's forced win
+            threats.push(...opponentForced.map(threat => ({
+                row: threat.row,
+                col: threat.col,
+                priority: this.threatLevels.FORCED_WIN - 1, // Slightly lower than our own forced win
+                type: 'block'
+            })));
+        }
+        
+        return threats;
     }
     
     /**
-     * Evaluate threats and opportunities for a position
-     * @param {Array} board - 2D array representing the game board
-     * @param {number} row - Row of the position
-     * @param {number} col - Column of the position
-     * @param {string} player - Player to evaluate for
-     * @param {string} opponent - Opponent player
-     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
-     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
-     * @returns {Object} - Evaluation { offensiveScore, defensiveScore, diagonalThreatBonus }
+     * Find immediate win positions (4 in a row with open end)
+     * @param {Array} board - 2D array representing the board state
+     * @param {string} player - Player to find wins for ('X' or 'O')
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled 
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @returns {Array} - Array of winning positions [row, col]
      */
-    evaluatePosition(board, row, col, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled) {
-        // Skip if position is not empty
-        if (board[row][col] !== '') {
-            return { offensiveScore: 0, defensiveScore: 0, diagonalThreatBonus: 0 };
-        }
+    findImmediateWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+        const winningPositions = [];
+        const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
         
-        // Make a copy of the board with the move applied
-        const tempBoard = this.makeMove(board, row, col, player);
-        
-        let offensiveScore = 0;
-        let defensiveScore = 0;
-        let diagonalThreatBonus = 0;
-        
-        // Check each direction for offensive potential
-        for (const [dx, dy] of this.directions) {
-            // Evaluate the pattern from this position
-            const pattern = this.evaluateDirectionalPattern(
-                tempBoard, row, col, dx, dy, player, missingTeethRuleEnabled
-            );
+        for (const track of allTracks) {
+            // Check if this track has 4 of player's marks and 1 empty
+            const positions = this.analyzeTrack(board, track, player);
             
-            // Add to offensive score
-            offensiveScore += pattern.value;
-            
-            // Add diagonal bonus if applicable
-            if (dx !== 0 && dy !== 0 && pattern.value > 0) {
-                diagonalThreatBonus += pattern.value * 0.2; // 20% bonus for diagonal threats
+            if (positions.player === 4 && positions.empty === 1 && positions.opponent === 0) {
+                // Find the empty position
+                const emptyPos = track.find(([row, col]) => board[row][col] === '');
+                
+                // Check if placing at this position would create a missing teeth scenario
+                if (!missingTeethRuleEnabled || !this.wouldCreateMissingTeeth(board, emptyPos[0], emptyPos[1], player, track)) {
+                    winningPositions.push(emptyPos);
+                }
             }
         }
         
-        // Now check for defensive value (blocking opponent's threats)
-        const opponentBoard = this.makeMove(board, row, col, opponent);
-        
-        for (const [dx, dy] of this.directions) {
-            // Evaluate the pattern as if opponent played here
-            const pattern = this.evaluateDirectionalPattern(
-                opponentBoard, row, col, dx, dy, opponent, missingTeethRuleEnabled
-            );
-            
-            // Add to defensive score
-            defensiveScore += pattern.value * 0.8; // Value blocking slightly less than creating
-            
-            // Add diagonal bonus if applicable
-            if (dx !== 0 && dy !== 0 && pattern.value > 0) {
-                diagonalThreatBonus += pattern.value * 0.1; // 10% bonus for blocking diagonal threats
-            }
-        }
-        
-        // Check for bounce patterns if enabled
-        if (bounceRuleEnabled) {
-            // Evaluate bounce patterns for both offensive and defensive value
-            for (const [dx, dy] of this.diagonalDirections) {
-                // Check offensive bounce potential
-                const offensiveBounce = this.evaluateBouncePattern(
-                    tempBoard, row, col, dx, dy, player, missingTeethRuleEnabled
-                );
-                
-                offensiveScore += offensiveBounce;
-                
-                // Check defensive bounce potential
-                const defensiveBounce = this.evaluateBouncePattern(
-                    opponentBoard, row, col, dx, dy, opponent, missingTeethRuleEnabled
-                );
-                
-                defensiveScore += defensiveBounce * 0.8; // Value blocking slightly less
-            }
-        }
-        
-        return { offensiveScore, defensiveScore, diagonalThreatBonus };
+        return winningPositions;
     }
     
     /**
-     * Count potential threats a move creates
-     * @param {Array} board - 2D array representing the game board
-     * @param {number} row - Row of the move
-     * @param {number} col - Column of the move
-     * @param {string} player - Player who made the move
-     * @param {string} opponent - Opponent player
-     * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
-     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
-     * @returns {number} - Number of threats
+     * Find forced win positions (3 in a row with two open ends)
+     * @param {Array} board - 2D array representing the board state
+     * @param {string} player - Player to find forced wins for
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @returns {Array} - Array of threat objects with position and priority
      */
-    countThreats(board, row, col, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled) {
-        // Skip if position is not empty
-        if (board[row][col] !== '') {
-            return 0;
-        }
+    findForcedWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+        const threats = [];
+        const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
         
-        // Make a copy of the board with the move applied
-        const tempBoard = this.makeMove(board, row, col, player);
-        
-        let threats = 0;
-        
-        // Check each direction for threats
-        for (const [dx, dy] of this.directions) {
-            // Count consecutive pieces and open ends
-            const result = this.countInDirection(tempBoard, row, col, dx, dy, player);
+        for (const track of allTracks) {
+            // Check if this track has 3 of player's marks and 2 empty
+            const positions = this.analyzeTrack(board, track, player);
             
-            // Add to threat count based on pattern
-            if (result.count === 4 && result.openEnds >= 1) {
-                // Direct threat - four in a row with at least one open end
-                threats++;
-            } else if (result.count === 3 && result.openEnds === 2) {
-                // Indirect threat - three in a row with both ends open
-                threats++;
+            if (positions.player === 3 && positions.empty === 2 && positions.opponent === 0) {
+                // Check if the empty positions are consecutive (critical for forced win)
+                const emptyPositions = track.filter(([row, col]) => board[row][col] === '');
+                const isConsecutive = this.arePositionsConsecutive(track, emptyPositions);
+                
+                // Only add if not creating missing teeth
+                if (!missingTeethRuleEnabled || !this.wouldCreateMissingTeeth(board, emptyPositions[0][0], emptyPositions[0][1], player, track)) {
+                    threats.push({
+                        row: emptyPositions[0][0],
+                        col: emptyPositions[0][1],
+                        priority: isConsecutive ? this.threatLevels.FORCED_WIN : this.threatLevels.DEVELOPING_THREAT,
+                        type: 'attack'
+                    });
+                }
+                
+                if (!missingTeethRuleEnabled || !this.wouldCreateMissingTeeth(board, emptyPositions[1][0], emptyPositions[1][1], player, track)) {
+                    threats.push({
+                        row: emptyPositions[1][0],
+                        col: emptyPositions[1][1],
+                        priority: isConsecutive ? this.threatLevels.FORCED_WIN : this.threatLevels.DEVELOPING_THREAT,
+                        type: 'attack'
+                    });
+                }
             }
         }
         
-        // Check for bounce threats if enabled
-        if (bounceRuleEnabled) {
-            // Check diagonal directions for bounce potential
-            for (const [dx, dy] of this.diagonalDirections) {
-                // Check if position is near an edge (where bounce is possible)
-                const isNearEdge = 
-                    row <= 1 || row >= this.boardSize - 2 || 
-                    col <= 1 || col >= this.boardSize - 2;
+        return threats;
+    }
+    
+    /**
+     * Find developing threat positions (3 in a row with one open end)
+     * @param {Array} board - 2D array representing the board state
+     * @param {string} player - Player to find threats for
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @returns {Array} - Array of threat objects with position and priority
+     */
+    findDevelopingThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+        const threats = [];
+        const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
+        
+        for (const track of allTracks) {
+            // Check for 3 player marks and 1-2 empty spaces
+            const positions = this.analyzeTrack(board, track, player);
+            
+            if (positions.player === 3 && positions.empty >= 1 && positions.opponent === 0) {
+                // Get all empty positions
+                const emptyPositions = track.filter(([row, col]) => board[row][col] === '');
                 
-                if (isNearEdge) {
-                    // Check for a potential bounce pattern
-                    const bounceResult = this.evaluateBouncePattern(
-                        tempBoard, row, col, dx, dy, player, missingTeethRuleEnabled
-                    );
-                    
-                    // Count as a threat if the bounce pattern is strong enough
-                    if (bounceResult >= 30) {
-                        threats++;
+                // Add threats for each empty position
+                for (const [row, col] of emptyPositions) {
+                    if (!missingTeethRuleEnabled || !this.wouldCreateMissingTeeth(board, row, col, player, track)) {
+                        threats.push({
+                            row,
+                            col,
+                            priority: this.threatLevels.DEVELOPING_THREAT,
+                            type: 'develop'
+                        });
                     }
                 }
             }
@@ -242,382 +199,172 @@ class ThreatDetector {
     }
     
     /**
-     * Find diagonal threats specifically
-     * @param {Array} board - 2D array representing the game board
-     * @param {number} row - Row of the last move
-     * @param {number} col - Column of the last move
-     * @param {string} player - Player who made the move
-     * @returns {number} - Diagonal threat score (0-100)
+     * Find potential threat positions (2 in a row with two open ends)
+     * @param {Array} board - 2D array representing the board state
+     * @param {string} player - Player to find threats for
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @returns {Array} - Array of threat objects with position and priority
      */
-    findDiagonalThreats(board, row, col, player) {
-        // Only check diagonal directions
-        const diagonalDirections = [
-            [1, 1],  // diagonal
-            [1, -1]  // anti-diagonal
-        ];
+    findPotentialThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+        const threats = [];
+        const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
         
-        let diagonalThreatScore = 0;
-        
-        for (const [dx, dy] of diagonalDirections) {
-            // Count consecutive pieces and open ends
-            const result = this.countInDirection(board, row, col, dx, dy, player);
+        for (const track of allTracks) {
+            // Check for 2 player marks and 3+ empty spaces
+            const positions = this.analyzeTrack(board, track, player);
             
-            // Calculate threat score based on pattern
-            if (result.count >= 4 && result.openEnds >= 1) {
-                diagonalThreatScore += 100; // Strong diagonal threat
-            } else if (result.count === 3 && result.openEnds === 2) {
-                diagonalThreatScore += 60; // Moderate diagonal threat
-            } else if (result.count === 3 && result.openEnds === 1) {
-                diagonalThreatScore += 30; // Minor diagonal threat
-            } else if (result.count === 2 && result.openEnds === 2) {
-                diagonalThreatScore += 15; // Potential diagonal threat
-            }
-            
-            // Check if on a great diagonal for additional bonus
-            if (this.isGreatDiagonal(result.path)) {
-                diagonalThreatScore *= 1.25; // 25% bonus for great diagonal
-            }
-        }
-        
-        return diagonalThreatScore;
-    }
-    
-    /**
-     * Evaluate a pattern in a specific direction
-     * @param {Array} board - 2D array representing the game board
-     * @param {number} startRow - Starting row
-     * @param {number} startCol - Starting column
-     * @param {number} dx - Row direction (-1, 0, 1)
-     * @param {number} dy - Column direction (-1, 0, 1)
-     * @param {string} player - Player marker to evaluate for
-     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
-     * @returns {Object} - Evaluation { value, count, openEnds, path }
-     */
-    evaluateDirectionalPattern(board, startRow, startCol, dx, dy, player, missingTeethRuleEnabled) {
-        // Count consecutive pieces and open ends
-        const result = this.countInDirection(board, startRow, startCol, dx, dy, player);
-        const { count, openEnds, path } = result;
-        
-        // Check for missing teeth if applicable
-        let hasMissingTeeth = false;
-        if (missingTeethRuleEnabled && count >= 3) {
-            // Check if this pattern is on a major axis
-            const isOnMajorAxis = this.isOnMajorAxis(path);
-            
-            if (isOnMajorAxis) {
-                // Check if this is a great diagonal (exempt from missing teeth rule)
-                const isGreatDiag = this.isGreatDiagonal(path);
+            if (positions.player === 2 && positions.empty >= 3 && positions.opponent === 0) {
+                // Get all empty positions
+                const emptyPositions = track.filter(([row, col]) => board[row][col] === '');
                 
-                // Only check for missing teeth if not a great diagonal
-                if (!isGreatDiag) {
-                    hasMissingTeeth = this.checkForMissingTeeth(board, path, player, dx, dy);
+                // Check if the 2 player marks are consecutive
+                const playerPositions = track.filter(([row, col]) => board[row][col] === player);
+                const consecutive = this.arePositionsConsecutive(track, playerPositions);
+                
+                // Add threats for each empty position
+                for (const [row, col] of emptyPositions) {
+                    if (!missingTeethRuleEnabled || !this.wouldCreateMissingTeeth(board, row, col, player, track)) {
+                        // If the position is adjacent to an existing player mark, it's more valuable
+                        const adjacentToPlayer = this.isAdjacentInTrack(track, [row, col], playerPositions);
+                        
+                        threats.push({
+                            row,
+                            col,
+                            priority: adjacentToPlayer 
+                                ? (consecutive ? this.threatLevels.POTENTIAL_THREAT : this.threatLevels.EARLY_THREAT)
+                                : this.threatLevels.EARLY_THREAT - 10,
+                            type: 'develop'
+                        });
+                    }
                 }
             }
         }
         
-        // Calculate value based on pattern
-        let value = 0;
-        
-        if (count >= 5 && !hasMissingTeeth) {
-            // Winning pattern
-            value = 1000;
-        } else if (count === 4) {
-            if (openEnds === 2 && !hasMissingTeeth) {
-                // Four in a row with both ends open (very strong)
-                value = 300;
-            } else if (openEnds === 1 && !hasMissingTeeth) {
-                // Four in a row with one open end (strong)
-                value = 200;
-            } else if (!hasMissingTeeth) {
-                // Four in a row with no open ends
-                value = 50;
-            }
-        } else if (count === 3) {
-            if (openEnds === 2 && !hasMissingTeeth) {
-                // Three in a row with both ends open (strong threat)
-                value = 50;
-            } else if (openEnds === 1 && !hasMissingTeeth) {
-                // Three in a row with one open end
-                value = 10;
-            }
-        } else if (count === 2 && openEnds === 2) {
-            // Two in a row with both ends open (developing)
-            value = 5;
-        }
-        
-        // Apply diagonal bonus
-        const isDiagonal = dx !== 0 && dy !== 0;
-        if (isDiagonal) {
-            value *= 1.1; // 10% bonus for diagonal patterns
-        }
-        
-        return { value, count, openEnds, path };
+        return threats;
     }
     
     /**
-     * Evaluate bounce patterns
-     * @param {Array} board - 2D array representing the game board
-     * @param {number} startRow - Starting row
-     * @param {number} startCol - Starting column
-     * @param {number} dx - Row direction (-1, 0, 1)
-     * @param {number} dy - Column direction (-1, 0, 1)
-     * @param {string} player - Player marker to evaluate for
-     * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
-     * @returns {number} - Value of the bounce pattern
+     * Analyze a track to count player's marks, opponent's marks, and empty spaces
+     * @param {Array} board - 2D array representing the board state 
+     * @param {Array} track - Array of positions forming a track
+     * @param {string} player - Player to analyze for ('X' or 'O')
+     * @returns {Object} - Counts of player marks, opponent marks, and empty spaces
      */
-    evaluateBouncePattern(board, startRow, startCol, dx, dy, player, missingTeethRuleEnabled) {
-        // Only consider diagonal directions for bounce
-        if (dx === 0 || dy === 0) {
-            return 0;
-        }
+    analyzeTrack(board, track, player) {
+        const opponent = player === 'X' ? 'O' : 'X';
+        let playerCount = 0;
+        let opponentCount = 0;
+        let emptyCount = 0;
         
-        // Only consider cells near edges
-        const isNearEdge = 
-            startRow <= 1 || startRow >= this.boardSize - 2 || 
-            startCol <= 1 || startCol >= this.boardSize - 2;
-        
-        if (!isNearEdge) {
-            return 0;
-        }
-        
-        // Count consecutive pieces toward the edge
-        let count = 1;
-        let path = [[startRow, startCol]];
-        let isFirstBounce = false;
-        
-        // Determine direction toward the closest edge
-        let dirRow = 0;
-        let dirCol = 0;
-        
-        if (startRow <= 1) dirRow = -1;
-        else if (startRow >= this.boardSize - 2) dirRow = 1;
-        
-        if (startCol <= 1) dirCol = -1;
-        else if (startCol >= this.boardSize - 2) dirCol = 1;
-        
-        // If no clear edge direction, use dx/dy
-        if (dirRow === 0) dirRow = dx;
-        if (dirCol === 0) dirCol = dy;
-        
-        // Check in the direction of the edge
-        for (let i = 1; i < 4; i++) {
-            const newRow = startRow + i * dirRow * dx;
-            const newCol = startCol + i * dirCol * dy;
-            
-            // Check if we've reached the edge
-            if (newRow < 0 || newRow >= this.boardSize || 
-                newCol < 0 || newCol >= this.boardSize) {
-                isFirstBounce = true;
-                break;
-            }
-            
-            if (board[newRow][newCol] === player) {
-                count++;
-                path.push([newRow, newCol]);
+        for (const [row, col] of track) {
+            if (board[row][col] === player) {
+                playerCount++;
+            } else if (board[row][col] === opponent) {
+                opponentCount++;
             } else {
-                break;
+                emptyCount++;
             }
         }
         
-        // Simple bounce evaluation based on the length of the sequence
-        // A more sophisticated implementation would trace the actual bounce path
-        let value = 0;
-        
-        if (isFirstBounce && count >= 3) {
-            value = 30 * (count - 2); // Value increases with length
-        }
-        
-        return value;
+        return {
+            player: playerCount,
+            opponent: opponentCount,
+            empty: emptyCount
+        };
     }
     
     /**
-     * Count consecutive pieces in a direction
-     * @param {Array} board - 2D array representing the game board
-     * @param {number} startRow - Starting row
-     * @param {number} startCol - Starting column
-     * @param {number} dx - Row direction
-     * @param {number} dy - Column direction
-     * @param {string} player - Player marker to count
-     * @returns {Object} - Count result { count, openEnds, path }
+     * Check if positions are consecutive within a track
+     * @param {Array} track - Array of positions forming a track
+     * @param {Array} positions - Array of positions to check
+     * @returns {boolean} - Whether the positions are consecutive
      */
-    countInDirection(board, startRow, startCol, dx, dy, player) {
-        let count = 1; // Start with the current position
-        let openEnds = 0;
-        const path = [[startRow, startCol]];
+    arePositionsConsecutive(track, positions) {
+        if (positions.length < 2) return true;
         
-        // Check forward direction
-        let forwardOpen = false;
-        for (let i = 1; i < 5; i++) {
-            const newRow = startRow + i * dx;
-            const newCol = startCol + i * dy;
+        // Create a map of track indices for each position
+        const positionIndices = new Map();
+        for (let i = 0; i < track.length; i++) {
+            const [row, col] = track[i];
+            positionIndices.set(`${row},${col}`, i);
+        }
+        
+        // Get indices of our target positions
+        const indices = positions.map(([row, col]) => 
+            positionIndices.get(`${row},${col}`)
+        ).sort((a, b) => a - b);
+        
+        // Check if indices are consecutive
+        for (let i = 1; i < indices.length; i++) {
+            if (indices[i] !== indices[i-1] + 1) {
+                // Check for wrap around the end of the track
+                if (!(indices[i-1] === track.length - 1 && indices[i] === 0)) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Check if a position is adjacent to any of the specified positions within a track
+     * @param {Array} track - Array of positions forming a track
+     * @param {Array} position - Position to check [row, col]
+     * @param {Array} otherPositions - Positions to check against
+     * @returns {boolean} - Whether the position is adjacent to any other position
+     */
+    isAdjacentInTrack(track, position, otherPositions) {
+        // Create a map of track indices for each position
+        const positionIndices = new Map();
+        for (let i = 0; i < track.length; i++) {
+            const [row, col] = track[i];
+            positionIndices.set(`${row},${col}`, i);
+        }
+        
+        const posIndex = positionIndices.get(`${position[0]},${position[1]}`);
+        
+        for (const otherPos of otherPositions) {
+            const otherIndex = positionIndices.get(`${otherPos[0]},${otherPos[1]}`);
             
-            // Check if position is valid
-            if (newRow < 0 || newRow >= this.boardSize || 
-                newCol < 0 || newCol >= this.boardSize) {
-                break;
+            // Check if adjacent (next to each other in the track)
+            if (Math.abs(posIndex - otherIndex) === 1) {
+                return true;
             }
             
-            if (board[newRow][newCol] === player) {
-                count++;
-                path.push([newRow, newCol]);
-            } else if (board[newRow][newCol] === '') {
-                forwardOpen = true;
-                openEnds++;
-                break;
-            } else {
-                break;
+            // Also check wrap-around case
+            if ((posIndex === 0 && otherIndex === track.length - 1) ||
+                (posIndex === track.length - 1 && otherIndex === 0)) {
+                return true;
             }
         }
         
-        // Check backward direction
-        for (let i = 1; i < 5; i++) {
-            const newRow = startRow - i * dx;
-            const newCol = startCol - i * dy;
-            
-            // Check if position is valid
-            if (newRow < 0 || newRow >= this.boardSize || 
-                newCol < 0 || newCol >= this.boardSize) {
-                break;
-            }
-            
-            if (board[newRow][newCol] === player) {
-                count++;
-                path.push([newRow, newCol]);
-            } else if (board[newRow][newCol] === '') {
-                openEnds++;
-                break;
-            } else {
-                break;
-            }
-        }
-        
-        return { count, openEnds, path };
+        return false;
     }
     
     /**
-     * Check if a path is on a major axis
-     * @param {Array} cells - Array of [row, col] coordinates
-     * @returns {boolean} - Whether the path is on a major axis
+     * Check if placing a mark would create a missing teeth scenario
+     * @param {Array} board - 2D array representing the board state
+     * @param {number} row - Row to check
+     * @param {number} col - Column to check
+     * @param {string} player - Player making the move
+     * @param {Array} track - The track to check
+     * @returns {boolean} - Whether the move would create missing teeth
      */
-    isOnMajorAxis(cells) {
-        if (cells.length < 3) return false;
+    wouldCreateMissingTeeth(board, row, col, player, track) {
+        // Create a copy of the board with the move applied
+        const tempBoard = board.map(row => [...row]);
+        tempBoard[row][col] = player;
         
-        // Check if all cells are in the same row
-        const allSameRow = cells.every(cell => cell[0] === cells[0][0]);
+        // Get all player positions in this track
+        const playerPositions = track.filter(([r, c]) => tempBoard[r][c] === player);
         
-        // Check if all cells are in the same column
-        const allSameCol = cells.every(cell => cell[1] === cells[0][1]);
+        // If we don't have enough pieces for a win, missing teeth isn't relevant yet
+        if (playerPositions.length < 5) return false;
         
-        // Check if cells are on a great diagonal
-        const isGreatDiag = this.isGreatDiagonal(cells);
-        
-        return allSameRow || allSameCol || isGreatDiag;
-    }
-    
-    /**
-     * Check if cells are on a great diagonal
-     * @param {Array} cells - Array of [row, col] coordinates
-     * @returns {boolean} - Whether the cells are on a great diagonal
-     */
-    isGreatDiagonal(cells) {
-        if (cells.length < 3) return false;
-        
-        // Main great diagonal (A1 to F6): cells where row == col
-        const onMainGreatDiagonal = cells.every(cell => cell[0] === cell[1]);
-        
-        // Anti great diagonal (A6 to F1): cells where row + col = boardSize - 1
-        const onAntiGreatDiagonal = cells.every(cell => cell[0] + cell[1] === this.boardSize - 1);
-        
-        return onMainGreatDiagonal || onAntiGreatDiagonal;
-    }
-    
-    /**
-     * Check for missing teeth in a line of cells
-     * @param {Array} board - 2D array representing the game board
-     * @param {Array} cells - Array of [row, col] coordinates
-     * @param {string} player - Player marker
-     * @param {number} dx - Row direction
-     * @param {number} dy - Column direction
-     * @returns {boolean} - Whether there are missing teeth
-     */
-    checkForMissingTeeth(board, cells, player, dx, dy) {
-        // Sort cells to find boundaries
-        const sortedByRow = [...cells].sort((a, b) => a[0] - b[0]);
-        const sortedByCol = [...cells].sort((a, b) => a[1] - b[1]);
-        const minRow = sortedByRow[0][0];
-        const maxRow = sortedByRow[sortedByRow.length - 1][0];
-        const minCol = sortedByCol[0][1];
-        const maxCol = sortedByCol[sortedByCol.length - 1][1];
-        
-        // Create a set of occupied positions for quick lookup
-        const occupiedPositions = new Set(cells.map(cell => `${cell[0]},${cell[1]}`));
-        
-        // Handle different types of lines
-        if (dx === 0) { // Horizontal line
-            // Check if all positions in the range are occupied
-            for (let col = minCol; col <= maxCol; col++) {
-                if (!occupiedPositions.has(`${minRow},${col}`)) {
-                    return true; // Found a missing tooth
-                }
-            }
-        } else if (dy === 0) { // Vertical line
-            // Check if all positions in the range are occupied
-            for (let row = minRow; row <= maxRow; row++) {
-                if (!occupiedPositions.has(`${row},${minCol}`)) {
-                    return true; // Found a missing tooth
-                }
-            }
-        } else if (dx === dy) { // Main diagonal (top-left to bottom-right)
-            // Check all positions in this diagonal segment
-            for (let i = 0; i <= maxRow - minRow; i++) {
-                if (!occupiedPositions.has(`${minRow + i},${minCol + i}`)) {
-                    return true; // Found a missing tooth
-                }
-            }
-        } else { // Anti-diagonal (top-right to bottom-left)
-            // Check all positions in this anti-diagonal segment
-            for (let i = 0; i <= maxRow - minRow; i++) {
-                if (!occupiedPositions.has(`${minRow + i},${maxCol - i}`)) {
-                    return true; // Found a missing tooth
-                }
-            }
-        }
-        
-        return false; // No missing teeth found
-    }
-    
-    /**
-     * Get all empty positions on the board
-     * @param {Array} board - 2D array representing the game board
-     * @returns {Array} - Array of positions { row, col }
-     */
-    getEmptyPositions(board) {
-        const positions = [];
-        for (let row = 0; row < this.boardSize; row++) {
-            for (let col = 0; col < this.boardSize; col++) {
-                if (board[row][col] === '') {
-                    positions.push({ row, col });
-                }
-            }
-        }
-        return positions;
-    }
-    
-    /**
-     * Make a move on a copy of the board (without modifying the original)
-     * @param {Array} board - 2D array representing the game board
-     * @param {number} row - Row of the move
-     * @param {number} col - Column of the move
-     * @param {string} player - Player marker ('X' or 'O')
-     * @returns {Array} - New board state after the move
-     */
-    makeMove(board, row, col, player) {
-        // Create a deep copy of the board
-        const newBoard = board.map(row => [...row]);
-        
-        // Make the move
-        newBoard[row][col] = player;
-        
-        return newBoard;
+        // Check if the player positions are consecutive in the track
+        // If they're not consecutive, there are missing teeth
+        return !this.arePositionsConsecutive(track, playerPositions);
     }
 }
