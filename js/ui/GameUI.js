@@ -377,17 +377,30 @@ class GameUI {
             }
         });
         
+    
         // AI thinking event
         this.game.on('aiThinking', () => {
             if (this.boardUI && typeof this.boardUI.setAiThinking === 'function') {
                 this.boardUI.setAiThinking(true);
             }
+            
+            // Add a text message to indicate AI is thinking
+            const specialMessageElement = document.getElementById('special-message');
+            if (specialMessageElement) {
+                specialMessageElement.innerHTML = '<span class="thinking-indicator">Computer is thinking...</span>';
+            }
         });
-        
+
         // AI move complete event
         this.game.on('aiMoveComplete', () => {
             if (this.boardUI && typeof this.boardUI.setAiThinking === 'function') {
                 this.boardUI.setAiThinking(false);
+            }
+            
+            // Clear the message when AI is done thinking
+            const specialMessageElement = document.getElementById('special-message');
+            if (specialMessageElement) {
+                specialMessageElement.innerHTML = '';
             }
         });
     }

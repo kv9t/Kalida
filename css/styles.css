@@ -786,6 +786,42 @@ button:hover {
     100% { opacity: 0.7; }
 }
 
+/* AI thinking indicator - Board overlay */
+.ai-thinking {
+    position: relative;
+    pointer-events: none; /* Prevent clicks during AI's turn */
+}
+
+.ai-thinking::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(155, 89, 182, 0.2); /* Soft purple background */
+    animation: thinking-pulse 1.5s infinite;
+    border-radius: 5px;
+    z-index: 5;
+}
+
+@keyframes thinking-pulse {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+    100% { opacity: 0.3; }
+}
+
+/* Text indicator for AI thinking */
+.thinking-indicator {
+    color: var(--knight-move-color); /* Purple color to match the board overlay */
+    font-weight: bold;
+    animation: pulse 1.5s infinite; /* Reuse existing pulse animation */
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background-color: rgba(155, 89, 182, 0.1);
+}
+
 
 /* ==========================================================================
    11. Media Queries - Responsive adjustments for different screen sizes
