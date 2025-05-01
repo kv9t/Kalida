@@ -72,6 +72,32 @@ class ImpossibleStrategy {
                 return blockingMove;
             }
             
+            // NEW STEP: Check for critical opponent threats (like 3-in-a-row with open ends)
+            // 2.5. Third priority: Check for opponent's forced win threats
+            const opponentThreats = this.threatDetector.detectThreats(
+                board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
+            );
+            
+            // Filter for critical threats - forced wins (3 in a row with open ends) and high priority threats
+            const criticalOpponentThreats = opponentThreats.filter(threat => 
+                threat.priority >= 70 || 
+                (threat.type === 'attack' && threat.priority >= 50) ||
+                (threat.type === 'develop' && threat.priority >= 90)
+            );
+            
+            if (criticalOpponentThreats.length > 0) {
+                criticalOpponentThreats.sort((a, b) => b.priority - a.priority);
+                const blockMove = { 
+                    row: criticalOpponentThreats[0].row, 
+                    col: criticalOpponentThreats[0].col 
+                };
+                
+                console.log("Blocking critical opponent threat of priority:", criticalOpponentThreats[0].priority, 
+                            "type:", criticalOpponentThreats[0].type);
+                this.updatePlayerHistory(blockMove.row, blockMove.col, player);
+                return blockMove;
+            }
+            
             // 3. Check opening book for early game (first 3 moves)
             if (this.moveCount <= 3) {
                 const openingMove = this.openingBook.getMove(board, player, opponent);
@@ -111,6 +137,30 @@ class ImpossibleStrategy {
                             this.updatePlayerHistory(move.row, move.col, player);
                             return move;
                         }
+                    }
+                }
+            }
+            
+            // As another layer of defense, check for any opponent threats with medium priority
+            // This helps catch threats that might have been scored lower but are still dangerous
+            if (opponentThreats.length > 0) {
+                const mediumThreats = opponentThreats.filter(threat => 
+                    threat.priority >= 40 && threat.type !== 'block'
+                );
+                
+                if (mediumThreats.length > 0) {
+                    mediumThreats.sort((a, b) => b.priority - a.priority);
+                    const blockMove = { 
+                        row: mediumThreats[0].row, 
+                        col: mediumThreats[0].col 
+                    };
+                    
+                    // Check if this is likely a multiple-threat position that needs blocking
+                    const threatCount = this.countPotentialWinTracks(board, blockMove.row, blockMove.col, opponent);
+                    if (threatCount >= 2) {
+                        console.log("Blocking medium opponent threat with multiple win tracks:", threatCount);
+                        this.updatePlayerHistory(blockMove.row, blockMove.col, player);
+                        return blockMove;
                     }
                 }
             }
@@ -165,7 +215,7 @@ class ImpossibleStrategy {
                 return bestMove;
             }
             
-            // 8. Fallback: Get all threat-based moves
+            // 8. Fallback: Get all threat-based moves for AI player
             const threats = this.threatDetector.detectThreats(
                 board, player, bounceRuleEnabled, missingTeethRuleEnabled
             );
@@ -220,6 +270,48 @@ class ImpossibleStrategy {
             // This should never happen (board full)
             return { row: 0, col: 0 };
         }
+    }
+    
+    /**
+     * Count potential win tracks for a position (helper method for threat analysis)
+     * @param {Array} board - Current board state
+     * @param {number} row - Row to check
+     * @param {number} col - Column to check
+     * @param {string} player - Player to analyze
+     * @returns {number} - Number of potential win tracks
+     */
+    countPotentialWinTracks(board, row, col, player) {
+        // Make a temporary board with this position filled
+        const tempBoard = this.copyBoard(board);
+        tempBoard[row][col] = player;
+        
+        // Get all win tracks containing this position
+        const tracks = this.winTrackGenerator.getWinTracksContainingPosition(row, col, true);
+        let count = 0;
+        
+        // For each track, check if it's viable
+        for (const track of tracks) {
+            let playerCount = 0;
+            let opponentCount = 0;
+            let emptyCount = 0;
+            
+            for (const [r, c] of track) {
+                if (tempBoard[r][c] === player) {
+                    playerCount++;
+                } else if (tempBoard[r][c] === '') {
+                    emptyCount++;
+                } else {
+                    opponentCount++;
+                }
+            }
+            
+            // If the track has no opponent pieces and could form a win
+            if (opponentCount === 0 && playerCount + emptyCount >= 5) {
+                count++;
+            }
+        }
+        
+        return count;
     }
     
     /**
