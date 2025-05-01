@@ -490,6 +490,7 @@ class Game {
         });
     }
     
+    
     /**
      * Set the game mode
      * @param {string} mode - Game mode ('human', 'easy', 'medium', 'hard', etc.)
@@ -498,10 +499,12 @@ class Game {
         const prevMode = this.gameMode;
         this.gameMode = mode;
         
-        // If we're switching to/from human mode, reset the game
-        if ((prevMode === 'human' && mode !== 'human') || 
-            (prevMode !== 'human' && mode === 'human')) {
-            
+        // Check if we need to reset the game
+        const needsReset = (prevMode === 'human' && mode !== 'human') || 
+                        (prevMode !== 'human' && mode === 'human') ||
+                        (prevMode !== 'human' && mode !== 'human' && prevMode !== mode);
+        
+        if (needsReset) {
             // Set AI difficulty if not in human mode
             if (mode !== 'human') {
                 this.aiDifficulty = mode;
