@@ -95,6 +95,32 @@ h1 {
     color: var(--text-color);
 }
 
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.game-logo {
+    max-width: 150px; /* Adjust based on your logo size */
+    height: auto;
+}
+
+.banner-container {
+    width: 100%;
+    margin: 0 auto 20px;
+    /* Match this to your game board width if it has a specific width */
+    max-width: var(--board-max-width, 400px);
+}
+
+.game-banner {
+   /* width: 100%;*/
+    /*height: auto;*/
+    /* Optional: if you want to preserve aspect ratio but crop top/bottom */
+     object-fit: cover; 
+     height: 150px;  /* Set your desired height */
+}
+
 
 /* ==========================================================================
    3. Layout & Structure - Main containers and structural elements
