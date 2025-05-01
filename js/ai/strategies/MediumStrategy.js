@@ -103,10 +103,12 @@ class MediumStrategy {
         // 6. Fall back to a move that's adjacent to our existing pieces
         const adjacentMove = this.findAdjacentMove(board, player);
         if (adjacentMove) {
+            console.log('AI RANDOM MOVE: MediumStrategy - Fall back to an adjacent move');
             return adjacentMove;
         }
-        
+
         // 7. Last resort: random move
+        console.log('AI RANDOM MOVE: MediumStrategy - No better move found, using random fallback');
         return this.getRandomMove(board);
     }
     
@@ -206,7 +208,10 @@ class MediumStrategy {
         }
         
         if (emptyCells.length > 0) {
-            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            const randomMove = emptyCells[randomIndex];
+            console.log(`AI RANDOM MOVE: MediumStrategy falling back to random move at position (${randomMove.row}, ${randomMove.col})`);
+            return randomMove;
         }
         
         console.error('No valid move found in MediumStrategy');

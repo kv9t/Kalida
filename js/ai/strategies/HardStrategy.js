@@ -215,6 +215,7 @@ class HardStrategy {
         }
         
         // Fallback to random move (shouldn't happen)
+        console.log('AI RANDOM MOVE: HardStrategy - Evaluation failed to find a good move, using random fallback');
         return this.getRandomMove(board);
     }
     
@@ -253,7 +254,10 @@ class HardStrategy {
         }
         
         if (emptyCells.length > 0) {
-            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            const randomMove = emptyCells[randomIndex];
+            console.log(`AI RANDOM MOVE: HardStrategy falling back to random move at position (${randomMove.row}, ${randomMove.col})`);
+            return randomMove;
         }
         
         console.error('No valid move found in HardStrategy');

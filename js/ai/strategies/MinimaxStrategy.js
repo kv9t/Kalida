@@ -207,9 +207,9 @@ class MinimaxStrategy {
             console.log("Using threat-based fallback move:", move);
             return { row: move.row, col: move.col };
         }
-        
+
         // 5. Last resort: random valid move
-        console.log("No good moves found, selecting random empty cell");
+        console.log("AI RANDOM MOVE: MinimaxStrategy - No good moves found through minimax search or threats, selecting random empty cell");
         const emptyCells = [];
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
@@ -218,9 +218,12 @@ class MinimaxStrategy {
                 }
             }
         }
-        
+
         if (emptyCells.length > 0) {
-            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            const randomMove = emptyCells[randomIndex];
+            console.log(`AI RANDOM MOVE: MinimaxStrategy selecting random move at position (${randomMove.row}, ${randomMove.col})`);
+            return randomMove;
         }
         
         // Board is full (shouldn't happen)

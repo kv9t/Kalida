@@ -183,14 +183,15 @@ class ImpossibleStrategy {
             // 9. Last resort: strategic position selection
             console.log("Using strategic position selection");
             const strategicMove = this.selectStrategicPosition(board, player);
-            
+
             // Safety check for undefined coordinates
             if (!strategicMove || typeof strategicMove.row === 'undefined' || typeof strategicMove.col === 'undefined') {
-                console.log("Strategic move selection failed, using fallback");
+                console.log("AI RANDOM MOVE: ImpossibleStrategy - Strategic move selection failed, using fallback random move");
                 // Use a simple fallback to find a valid move
                 for (let row = 0; row < this.boardSize; row++) {
                     for (let col = 0; col < this.boardSize; col++) {
                         if (board[row][col] === '') {
+                            console.log(`AI RANDOM MOVE: ImpossibleStrategy fallback at position (${row}, ${col})`);
                             return { row, col }; // First empty cell
                         }
                     }
@@ -204,12 +205,14 @@ class ImpossibleStrategy {
             // Fallback to center or random move
             const center = Math.floor(this.boardSize / 2);
             if (board[center][center] === '') {
+                console.log(`AI RANDOM MOVE: ImpossibleStrategy error recovery - using center position (${center}, ${center})`);
                 return { row: center, col: center };
             }
             // Find any empty cell
             for (let row = 0; row < this.boardSize; row++) {
                 for (let col = 0; col < this.boardSize; col++) {
                     if (board[row][col] === '') {
+                        console.log(`AI RANDOM MOVE: ImpossibleStrategy error recovery - using random position (${row}, ${col})`);
                         return { row, col };
                     }
                 }

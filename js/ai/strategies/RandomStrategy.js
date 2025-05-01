@@ -61,6 +61,7 @@ class RandomStrategy {
         // 4. Select a random empty cell
         if (emptyCells.length > 0) {
             const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            console.log(`AI RANDOM MOVE: RandomStrategy choosing random move at position (${emptyCells[randomIndex].row}, ${emptyCells[randomIndex].col})`);
             return emptyCells[randomIndex];
         }
         
