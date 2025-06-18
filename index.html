@@ -140,26 +140,52 @@
     <div class="game-description">
         <h3>How to Play:</h3>
         <p>Kalida is a game of strategy, played on a 6x6 grid. Players take turns placing their markers (X or O) on the board.</p>
-        <p>The goal is to place five markers in a row, column, or diagonal.</p>
-        <p><strong>Unique Features:</strong></p>
+        <p><strong>Goal:</strong> Be the first to place five of your markers in a row, column, or diagonal.</p>
+        
+        <p><strong>Game Modes:</strong></p>
         <ul>
-            <li><strong>Wrap:</strong> The board "wraps around" at the edges. This means:
-                <ul>
-                    <li>The left edge connects to the right edge</li>
-                    <li>The top edge connects to the bottom edge</li>
-                </ul>
-            </li>
-            <li><strong>Bounce (Optional):</strong> When enabled, diagonals can also "bounce" off edges to form a winning line. A bounced diagonal changes direction but continues the line. Up to two bounces are allowed per winning line. Each square can only be counted once in a winning pattern (no revisiting squares).</li>
-            <li><strong>Missing Teeth (Optional):</strong> When enabled, a winning line cannot have any gaps or opponent's pieces in it when on a full row or column. However, wrapping lines can still have gaps.</li>
+            <li><strong>Human vs Human:</strong> Two players take turns with full rule customization</li>
+            <li><strong>Level 1 (Basic Rules):</strong> AI opponent with fundamental rules only</li>
+            <li><strong>Level 2 (+ Bounce Rule):</strong> AI opponent with bounce mechanics enabled</li>
+            <li><strong>Level 3 (+ Wrap Rule):</strong> AI opponent with wrap-around mechanics enabled</li>
+            <li><strong>Level 4 (All Rules):</strong> AI opponent with all advanced rules enabled</li>
         </ul>
-        <p><strong>Match Scoring System:</strong></p>
+        
+        <p><strong>Special Rules (Toggleable):</strong></p>
         <ul>
-            <li><strong>Round Wins:</strong> Each time a player wins a game, they get a point in the Round Wins counter.</li>
-            <li><strong>Match Win:</strong> A player wins a match when they reach 8 round wins AND have at least 2 more wins than their opponent.</li>
-            <li><strong>Matches Won:</strong> After winning a match, the player's Match counter increments by one.</li>
-            <li><strong>Example:</strong> If Player X has 8 wins and Player O has 7 wins, the match continues until either Player X reaches 9 wins (winning by 2) or Player O catches up.</li>
+            <li><strong>Wrap Rule:</strong> The board "wraps around" at the edges - left connects to right, top connects to bottom. This allows winning lines to continue from one edge to the opposite edge.</li>
+            <li><strong>Bounce Rule:</strong> Diagonal lines can "bounce" off board edges to form winning patterns. A bounced diagonal changes direction but continues the line. Up to two bounces are allowed per winning line.</li>
+            <li><strong>Missing Teeth Rule:</strong> When enabled, winning lines cannot have gaps in straight rows, columns, or main diagonals. Wrap-around lines and "great diagonals" (corner-to-corner) are exempt from this rule.</li>
+            <li><strong>Knight Move Rule:</strong> When enabled, Player X's second move must follow a chess knight's movement pattern (L-shaped: 2 squares in one direction, then 1 square perpendicular). Valid moves are highlighted with ♘.</li>
         </ul>
-        <p>Have fun!</p>
+        
+        <p><strong>Scoring System:</strong></p>
+        <ul>
+            <li><strong>Round Wins:</strong> Each time you win a single game by getting 5 in a row</li>
+            <li><strong>Match Victory:</strong> First player to reach 8 round wins AND have at least 2 more wins than their opponent</li>
+            <li><strong>Matches Won:</strong> Overall match victories - the ultimate measure of success</li>
+            <li><strong>Example:</strong> If the score reaches 8-7, play continues until someone achieves a 2-point lead (like 9-7) or the trailing player catches up</li>
+        </ul>
+        
+        <p><strong>Visual Cues:</strong></p>
+        <ul>
+            <li><strong>Last Move:</strong> Highlighted with a colored border</li>
+            <li><strong>Winning Pattern:</strong> Animated golden highlighting shows the winning line</li>
+            <li><strong>Knight Moves:</strong> Valid positions marked with ♘ when required</li>
+            <li><strong>AI Thinking:</strong> Board overlay indicates when computer is planning</li>
+            <li><strong>Bounce Points:</strong> Special highlighting shows where diagonals bounce off edges</li>
+        </ul>
+        
+        <p><strong>Strategy Tips:</strong></p>
+        <ul>
+            <li>Control the center - it offers the most winning opportunities</li>
+            <li>Watch for opponent threats and block them when necessary</li>
+            <li>When wrap is enabled, edge positions become more valuable</li>
+            <li>With bounce enabled, look for complex diagonal patterns</li>
+            <li>Try to create multiple threats simultaneously to force wins</li>
+        </ul>
+        
+        <p>Have fun mastering the unique mechanics of Kalida!</p>
     </div>
 
     <!-- Core files (load first) -->
