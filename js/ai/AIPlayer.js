@@ -48,7 +48,7 @@ class AIPlayer {
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
      * @returns {Promise<Object>} - Promise that resolves to the selected move { row, col }
      */
-    async getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+    async getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true ) {
         if (!this.strategy) {
             throw new Error('AI player has no strategy set');
         }
@@ -57,7 +57,7 @@ class AIPlayer {
         // This is more user-friendly than an instant move
         return new Promise(resolve => {
             setTimeout(() => {
-                const move = this.strategy.getMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled);
+                const move = this.strategy.getMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
                 resolve(move);
             }, this.thinkingTime);
         });

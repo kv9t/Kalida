@@ -27,10 +27,19 @@ class GameUI {
             clearScoresButton: null,
             gameModeSelect: null,
             bounceToggle: null,
+            wrapToggle: null,
             missingTeethToggle: null,
             boardSizeSlider: null,
             sizeValueDisplay: null,
-            knightMoveToggle: null  // New element for knight move rule toggle
+            knightMoveToggle: null
+        };
+        
+        // Track rule toggle states when they're disabled for AI mode
+        this.savedRuleStates = {
+            bounce: true,
+            wrap: true,
+            missingTeeth: true,
+            knightMove: true
         };
         
         // Initialize the UI
@@ -53,6 +62,7 @@ class GameUI {
             this.elements.clearScoresButton = document.getElementById('clear-scores-button');
             this.elements.gameModeSelect = document.getElementById('game-mode-select');
             this.elements.bounceToggle = document.getElementById('bounce-toggle');
+            this.elements.wrapToggle = document.getElementById('wrap-toggle');
             this.elements.missingTeethToggle = document.getElementById('missing-teeth-toggle');
             this.elements.boardSizeSlider = document.getElementById('board-size-slider');
             this.elements.sizeValueDisplay = document.getElementById('size-value');
@@ -112,11 +122,18 @@ class GameUI {
             });
         }
         
-        // Game mode select
+        // Game mode select - UPDATED for new level system
         if (this.elements.gameModeSelect) {
             this.elements.gameModeSelect.addEventListener('change', (e) => {
+                const selectedMode = e.target.value;
+                const isAIMode = selectedMode !== 'human';
+                
+                // Handle rule toggle states based on mode
+                this.handleGameModeChange(selectedMode, isAIMode);
+                
+                // Set the game mode
                 if (typeof this.game.setGameMode === 'function') {
-                    this.game.setGameMode(e.target.value);
+                    this.game.setGameMode(selectedMode);
                 }
             });
         }
@@ -124,9 +141,31 @@ class GameUI {
         // Bounce rule toggle
         if (this.elements.bounceToggle) {
             this.elements.bounceToggle.addEventListener('change', () => {
-                if (typeof this.game.setBounceRule === 'function') {
-                    this.game.setBounceRule(this.elements.bounceToggle.checked);
-                    this.game.resetGame();
+                // Only allow manual changes in human vs human mode
+                if (this.elements.gameModeSelect.value === 'human') {
+                    if (typeof this.game.setBounceRule === 'function') {
+                        this.game.setBounceRule(this.elements.bounceToggle.checked);
+                        this.game.resetGame();
+                    }
+                } else {
+                    // Save the state even if disabled
+                    this.savedRuleStates.bounce = this.elements.bounceToggle.checked;
+                }
+            });
+        }
+        
+        // Wrap rule toggle
+        if (this.elements.wrapToggle) {
+            this.elements.wrapToggle.addEventListener('change', () => {
+                // Only allow manual changes in human vs human mode
+                if (this.elements.gameModeSelect.value === 'human') {
+                    if (typeof this.game.setWrapRule === 'function') {
+                        this.game.setWrapRule(this.elements.wrapToggle.checked);
+                        this.game.resetGame();
+                    }
+                } else {
+                    // Save the state even if disabled
+                    this.savedRuleStates.wrap = this.elements.wrapToggle.checked;
                 }
             });
         }
@@ -134,9 +173,15 @@ class GameUI {
         // Missing teeth rule toggle
         if (this.elements.missingTeethToggle) {
             this.elements.missingTeethToggle.addEventListener('change', () => {
-                if (typeof this.game.setMissingTeethRule === 'function') {
-                    this.game.setMissingTeethRule(this.elements.missingTeethToggle.checked);
-                    this.game.resetGame();
+                // Only allow manual changes in human vs human mode
+                if (this.elements.gameModeSelect.value === 'human') {
+                    if (typeof this.game.setMissingTeethRule === 'function') {
+                        this.game.setMissingTeethRule(this.elements.missingTeethToggle.checked);
+                        this.game.resetGame();
+                    }
+                } else {
+                    // Save the state even if disabled
+                    this.savedRuleStates.missingTeeth = this.elements.missingTeethToggle.checked;
                 }
             });
         }
@@ -147,6 +192,8 @@ class GameUI {
                 if (typeof this.game.setKnightMoveRule === 'function') {
                     this.game.setKnightMoveRule(this.elements.knightMoveToggle.checked);
                 }
+                // Save the state
+                this.savedRuleStates.knightMove = this.elements.knightMoveToggle.checked;
             });
         }
         
@@ -159,6 +206,168 @@ class GameUI {
                     this.boardUI.resize(percentage);
                 }
             });
+        }
+    }
+    
+    /**
+     * Handle game mode changes and rule toggle states
+     * @param {string} selectedMode - The selected game mode
+     * @param {boolean} isAIMode - Whether an AI mode is selected
+     */
+    handleGameModeChange(selectedMode, isAIMode) {
+        // Enable/disable rule toggles based on mode
+        if (isAIMode) {
+            // Save current states before disabling
+            if (this.elements.bounceToggle) {
+                this.savedRuleStates.bounce = this.elements.bounceToggle.checked;
+                this.elements.bounceToggle.disabled = true;
+            }
+            if (this.elements.wrapToggle) {
+                this.savedRuleStates.wrap = this.elements.wrapToggle.checked;
+                this.elements.wrapToggle.disabled = true;
+            }
+            if (this.elements.missingTeethToggle) {
+                this.savedRuleStates.missingTeeth = this.elements.missingTeethToggle.checked;
+                this.elements.missingTeethToggle.disabled = true;
+            }
+            
+            // Set rule toggles based on difficulty level
+            this.setRuleTogglesForLevel(selectedMode);
+            
+            // Add visual indication that these are controlled by level
+            this.addLevelControlIndicator();
+            
+        } else {
+            // Human vs Human mode - restore manual control
+            if (this.elements.bounceToggle) {
+                this.elements.bounceToggle.disabled = false;
+                this.elements.bounceToggle.checked = this.savedRuleStates.bounce;
+            }
+            if (this.elements.wrapToggle) {
+                this.elements.wrapToggle.disabled = false;
+                this.elements.wrapToggle.checked = this.savedRuleStates.wrap;
+            }
+            if (this.elements.missingTeethToggle) {
+                this.elements.missingTeethToggle.disabled = false;
+                this.elements.missingTeethToggle.checked = this.savedRuleStates.missingTeeth;
+            }
+            
+            // Remove level control indicator
+            this.removeLevelControlIndicator();
+        }
+        
+        // Knight Move Rule remains always controllable
+        if (this.elements.knightMoveToggle) {
+            this.elements.knightMoveToggle.disabled = false;
+            this.elements.knightMoveToggle.checked = this.savedRuleStates.knightMove;
+        }
+    }
+    
+    /**
+     * Set rule toggles based on difficulty level
+     * @param {string} level - The difficulty level (level1, level2, level3, level4)
+     */
+    setRuleTogglesForLevel(level) {
+        let bounceEnabled = false;
+        let wrapEnabled = false;
+        
+        switch(level) {
+            case 'level1':
+                // Basic rules only
+                bounceEnabled = false;
+                wrapEnabled = false;
+                break;
+            case 'level2':
+                // Basic + Bounce
+                bounceEnabled = true;
+                wrapEnabled = false;
+                break;
+            case 'level3':
+                // Basic + Wrap (no bounce)
+                bounceEnabled = false;
+                wrapEnabled = true;
+                break;
+            case 'level4':
+                // All rules
+                bounceEnabled = true;
+                wrapEnabled = true;
+                break;
+        }
+        
+        // Update the UI toggles to reflect the level settings
+        if (this.elements.bounceToggle) {
+            this.elements.bounceToggle.checked = bounceEnabled;
+        }
+        
+        if (this.elements.wrapToggle) {
+            this.elements.wrapToggle.checked = wrapEnabled;
+        }
+    }
+    
+    /**
+     * Add visual indicator that rules are controlled by level
+     */
+    addLevelControlIndicator() {
+        // Add a subtle visual indication that these controls are level-managed
+        if (this.elements.bounceToggle && this.elements.bounceToggle.parentElement) {
+            this.elements.bounceToggle.parentElement.classList.add('level-controlled');
+            
+            // Update tooltip or add explanation
+            const tooltip = this.elements.bounceToggle.parentElement.querySelector('.tooltip');
+            if (tooltip) {
+                tooltip.textContent = 'This rule is controlled by the selected difficulty level.';
+            }
+        }
+        
+        if (this.elements.wrapToggle && this.elements.wrapToggle.parentElement) {
+            this.elements.wrapToggle.parentElement.classList.add('level-controlled');
+            
+            const tooltip = this.elements.wrapToggle.parentElement.querySelector('.tooltip');
+            if (tooltip) {
+                tooltip.textContent = 'This rule is controlled by the selected difficulty level.';
+            }
+        }
+        
+        if (this.elements.missingTeethToggle && this.elements.missingTeethToggle.parentElement) {
+            this.elements.missingTeethToggle.parentElement.classList.add('level-controlled');
+            
+            const tooltip = this.elements.missingTeethToggle.parentElement.querySelector('.tooltip');
+            if (tooltip) {
+                tooltip.textContent = 'This rule is controlled by the selected difficulty level.';
+            }
+        }
+    }
+    
+    /**
+     * Remove visual indicator for level control
+     */
+    removeLevelControlIndicator() {
+        if (this.elements.bounceToggle && this.elements.bounceToggle.parentElement) {
+            this.elements.bounceToggle.parentElement.classList.remove('level-controlled');
+            
+            // Restore original tooltip
+            const tooltip = this.elements.bounceToggle.parentElement.querySelector('.tooltip');
+            if (tooltip) {
+                tooltip.textContent = 'When enabled, diagonals can also "bounce" off edges to form a winning line.';
+            }
+        }
+        
+        if (this.elements.wrapToggle && this.elements.wrapToggle.parentElement) {
+            this.elements.wrapToggle.parentElement.classList.remove('level-controlled');
+            
+            const tooltip = this.elements.wrapToggle.parentElement.querySelector('.tooltip');
+            if (tooltip) {
+                tooltip.textContent = 'When enabled, the board "wraps around" - left connects to right, top connects to bottom.';
+            }
+        }
+        
+        if (this.elements.missingTeethToggle && this.elements.missingTeethToggle.parentElement) {
+            this.elements.missingTeethToggle.parentElement.classList.remove('level-controlled');
+            
+            const tooltip = this.elements.missingTeethToggle.parentElement.querySelector('.tooltip');
+            if (tooltip) {
+                tooltip.textContent = 'When enabled, players can\'t win with gaps in rows, columns, or main diagonals';
+            }
         }
     }
     

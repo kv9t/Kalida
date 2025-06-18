@@ -34,14 +34,15 @@ class ThreatDetector {
      * @param {string} player - Player to find threats for ('X' or 'O')
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {Array} - Array of threat objects with position and priority
      */
-    detectThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+    detectThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         const threats = [];
         const opponent = player === 'X' ? 'O' : 'X';
         
         // 1. First check if we can win immediately
-        const immediateWins = this.findImmediateWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled);
+        const immediateWins = this.findImmediateWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
         if (immediateWins.length > 0) {
             return immediateWins.map(pos => ({
                 row: pos[0],
@@ -52,7 +53,7 @@ class ThreatDetector {
         }
         
         // 2. Check if opponent has immediate wins (that we need to block)
-        const opponentWins = this.findImmediateWins(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
+        const opponentWins = this.findImmediateWins(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
         if (opponentWins.length > 0) {
             return opponentWins.map(pos => ({
                 row: pos[0],
@@ -63,16 +64,16 @@ class ThreatDetector {
         }
         
         // 3. Look for forced wins (3 in a row with two open ends)
-        threats.push(...this.findForcedWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled));
+        threats.push(...this.findForcedWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled));
         
         // 4. Look for developing threats (3 in a row with one open end)
-        threats.push(...this.findDevelopingThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled));
+        threats.push(...this.findDevelopingThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled));
         
         // 5. Look for potential threats (2 in a row with two open ends)
-        threats.push(...this.findPotentialThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled));
+        threats.push(...this.findPotentialThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled));
         
         // 6. Look for opponent's forced wins that we should block
-        const opponentForced = this.findForcedWins(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
+        const opponentForced = this.findForcedWins(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
         if (opponentForced.length > 0) {
             // Prioritize blocking opponent's forced win
             threats.push(...opponentForced.map(threat => ({
@@ -92,9 +93,10 @@ class ThreatDetector {
      * @param {string} player - Player to find wins for ('X' or 'O')
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled 
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {Array} - Array of winning positions [row, col]
      */
-    findImmediateWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+    findImmediateWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         const winningPositions = [];
         const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
         
@@ -122,9 +124,10 @@ class ThreatDetector {
      * @param {string} player - Player to find forced wins for
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {Array} - Array of threat objects with position and priority
      */
-    findForcedWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+    findForcedWins(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         const threats = [];
         const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
         
@@ -167,9 +170,10 @@ class ThreatDetector {
      * @param {string} player - Player to find threats for
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {Array} - Array of threat objects with position and priority
      */
-    findDevelopingThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+    findDevelopingThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         const threats = [];
         const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
         
@@ -204,9 +208,10 @@ class ThreatDetector {
      * @param {string} player - Player to find threats for
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {Array} - Array of threat objects with position and priority
      */
-    findPotentialThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+    findPotentialThreats(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         const threats = [];
         const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
         

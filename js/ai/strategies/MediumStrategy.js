@@ -54,7 +54,7 @@ class MediumStrategy {
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
      * @returns {Object} - The selected move { row, col }
      */
-    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true) {
         const opponent = player === 'X' ? 'O' : 'X';
         
         // 1. Check if it's the first move
@@ -64,7 +64,7 @@ class MediumStrategy {
         
         // 2. Check if we can win immediately
         const winningMove = this.rules.findWinningMove(
-            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         if (winningMove) {
@@ -73,7 +73,7 @@ class MediumStrategy {
         
         // 3. Check if opponent can win and block
         const blockingMove = this.rules.findWinningMove(
-            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
+            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         if (blockingMove) {
@@ -82,7 +82,7 @@ class MediumStrategy {
         
         // 4. Look for threats
         const threats = this.threatDetector.detectThreats(
-            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         if (threats.length > 0) {

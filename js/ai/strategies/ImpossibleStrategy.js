@@ -48,7 +48,7 @@ class ImpossibleStrategy {
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
      * @returns {Object} - The selected move { row, col }
      */
-    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true) {
         try {
             this.moveCount++;
             const opponent = player === 'X' ? 'O' : 'X';
@@ -57,7 +57,7 @@ class ImpossibleStrategy {
             this.cleanupCache();
             
             // 1. First priority: Find immediate winning move
-            const winningMove = this.findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled);
+            const winningMove = this.findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
             if (winningMove) {
                 console.log("Found immediate winning move");
                 this.updatePlayerHistory(winningMove.row, winningMove.col, player);
@@ -65,7 +65,7 @@ class ImpossibleStrategy {
             }
             
             // 2. Second priority: Block opponent's immediate win
-            const blockingMove = this.findImmediateWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
+            const blockingMove = this.findImmediateWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
             if (blockingMove) {
                 console.log("Found blocking move to prevent opponent win");
                 this.updatePlayerHistory(blockingMove.row, blockingMove.col, player);
@@ -322,10 +322,10 @@ class ImpossibleStrategy {
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
      * @returns {Object|null} - Winning move or null if none found
      */
-    findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+    findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled = true) {
         // First check using the rules' built-in function
         const winningMove = this.rules.findWinningMove(
-            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         if (winningMove) {

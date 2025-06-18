@@ -67,7 +67,7 @@ class HardStrategy {
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
      * @returns {Object} - The selected move { row, col }
      */
-    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true) {
         this.moveCount++;
         const opponent = player === 'X' ? 'O' : 'X';
         
@@ -81,7 +81,7 @@ class HardStrategy {
         
         // 2. Check for immediate win
         const winningMove = this.rules.findWinningMove(
-            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         if (winningMove) {
@@ -90,7 +90,7 @@ class HardStrategy {
         
         // 3. Check for opponent's winning move to block
         const blockingMove = this.rules.findWinningMove(
-            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
+            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         if (blockingMove) {
@@ -99,7 +99,7 @@ class HardStrategy {
         
         // 4. Look for threats from the threat detector
         const threats = this.threatDetector.detectThreats(
-            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         // Filter threats by type
@@ -112,7 +112,7 @@ class HardStrategy {
         
         // 5. Check for opponent threats to block
         const opponentThreats = this.threatDetector.detectThreats(
-            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
+            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         if (opponentThreats.length > 0) {
@@ -198,7 +198,7 @@ class HardStrategy {
                     
                     // Evaluate the resulting position
                     const score = this.evaluator.evaluateBoard(
-                        newBoard, player, bounceRuleEnabled, missingTeethRuleEnabled
+                        newBoard, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
                     );
                     
                     // Check if this move is better

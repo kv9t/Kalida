@@ -23,13 +23,13 @@ class RandomStrategy {
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
      * @returns {Object} - The selected move { row, col }
      */
-    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true) {
         const opponent = player === 'X' ? 'O' : 'X';
         
         // 1. First, check if we can win immediately (50% chance to notice)
         if (Math.random() < 0.5) {
             const winningMove = this.rules.findWinningMove(
-                board, player, bounceRuleEnabled, missingTeethRuleEnabled
+                board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
             );
             
             if (winningMove) {
@@ -40,7 +40,7 @@ class RandomStrategy {
         // 2. Check if opponent can win (30% chance to notice)
         if (Math.random() < 0.3) {
             const blockingMove = this.rules.findWinningMove(
-                board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
+                board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
             );
             
             if (blockingMove) {

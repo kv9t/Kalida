@@ -33,15 +33,16 @@ class Rules {
      * @param {Array} board - 2D array representing the game board
      * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether the wrap rule is enabled
      * @returns {Object} - { isOver, winner, winningCells, isDraw }
      */
-    checkGameStatus(board, bounceRuleEnabled, missingTeethRuleEnabled) {
+    checkGameStatus(board, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled = true) {
         // Check all occupied cells for a win
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
                 if (board[row][col] === '') continue;
                 
-                const result = this.checkWin(board, row, col, bounceRuleEnabled, missingTeethRuleEnabled);
+                const result = this.checkWin(board, row, col, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
                 if (result.winner) {
                     return {
                         isOver: true,
@@ -74,9 +75,10 @@ class Rules {
      * @param {number} col - Column of the move
      * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether the wrap rule is enabled
      * @returns {Object} - { winner, winningCells, bounceCellIndex, secondBounceCellIndex }
      */
-    checkWin(board, row, col, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+    checkWin(board, row, col, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true) {
         const player = board[row][col];
         
         // No need to check if the cell is empty
@@ -86,8 +88,8 @@ class Rules {
         
         // Order of checking:
         // 1. Regular win (straight line without wrapping) without missing teeth
-        // 2. Wrap win without missing teeth (if not in single row/column/great diagonal)
-        // 3. Bounce win without missing teeth (if enabled)
+        // 2. Wrap win without missing teeth (if wrap rule enabled)
+        // 3. Bounce win without missing teeth (if bounce rule enabled)
         
         // 1. Check for regular win (straight line without wrapping)
         const regularWin = this.checkRegularWin(board, row, col, player, missingTeethRuleEnabled);
@@ -96,10 +98,12 @@ class Rules {
         }
         
 
-        // 2. Check for wrap win
-        const wrapWin = this.checkWrapWin(board, row, col, player, missingTeethRuleEnabled);
-        if (wrapWin.winner) {
-            return wrapWin;
+        // 2. Check for wrap win (only if wrap rule is enabled)
+        if (wrapRuleEnabled) {
+            const wrapWin = this.checkWrapWin(board, row, col, player, missingTeethRuleEnabled, wrapRuleEnabled);
+            if (wrapWin.winner) {
+                return wrapWin;
+            }
         }
         
         // 3. Check for bounce win if enabled
@@ -202,9 +206,15 @@ class Rules {
      * @param {number} col - Column of the move
      * @param {string} player - Current player
      * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether the wrap rule is enabled
      * @returns {Object} - { winner, winningCells, bounceCellIndex, secondBounceCellIndex }
      */
-    checkWrapWin(board, row, col, player, missingTeethRuleEnabled) {
+    checkWrapWin(board, row, col, player, missingTeethRuleEnabled, wrapRuleEnabled = true) {
+        // If wrap rule is disabled, return no win
+        if (!wrapRuleEnabled) {
+            return { winner: null, winningCells: [], bounceCellIndex: -1, secondBounceCellIndex: -1 };
+        }
+        
         for (const [dx, dy] of this.directions) {
             let winningCells = [[row, col]];
             let isWrap = false;
@@ -680,9 +690,10 @@ class Rules {
      * @param {string} player - Player to check for ('X' or 'O')
      * @param {boolean} bounceRuleEnabled - Whether the bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether the missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether the wrap rule is enabled
      * @returns {Object|null} - { row, col } of winning move or null if none exists
      */
-    findWinningMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+    findWinningMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled = true) {
         // Make a copy of the board to simulate moves
         const tempBoard = board.map(row => [...row]);
         
@@ -694,7 +705,7 @@ class Rules {
                     tempBoard[row][col] = player;
                     
                     // Check if this move would win
-                    const result = this.checkWin(tempBoard, row, col, bounceRuleEnabled, missingTeethRuleEnabled);
+                    const result = this.checkWin(tempBoard, row, col, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
                     if (result.winner === player) {
                         return { row, col };
                     }

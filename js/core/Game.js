@@ -24,11 +24,16 @@ class Game {
         this.matchJustWon = false;  // Flag to track if a match was just won (for resetting on next game)
         
         this.lastMove = null;
+        
+        // Rule settings
         this.bounceRuleEnabled = true;
         this.missingTeethRuleEnabled = true;
-        this.gameMode = 'human'; // Default: human vs human
+        this.wrapRuleEnabled = true; // Add wrap rule control
+        
+        // Game mode settings
+        this.gameMode = 'human'; // 'human', 'level1', 'level2', 'level3', 'level4'
         this.computerPlayer = 'O'; // Computer plays as O by default
-        this.aiDifficulty = 'medium'; // Default AI difficulty
+        this.aiDifficulty = 'impossible'; // Always use smart AI for levels
         
         // Knight move rule tracking
         this.moveCount = { 'X': 0, 'O': 0 };
@@ -212,11 +217,12 @@ class Game {
             board: this.board.getState()
         });
         
-        // Check for a win or draw
+        // Check for a win or draw - FIXED: Pass all rule parameters
         const gameStatus = this.rules.checkGameStatus(
             this.board.getState(),
             this.bounceRuleEnabled,
-            this.missingTeethRuleEnabled
+            this.missingTeethRuleEnabled,
+            this.wrapRuleEnabled  // IMPORTANT: Pass the wrap rule setting
         );
         
         if (gameStatus.isOver) {
@@ -358,7 +364,7 @@ class Game {
             
             // Need to have the minimum threshold AND be ahead by the required margin
             if (margin >= this.matchWinMargin) {
-                // This player  match!
+                // This player wins the match!
                 this.matchWinner = lastWinner;
                 this.matchJustWon = true;
                 
@@ -402,11 +408,13 @@ class Game {
         setTimeout(async () => { // Add 'async' keyword here
             try {
                 // Get AI move - use await since it returns a Promise
+                // FIXED: Pass all rule parameters to AI
                 const move = await this.ai.getMove(
                     this.board.getState(),
                     this.currentPlayer,
                     this.bounceRuleEnabled,
-                    this.missingTeethRuleEnabled
+                    this.missingTeethRuleEnabled,
+                    this.wrapRuleEnabled  // IMPORTANT: Pass wrap rule to AI
                 );
                 
                 // Make the move
@@ -490,34 +498,76 @@ class Game {
         });
     }
     
-    
     /**
-     * Set the game mode
-     * @param {string} mode - Game mode ('human', 'easy', 'medium', 'hard', etc.)
+     * Set the game mode - FIXED for new level system
+     * @param {string} mode - Game mode ('human', 'level1', 'level2', 'level3', 'level4')
      */
     setGameMode(mode) {
+        console.log('Setting game mode to:', mode);
+        
         const prevMode = this.gameMode;
         this.gameMode = mode;
         
-        // Check if we need to reset the game
-        const needsReset = (prevMode === 'human' && mode !== 'human') || 
-                        (prevMode !== 'human' && mode === 'human') ||
-                        (prevMode !== 'human' && mode !== 'human' && prevMode !== mode);
-        
-        if (needsReset) {
-            // Set AI difficulty if not in human mode
-            if (mode !== 'human') {
-                this.aiDifficulty = mode;
-                
-                // Recreate AI with new difficulty
-                if (this.aiFactory) {
-                    this.ai = this.createAI(this.aiDifficulty);
-                }
+        // Configure rules and AI based on mode
+        if (mode === 'human') {
+            // Human vs Human - no AI, rules are manually controlled
+            this.ai = null;
+            console.log('Human vs Human mode selected');
+        } else {
+            // Level-based mode - configure rules and use AI
+            this.aiDifficulty = 'impossible'; // Always use smart AI
+            
+            // Set rules based on level
+            switch(mode) {
+                case 'level1':
+                    // Basic rules only
+                    this.bounceRuleEnabled = false;
+                    this.wrapRuleEnabled = false;
+                    console.log('Level 1: Basic rules only');
+                    break;
+                case 'level2':
+                    // Basic + Bounce
+                    this.bounceRuleEnabled = true;
+                    this.wrapRuleEnabled = false;
+                    console.log('Level 2: Basic + Bounce');
+                    break;
+                case 'level3':
+                    // Basic + Wrap (no bounce)
+                    this.bounceRuleEnabled = false;
+                    this.wrapRuleEnabled = true;
+                    console.log('Level 3: Basic + Wrap');
+                    break;
+                case 'level4':
+                    // All rules
+                    this.bounceRuleEnabled = true;
+                    this.wrapRuleEnabled = true;
+                    console.log('Level 4: All rules');
+                    break;
+                default:
+                    console.warn('Unknown level mode:', mode);
+                    // Default to level 1
+                    this.bounceRuleEnabled = false;
+                    this.wrapRuleEnabled = false;
+                    break;
             }
             
-            // Reset game
-            this.resetGame();
+            // Create AI with new settings
+            if (this.aiFactory) {
+                this.ai = this.createAI(this.aiDifficulty);
+                console.log('AI created for level mode');
+            }
         }
+        
+        console.log('Game mode set:', {
+            mode: this.gameMode,
+            bounce: this.bounceRuleEnabled,
+            wrap: this.wrapRuleEnabled,
+            missingTeeth: this.missingTeethRuleEnabled,
+            hasAI: !!this.ai
+        });
+        
+        // Reset game with new settings
+        this.resetGame();
     }
     
     /**
@@ -553,6 +603,14 @@ class Game {
      */
     setMissingTeethRule(enabled) {
         this.missingTeethRuleEnabled = enabled;
+    }
+    
+    /**
+     * Enable or disable the wrap rule
+     * @param {boolean} enabled - Whether the wrap rule is enabled
+     */
+    setWrapRule(enabled) {
+        this.wrapRuleEnabled = enabled;
     }
     
     /**

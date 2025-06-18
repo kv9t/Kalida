@@ -60,7 +60,8 @@ class MinimaxSearch {
                 player,
                 player === 'X' ? 'O' : 'X',
                 bounceRuleEnabled,
-                missingTeethRuleEnabled
+                missingTeethRuleEnabled, 
+                wrapRuleEnabled
             );
             
             // Update best move if this is better
@@ -108,19 +109,20 @@ class MinimaxSearch {
         // Check for terminal state
         if (depth === 0) {
             const score = this.evaluator.evaluateBoard(
-                board, originalPlayer, bounceRuleEnabled, missingTeethRuleEnabled
+                board, originalPlayer, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
             );
             this.transpositionTable.set(boardHash, score);
             return score;
         }
         
         // Check for win/loss
-        const currentWin = this.checkForWin(board, currentPlayer, bounceRuleEnabled, missingTeethRuleEnabled);
+        const currentWin = this.checkForWin(board, currentPlayer, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
         const opponentWin = this.checkForWin(
             board, 
             currentPlayer === 'X' ? 'O' : 'X', 
             bounceRuleEnabled, 
-            missingTeethRuleEnabled
+            missingTeethRuleEnabled, 
+            wrapRuleEnabled
         );
         
         if (currentWin) {
@@ -142,7 +144,7 @@ class MinimaxSearch {
         }
         
         // Get moves in optimal order for better pruning
-        const validMoves = this.getOrderedMoves(board, currentPlayer, bounceRuleEnabled, missingTeethRuleEnabled);
+        const validMoves = this.getOrderedMoves(board, currentPlayer, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
         
         if (isMaximizing) {
             let maxScore = -Infinity;
@@ -162,7 +164,8 @@ class MinimaxSearch {
                     originalPlayer,
                     currentPlayer === 'X' ? 'O' : 'X',
                     bounceRuleEnabled,
-                    missingTeethRuleEnabled
+                    missingTeethRuleEnabled, 
+                    wrapRuleEnabled
                 );
                 
                 maxScore = Math.max(maxScore, score);
@@ -194,7 +197,8 @@ class MinimaxSearch {
                     originalPlayer,
                     currentPlayer === 'X' ? 'O' : 'X',
                     bounceRuleEnabled,
-                    missingTeethRuleEnabled
+                    missingTeethRuleEnabled, 
+                    wrapRuleEnabled
                 );
                 
                 minScore = Math.min(minScore, score);

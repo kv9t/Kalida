@@ -56,14 +56,15 @@ class BoardEvaluator {
      * @param {string} player - Player to evaluate for ('X' or 'O')
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {number} - Score for the position (higher is better for the player)
      */
-    evaluateBoard(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+    evaluateBoard(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         const opponent = player === 'X' ? 'O' : 'X';
         
         // Check for win/loss first
-        const playerWin = this.checkForWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled);
-        const opponentWin = this.checkForWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
+        const playerWin = this.checkForWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+        const opponentWin = this.checkForWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
         
         if (playerWin) return this.weights.WIN;
         if (opponentWin) return -this.weights.WIN;
@@ -72,13 +73,13 @@ class BoardEvaluator {
         let score = 0;
         
         // 1. Evaluate all win tracks
-        score += this.evaluateWinTracks(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
+        score += this.evaluateWinTracks(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
         
         // 2. Evaluate center control
         score += this.evaluateCenterControl(board, player, opponent);
         
         // 3. Evaluate threats
-        score += this.evaluateThreats(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
+        score += this.evaluateThreats(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
         
         // 4. Evaluate mobility (available moves)
         score += this.evaluateMobility(board, player);
@@ -92,16 +93,17 @@ class BoardEvaluator {
      * @param {string} player - Player to check for
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {boolean} - Whether the player has won
      */
-    checkForWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled) {
+    checkForWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         // Use the Rules class to check for a win
         // We can check any cell that has the player's mark
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
                 if (board[row][col] === player) {
                     const result = this.rules.checkWin(
-                        board, row, col, bounceRuleEnabled, missingTeethRuleEnabled
+                        board, row, col, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
                     );
                     if (result.winner === player) {
                         return true;
@@ -120,9 +122,10 @@ class BoardEvaluator {
      * @param {string} opponent - Opponent player
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {number} - Score for win track evaluation
      */
-    evaluateWinTracks(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled) {
+    evaluateWinTracks(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         let score = 0;
         const allTracks = this.winTrackGenerator.generateAllWinTracks(bounceRuleEnabled);
         
@@ -230,16 +233,17 @@ class BoardEvaluator {
      * @param {string} opponent - Opponent player
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {number} - Score for threats
      */
-    evaluateThreats(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled) {
+    evaluateThreats(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         // Use threat detector to find all threats
         const playerThreats = this.threatDetector.detectThreats(
-            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         const opponentThreats = this.threatDetector.detectThreats(
-            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
+            board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         // Calculate threat scores

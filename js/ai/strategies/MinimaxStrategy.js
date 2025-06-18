@@ -136,7 +136,7 @@ class MinimaxStrategy {
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
      * @returns {Object} - The selected move { row, col }
      */
-    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true) {
+    getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true) {
         this.moveCount++;
         
         // 1. Check opening book for early game
