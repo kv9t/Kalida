@@ -20,7 +20,7 @@
    :root {
     /* Board dimensions */
     --board-max-width: 400px;
-    --board-width: 80%;
+    --board-width: 100%;
     
     /* Colors */
     --bg-color: #f5f5f5;

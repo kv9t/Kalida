@@ -102,7 +102,7 @@
                 <option value="level1">Level 1: Basic Rules</option>
                 <option value="level2">Level 2: + Bounce Rule</option>
                 <option value="level3">Level 3: + Wrap Rule</option>
-                <option value="level4">Level 4: All Rules</option>
+                <option value="level4" selected>Level 4: All Rules</option>
             </select>
         </div>
         
@@ -110,30 +110,30 @@
             <label>Game Rules: </label>
             <div class="checkbox-container">
                 <input type="checkbox" id="bounce-toggle" checked>
-                <label for="bounce-toggle">Enable Bounce Rule</label>
+                <label for="bounce-toggle">Bounce</label>
                 <div class="tooltip">When enabled, diagonals can also "bounce" off edges to form a winning line.</div>
             </div>
             <div class="checkbox-container">
                 <input type="checkbox" id="wrap-toggle" checked>
-                <label for="wrap-toggle">Enable Wrap Rule</label>
+                <label for="wrap-toggle">Wrap</label>
                 <div class="tooltip">When enabled, the board "wraps around" - left connects to right, top connects to bottom.</div>
             </div>
             <div class="checkbox-container">
                 <input type="checkbox" id="missing-teeth-toggle" checked>
-                <label for="missing-teeth-toggle">Enable Missing Teeth Rule</label>
+                <label for="missing-teeth-toggle">Missing Teeth</label>
                 <div class="tooltip">When enabled, players can't win with gaps in rows, columns, or main diagonals</div>
             </div>
             <div class="checkbox-container">
                 <input type="checkbox" id="knight-move-toggle" checked>
-                <label for="knight-move-toggle">Enable Knight Move Rule</label>
+                <label for="knight-move-toggle">Knight Move</label>
                 <div class="tooltip">When enabled, the first player's second move must follow the movement pattern of a knight in chess.</div>
             </div>
         </div>
         
         <div class="board-size-control">
             <label for="board-size-slider">Board Size: </label>
-            <input type="range" id="board-size-slider" min="50" max="100" value="80" class="slider">
-            <span id="size-value">80%</span>
+            <input type="range" id="board-size-slider" min="50" max="100" value="100" class="slider">
+            <span id="size-value">100%</span>
         </div>
     </div>
     
