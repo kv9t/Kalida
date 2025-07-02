@@ -31,6 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create game UI and connect to game instance
         const gameUI = new GameUI(game);
         
+        // IMPORTANT FIX: Set the game mode to match the HTML dropdown selection
+        const gameModeSelect = document.getElementById('game-mode-select');
+        if (gameModeSelect) {
+            const initialGameMode = gameModeSelect.value;
+            console.log('Setting initial game mode to match dropdown:', initialGameMode);
+            game.setGameMode(initialGameMode);
+        }
+        
         // Add board resize slider functionality
         const sizeSlider = document.getElementById('board-size-slider');
         const sizeValue = document.getElementById('size-value');
@@ -58,22 +66,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Initialize the game
+        // Initialize the game AFTER setting the correct game mode
         game.initialize();
         
         console.log('Kalida game initialized successfully!');
         
-        // Test to ensure game mode selection is working
-        document.getElementById('game-mode-select').addEventListener('change', function(e) {
-            console.log('Game mode changed to:', e.target.value);
-            if (game && typeof game.setGameMode === 'function') {
-                game.setGameMode(e.target.value);
-                console.log('Game mode set to:', game.gameMode, 'AI difficulty:', game.aiDifficulty);
-            } else {
-                console.error('Game instance not available or setGameMode not a function');
-            }
-        });
-
+        // Game mode selection event listener
+        if (gameModeSelect) {
+            gameModeSelect.addEventListener('change', function(e) {
+                console.log('Game mode changed to:', e.target.value);
+                if (game && typeof game.setGameMode === 'function') {
+                    game.setGameMode(e.target.value);
+                    console.log('Game mode set to:', game.gameMode, 'AI difficulty:', game.aiDifficulty);
+                } else {
+                    console.error('Game instance not available or setGameMode not a function');
+                }
+            });
+        }
 
         // Export key components to window for debugging if needed
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
