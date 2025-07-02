@@ -55,16 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Add functionality for clear scores button
-        const clearScoresButton = document.getElementById('clear-scores-button');
-        if (clearScoresButton) {
-            clearScoresButton.addEventListener('click', () => {
-                if (confirm('Are you sure you want to clear all scores?')) {
-                    game.clearScores();
-                    game.resetMatchScores();
-                }
-            });
-        }
+        // REMOVED: Clear scores button event listener (now handled in GameUI.js to avoid duplicates)
+        // The GameUI.js will handle this interaction properly
         
         // Initialize the game AFTER setting the correct game mode
         game.initialize();

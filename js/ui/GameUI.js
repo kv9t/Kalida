@@ -111,12 +111,15 @@ class GameUI {
             });
         }
         
-        // Clear scores button
+        // Clear scores button - FIXED: Single confirmation for both round and match scores
         if (this.elements.clearScoresButton) {
             this.elements.clearScoresButton.addEventListener('click', () => {
-                if (confirm('Are you sure you want to clear all scores?')) {
+                if (confirm('Are you sure you want to clear all scores?\n\nThis will reset both Round Wins and Matches Won to 0.')) {
                     if (typeof this.game.clearScores === 'function') {
                         this.game.clearScores();
+                    }
+                    if (typeof this.game.resetMatchScores === 'function') {
+                        this.game.resetMatchScores();
                     }
                 }
             });
