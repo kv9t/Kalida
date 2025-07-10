@@ -1,5 +1,6 @@
 /**
  * Game.js - Game flow and state management for Kalida
+ * Updated with cookie integration for persistent data
  */
 class Game {
     /**
@@ -43,6 +44,10 @@ class Game {
         // Initialize AI based on the difficulty level
         this.ai = null; // Will be initialized when needed
         
+        // NEW: Cookie management
+        this.cookieManager = new CookieManager();
+        this.cookiesEnabled = false; // Will be set after consent
+        
         // Event system
         this.eventListeners = {
             'move': [],
@@ -55,22 +60,233 @@ class Game {
             'aiThinking': [],
             'aiMoveComplete': [],
             'knightMoveRequired': [], // New event for when knight move is required
-            'knightMoveRuleToggled': [] // New event for when knight move rule is toggled
+            'knightMoveRuleToggled': [], // New event for when knight move rule is toggled
+            'cookieConsentChanged': [] // NEW: Event for when cookie consent changes
         };
     }
     
     /**
-     * Initialize the game
+     * Initialize the game with cookie consent handling
+     * @param {Function} onReady - Callback when initialization is complete
      */
-    initialize() {
-        this.resetGame();
-        this.triggerEvent('gameReset', {
-            board: this.board.getState(),
-            currentPlayer: this.currentPlayer,
-            scores: { ...this.scores },
-            matchScores: { ...this.matchScores },
-            matchWinner: this.matchWinner
+    initialize(onReady) {
+        // Check cookie consent and show modal if needed
+        this.handleCookieConsent(() => {
+            // After consent is handled, reset the game
+            this.resetGame();
+            
+            // Trigger events to update UI with loaded data
+            this.triggerEvent('gameReset', {
+                board: this.board.getState(),
+                currentPlayer: this.currentPlayer,
+                scores: { ...this.scores },
+                matchScores: { ...this.matchScores },
+                matchWinner: this.matchWinner
+            });
+            
+            // Also trigger score update events specifically
+            this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
+            this.triggerEvent('matchScoreUpdate', {
+                matchScores: { ...this.matchScores },
+                roundScores: { ...this.scores },
+                matchWinner: this.matchWinner
+            });
+            
+            console.log('Game initialization complete with data:', {
+                gameMode: this.gameMode,
+                scores: this.scores,
+                matchScores: this.matchScores,
+                cookiesEnabled: this.cookiesEnabled
+            });
+            
+            if (onReady) {
+                onReady();
+            }
         });
+    }
+    
+    /**
+     * Handle cookie consent process
+     * @param {Function} callback - Called when consent is handled
+     */
+    handleCookieConsent(callback) {
+        const consent = this.cookieManager.hasConsent();
+        
+        if (consent !== null) {
+            // User has already made a decision
+            this.cookiesEnabled = consent;
+            console.log('Existing cookie consent found:', consent ? 'accepted' : 'declined');
+            
+            // IMPORTANT: Load saved data if cookies are enabled
+            if (this.cookiesEnabled) {
+                console.log('Loading saved data from existing consent...');
+                this.loadSavedData();
+            }
+            
+            this.triggerEvent('cookieConsentChanged', { enabled: this.cookiesEnabled });
+            if (callback) callback();
+            return;
+        }
+        
+        // Need to ask for consent
+        const cookieConsent = new CookieConsent(this.cookieManager);
+        cookieConsent.show((consented) => {
+            this.cookiesEnabled = consented;
+            console.log(`User ${consented ? 'accepted' : 'declined'} cookies`);
+            
+            // If user accepted cookies, load saved data immediately
+            if (consented) {
+                console.log('Cookies accepted, loading saved data...');
+                this.loadSavedData();
+            } else {
+                console.log('Cookies declined, using defaults');
+            }
+            
+            this.triggerEvent('cookieConsentChanged', { enabled: this.cookiesEnabled });
+            
+            if (callback) callback();
+        });
+    }
+    
+    /**
+     * Load saved data from cookies
+     */
+    loadSavedData() {
+        if (!this.cookiesEnabled) {
+            console.log('Cookies disabled, skipping data load');
+            return;
+        }
+        
+        try {
+            console.log('Loading saved data from cookies...');
+            
+            // Load round scores first
+            const savedRoundScores = this.cookieManager.getSavedRoundScores();
+            if (savedRoundScores && typeof savedRoundScores === 'object') {
+                console.log('Loading saved round scores:', savedRoundScores);
+                this.scores = { 
+                    X: savedRoundScores.X || 0, 
+                    O: savedRoundScores.O || 0 
+                };
+            } else {
+                console.log('No valid round scores found, using defaults');
+            }
+            
+            // Load match scores
+            const savedMatchScores = this.cookieManager.getSavedMatchScores();
+            if (savedMatchScores && typeof savedMatchScores === 'object') {
+                console.log('Loading saved match scores:', savedMatchScores);
+                this.matchScores = { 
+                    X: savedMatchScores.X || 0, 
+                    O: savedMatchScores.O || 0 
+                };
+            } else {
+                console.log('No valid match scores found, using defaults');
+            }
+            
+            // Load game mode preference and apply it
+            const savedGameMode = this.cookieManager.getSavedGameMode();
+            if (savedGameMode && typeof savedGameMode === 'string') {
+                console.log('Loading saved game mode:', savedGameMode);
+                
+                // Temporarily disable cookie saving to prevent infinite loop
+                const originalCookiesEnabled = this.cookiesEnabled;
+                this.cookiesEnabled = false;
+                
+                // Apply the game mode (this will configure rules properly)
+                this.setGameMode(savedGameMode);
+                
+                // Re-enable cookie saving
+                this.cookiesEnabled = originalCookiesEnabled;
+            } else {
+                console.log('No valid game mode found, using default:', this.gameMode);
+            }
+            
+            // Load rule preferences (only for human vs human mode)
+            if (this.gameMode === 'human') {
+                const savedRules = this.cookieManager.getSavedRulePreferences();
+                if (savedRules && typeof savedRules === 'object') {
+                    console.log('Loading saved rule preferences:', savedRules);
+                    if (typeof savedRules.bounce === 'boolean') {
+                        this.bounceRuleEnabled = savedRules.bounce;
+                    }
+                    if (typeof savedRules.wrap === 'boolean') {
+                        this.wrapRuleEnabled = savedRules.wrap;
+                    }
+                    if (typeof savedRules.missingTeeth === 'boolean') {
+                        this.missingTeethRuleEnabled = savedRules.missingTeeth;
+                    }
+                    if (typeof savedRules.knightMove === 'boolean') {
+                        this.knightMoveRuleEnabled = savedRules.knightMove;
+                    }
+                } else {
+                    console.log('No valid rule preferences found for human mode');
+                }
+            }
+            
+            console.log('Saved data loading complete:', {
+                gameMode: this.gameMode,
+                scores: this.scores,
+                matchScores: this.matchScores,
+                rules: {
+                    bounce: this.bounceRuleEnabled,
+                    wrap: this.wrapRuleEnabled,
+                    missingTeeth: this.missingTeethRuleEnabled,
+                    knightMove: this.knightMoveRuleEnabled
+                }
+            });
+            
+        } catch (error) {
+            console.error('Error loading saved data from cookies:', error);
+        }
+    }
+    
+    /**
+     * Save current game data to cookies
+     * @returns {boolean} - Whether saving was successful
+     */
+    saveDataToCookies() {
+        if (!this.cookiesEnabled) {
+            console.log('Cookies disabled, not saving data');
+            return false; // Not an error, just disabled
+        }
+        
+        try {
+            console.log('Saving game data to cookies:', {
+                gameMode: this.gameMode,
+                roundScores: this.scores,
+                matchScores: this.matchScores
+            });
+            
+            // Save current game mode
+            const gameModeResult = this.cookieManager.saveGameMode(this.gameMode);
+            console.log('Game mode save result:', gameModeResult);
+            
+            // Save scores
+            const roundScoreResult = this.cookieManager.saveRoundScores(this.scores);
+            const matchScoreResult = this.cookieManager.saveMatchScores(this.matchScores);
+            
+            // Save rule preferences (only for human vs human mode)
+            let ruleResult = true;
+            if (this.gameMode === 'human') {
+                const rulePreferences = {
+                    bounce: this.bounceRuleEnabled,
+                    wrap: this.wrapRuleEnabled,
+                    missingTeeth: this.missingTeethRuleEnabled,
+                    knightMove: this.knightMoveRuleEnabled
+                };
+                ruleResult = this.cookieManager.saveRulePreferences(rulePreferences);
+                console.log('Rule preferences saved:', rulePreferences);
+            }
+            
+            const allSuccess = gameModeResult && roundScoreResult && matchScoreResult && ruleResult;
+            console.log('All data save operations successful:', allSuccess);
+            return allSuccess;
+            
+        } catch (error) {
+            console.error('Error saving data to cookies:', error);
+            return false;
+        }
     }
     
     /**
@@ -273,6 +489,9 @@ class Game {
                 
                 // Update scores
                 this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
+                
+                // NEW: Save data to cookies after score update
+                this.saveDataToCookies();
             } else if (gameStatus.isDraw) {
                 // Handle draw
                 this.triggerEvent('gameEnd', {
@@ -374,6 +593,9 @@ class Game {
             enabled: enabled
         });
         
+        // NEW: Save rule preferences
+        this.saveDataToCookies();
+        
         // Reset the game when changing rule
         this.resetGame();
     }
@@ -410,6 +632,9 @@ class Game {
                     roundScores: { ...this.scores },
                     matchWinner: lastWinner
                 });
+                
+                // NEW: Save match scores
+                this.saveDataToCookies();
             }
         }
     }
@@ -500,6 +725,9 @@ class Game {
         this.scores = { 'X': 0, 'O': 0 };
         this.matchWinner = null;
         
+        // NEW: Save cleared scores to cookies
+        this.saveDataToCookies();
+        
         // Trigger events
         this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
         this.triggerEvent('matchScoreUpdate', {
@@ -515,6 +743,9 @@ class Game {
     resetMatchScores() {
         this.matchScores = { 'X': 0, 'O': 0 };
         this.matchWinner = null;
+        
+        // NEW: Save cleared match scores to cookies
+        this.saveDataToCookies();
         
         // Trigger event
         this.triggerEvent('matchScoreUpdate', {
@@ -592,6 +823,10 @@ class Game {
             hasAI: !!this.ai
         });
         
+        // NEW: Save game mode preference (with better debugging)
+        const saveResult = this.saveDataToCookies();
+        console.log('Game mode saved to cookies:', saveResult !== false ? 'success' : 'failed or disabled');
+        
         // Reset game with new settings
         this.resetGame();
     }
@@ -621,6 +856,8 @@ class Game {
      */
     setBounceRule(enabled) {
         this.bounceRuleEnabled = enabled;
+        // NEW: Save rule preferences
+        this.saveDataToCookies();
     }
     
     /**
@@ -629,6 +866,8 @@ class Game {
      */
     setMissingTeethRule(enabled) {
         this.missingTeethRuleEnabled = enabled;
+        // NEW: Save rule preferences
+        this.saveDataToCookies();
     }
     
     /**
@@ -637,6 +876,76 @@ class Game {
      */
     setWrapRule(enabled) {
         this.wrapRuleEnabled = enabled;
+        // NEW: Save rule preferences
+        this.saveDataToCookies();
+    }
+    
+    // NEW: Method to check if tutorial was completed
+    wasTutorialCompleted() {
+        return this.cookieManager.wasTutorialCompleted();
+    }
+    
+    // NEW: Method to mark tutorial as completed
+    markTutorialCompleted() {
+        this.cookieManager.saveTutorialCompleted(true);
+    }
+    
+    // NEW: Public method to reload saved data (for debugging)
+    reloadSavedData() {
+        if (this.cookiesEnabled) {
+            console.log('Manually reloading saved data...');
+            this.loadSavedData();
+            
+            // Trigger UI updates
+            this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
+            this.triggerEvent('matchScoreUpdate', {
+                matchScores: { ...this.matchScores },
+                roundScores: { ...this.scores },
+                matchWinner: this.matchWinner
+            });
+            
+            return true;
+        }
+        return false;
+    }
+    
+    // NEW: Method to clear all saved data
+    clearAllSavedData() {
+        if (!this.cookieManager) return;
+        
+        // Show confirmation dialog
+        const confirmed = confirm(
+            'This will clear all saved data including:\n' +
+            '• Game mode preferences\n' +
+            '• All scores (rounds and matches)\n' +
+            '• Rule preferences\n' +
+            '• Tutorial completion status\n\n' +
+            'Are you sure you want to continue?'
+        );
+        
+        if (confirmed) {
+            this.cookieManager.clearGameData();
+            console.log('All saved game data cleared');
+            
+            // Reset to defaults
+            this.scores = { 'X': 0, 'O': 0 };
+            this.matchScores = { 'X': 0, 'O': 0 };
+            this.gameMode = 'human';
+            this.bounceRuleEnabled = true;
+            this.wrapRuleEnabled = true;
+            this.missingTeethRuleEnabled = true;
+            this.knightMoveRuleEnabled = true;
+            
+            // Trigger update events
+            this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
+            this.triggerEvent('matchScoreUpdate', {
+                matchScores: { ...this.matchScores },
+                roundScores: { ...this.scores },
+                matchWinner: null
+            });
+            
+            this.resetGame();
+        }
     }
     
     /**
@@ -684,7 +993,9 @@ class Game {
             isKnightMoveRequired: this.knightMoveRuleEnabled && 
                                 this.currentPlayer === 'X' && 
                                 this.moveCount['X'] === 1,
-            firstPlayerFirstMove: this.firstPlayerFirstMove ? { ...this.firstPlayerFirstMove } : null
+            firstPlayerFirstMove: this.firstPlayerFirstMove ? { ...this.firstPlayerFirstMove } : null,
+            gameMode: this.gameMode,
+            cookiesEnabled: this.cookiesEnabled // NEW: Include cookie status
         };
     }
     

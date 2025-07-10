@@ -1,5 +1,6 @@
 /**
  * GameUI.js - UI components and events for Kalida
+ * Updated with cookie integration for persistent preferences
  * 
  * Handles all UI components and user interactions, 
  * connecting DOM elements to game functionality
@@ -24,14 +25,13 @@ class GameUI {
             matchScoreO: null,
             matchStatus: null,
             resetButton: null,
-            declareDrawButton: null,  // NEW: Added declare draw button
+            declareDrawButton: null,
             clearScoresButton: null,
             gameModeSelect: null,
             bounceToggle: null,
             wrapToggle: null,
             missingTeethToggle: null,
             knightMoveToggle: null
-            // REMOVED: boardSizeSlider and sizeValueDisplay
         };
         
         // Track rule toggle states when they're disabled for AI mode
@@ -41,6 +41,9 @@ class GameUI {
             missingTeeth: true,
             knightMove: true
         };
+        
+        // NEW: Track if we've applied saved preferences yet
+        this.hasAppliedSavedPreferences = false;
         
         // Initialize the UI
         this.initialize();
@@ -59,14 +62,13 @@ class GameUI {
             this.elements.matchScoreO = document.getElementById('match-score-o');
             this.elements.matchStatus = document.getElementById('match-status');
             this.elements.resetButton = document.getElementById('reset-button');
-            this.elements.declareDrawButton = document.getElementById('declare-draw-button'); // NEW
+            this.elements.declareDrawButton = document.getElementById('declare-draw-button');
             this.elements.clearScoresButton = document.getElementById('clear-scores-button');
             this.elements.gameModeSelect = document.getElementById('game-mode-select');
             this.elements.bounceToggle = document.getElementById('bounce-toggle');
             this.elements.wrapToggle = document.getElementById('wrap-toggle');
             this.elements.missingTeethToggle = document.getElementById('missing-teeth-toggle');
             this.elements.knightMoveToggle = document.getElementById('knight-move-toggle');
-            // REMOVED: boardSizeSlider and sizeValueDisplay references
             
             // Create board UI if not already created
             if (!this.boardUI) {
@@ -92,7 +94,59 @@ class GameUI {
         }
     }
     
-    
+    /**
+     * Apply saved preferences from cookies to UI elements
+     */
+    applySavedPreferences() {
+        if (this.hasAppliedSavedPreferences) {
+            console.log('Saved preferences already applied, skipping');
+            return;
+        }
+        
+        console.log('Applying current game state to UI elements');
+        
+        try {
+            // ALWAYS sync UI with actual game state (whether from cookies or defaults)
+            const gameStatus = this.game.getGameStatus();
+            
+            // Apply current game mode (this will be from cookies if enabled, defaults if not)
+            if (this.elements.gameModeSelect) {
+                console.log('Setting UI game mode to:', this.game.gameMode);
+                this.elements.gameModeSelect.value = this.game.gameMode;
+                
+                // Trigger the UI update for rule toggles based on the actual game mode
+                this.handleGameModeChange(this.game.gameMode, this.game.gameMode !== 'human');
+            }
+            
+            // Apply current rule preferences (from game state, not necessarily cookies)
+            if (this.elements.bounceToggle) {
+                this.elements.bounceToggle.checked = this.game.bounceRuleEnabled;
+            }
+            if (this.elements.wrapToggle) {
+                this.elements.wrapToggle.checked = this.game.wrapRuleEnabled;
+            }
+            if (this.elements.missingTeethToggle) {
+                this.elements.missingTeethToggle.checked = this.game.missingTeethRuleEnabled;
+            }
+            if (this.elements.knightMoveToggle) {
+                this.elements.knightMoveToggle.checked = this.game.knightMoveRuleEnabled;
+            }
+            
+            console.log('Applied current game state to UI:', {
+                gameMode: this.game.gameMode,
+                bounce: this.game.bounceRuleEnabled,
+                wrap: this.game.wrapRuleEnabled,
+                missingTeeth: this.game.missingTeethRuleEnabled,
+                knightMove: this.game.knightMoveRuleEnabled,
+                cookiesEnabled: this.game.cookiesEnabled
+            });
+            
+            this.hasAppliedSavedPreferences = true;
+            
+        } catch (error) {
+            console.error('Error applying current game state to UI:', error);
+        }
+    }
     
     /**
      * Set up UI event listeners
@@ -111,7 +165,7 @@ class GameUI {
             });
         }
         
-        // NEW: Declare Draw button
+        // Declare Draw button
         if (this.elements.declareDrawButton) {
             this.elements.declareDrawButton.addEventListener('click', () => {
                 // Only allow declaring draw if game is active
@@ -133,21 +187,47 @@ class GameUI {
             });
         }
         
-        // Clear scores button - FIXED: Single confirmation for both round and match scores
+        // Clear scores button - ENHANCED with cookie data clearing option
         if (this.elements.clearScoresButton) {
             this.elements.clearScoresButton.addEventListener('click', () => {
-                if (confirm('Are you sure you want to clear all scores?\n\nThis will reset both Round Wins and Matches Won to 0.')) {
-                    if (typeof this.game.clearScores === 'function') {
-                        this.game.clearScores();
+                // Different behavior based on cookie consent
+                if (this.game.cookiesEnabled) {
+                    // Enhanced dialog for users with cookies enabled
+                    const clearType = confirm(
+                        'Choose how to clear scores:\n\n' +
+                        'OK = Clear scores for this session only\n' +
+                        'Cancel = Advanced options (will show another dialog)'
+                    );
+                    
+                    if (clearType) {
+                        // Just clear current session scores
+                        if (confirm('Clear Round Wins and Matches Won for this session?')) {
+                            if (typeof this.game.clearScores === 'function') {
+                                this.game.clearScores();
+                            }
+                            if (typeof this.game.resetMatchScores === 'function') {
+                                this.game.resetMatchScores();
+                            }
+                        }
+                    } else {
+                        // Show advanced options
+                        this.showAdvancedClearOptions();
                     }
-                    if (typeof this.game.resetMatchScores === 'function') {
-                        this.game.resetMatchScores();
+                } else {
+                    // Simple dialog for users without cookies
+                    if (confirm('Are you sure you want to clear all scores?\n\nThis will reset both Round Wins and Matches Won to 0.')) {
+                        if (typeof this.game.clearScores === 'function') {
+                            this.game.clearScores();
+                        }
+                        if (typeof this.game.resetMatchScores === 'function') {
+                            this.game.resetMatchScores();
+                        }
                     }
                 }
             });
         }
         
-        // Game mode select - UPDATED for new level system
+        // Game mode select
         if (this.elements.gameModeSelect) {
             this.elements.gameModeSelect.addEventListener('change', (e) => {
                 const selectedMode = e.target.value;
@@ -221,8 +301,34 @@ class GameUI {
                 this.savedRuleStates.knightMove = this.elements.knightMoveToggle.checked;
             });
         }
+    }
+    
+    /**
+     * Show advanced clear options for users with cookies enabled
+     */
+    showAdvancedClearOptions() {
+        const choice = confirm(
+            'Advanced Clear Options:\n\n' +
+            'OK = Clear ALL saved data (scores, preferences, tutorial status)\n' +
+            'Cancel = Go back to simple score clearing'
+        );
         
-        // REMOVED: Board size slider event listener - no longer needed
+        if (choice) {
+            // Clear all saved data
+            if (typeof this.game.clearAllSavedData === 'function') {
+                this.game.clearAllSavedData();
+            }
+        } else {
+            // Go back to simple clearing
+            if (confirm('Clear Round Wins and Matches Won for this session?')) {
+                if (typeof this.game.clearScores === 'function') {
+                    this.game.clearScores();
+                }
+                if (typeof this.game.resetMatchScores === 'function') {
+                    this.game.resetMatchScores();
+                }
+            }
+        }
     }
     
     /**
@@ -396,6 +502,18 @@ class GameUI {
             return;
         }
         
+        // NEW: Listen for cookie consent changes
+        this.game.on('cookieConsentChanged', (data) => {
+            console.log('Cookie consent changed:', data.enabled);
+            
+            // ALWAYS apply current game state to UI, regardless of cookie status
+            // This fixes the visual disconnect issue
+            this.applySavedPreferences();
+            
+            // Update clear scores button behavior
+            this.updateClearScoresButtonText();
+        });
+        
         // Game reset event - important to handle this first
         this.game.on('gameReset', (data) => {
             console.log('Game reset event received', data);
@@ -455,7 +573,6 @@ class GameUI {
                 }
                 
                 // Update player turn display to indicate knight move is required
-                // Instead of modifying player-turn, use our new message container
                 const playerTurnElement = document.querySelector('.player-turn-indicator');
                 if (playerTurnElement) {
                     playerTurnElement.textContent = 'Player X\'s Turn';
@@ -466,9 +583,6 @@ class GameUI {
                 if (specialMessageElement) {
                     specialMessageElement.innerHTML = '<span class="knight-move-indicator">♘</span> Knight Move Required';
                 }
-                
-                // No need for the temporary message - removing this line
-                // this.showMessage('Player X must make a knight move (like in chess)', 'info');
             }
         });
         
@@ -492,7 +606,7 @@ class GameUI {
                 if (data.type === 'win') {
                     playerTurnElement.textContent = `Player ${data.winner} wins!`;
                 } else if (data.type === 'draw') {
-                    // NEW: Handle declared draws with different messaging
+                    // Handle declared draws with different messaging
                     if (data.declaredDraw) {
                         playerTurnElement.textContent = "Draw declared!";
                     } else {
@@ -566,48 +680,6 @@ class GameUI {
             }
         });
         
-        // Game reset event
-        this.game.on('gameReset', (data) => {
-            if (this.boardUI) {
-                // Clear highlighting
-                if (typeof this.boardUI.clearHighlights === 'function') {
-                    this.boardUI.clearHighlights();
-                }
-                
-                // Update the board
-                if (typeof this.boardUI.updateBoard === 'function') {
-                    this.boardUI.updateBoard(data.board);
-                }
-                
-                // Re-enable hover effects by removing the game-over class
-                if (this.boardUI.gameBoard) {
-                    this.boardUI.gameBoard.classList.remove('game-over');
-                }
-            }
-            
-            // Restore the player turn indicator
-            const playerTurnElement = document.querySelector('.player-turn-indicator');
-            if (playerTurnElement) {
-                playerTurnElement.textContent = `Player ${data.currentPlayer}'s Turn`;
-            }
-            
-            // Clear any special messages
-            const specialMessageElement = document.getElementById('special-message');
-            if (specialMessageElement) {
-                specialMessageElement.innerHTML = '';
-            }
-            
-            this.updateScores(data.scores);
-            
-            if (data.matchScores) {
-                this.updateMatchScores({
-                    matchScores: data.matchScores,
-                    matchWinner: data.matchWinner
-                });
-            }
-        });
-        
-    
         // AI thinking event
         this.game.on('aiThinking', () => {
             if (this.boardUI && typeof this.boardUI.setAiThinking === 'function') {
@@ -633,6 +705,21 @@ class GameUI {
                 specialMessageElement.innerHTML = '';
             }
         });
+    }
+    
+    /**
+     * Update the clear scores button text based on cookie status
+     */
+    updateClearScoresButtonText() {
+        if (this.elements.clearScoresButton) {
+            if (this.game.cookiesEnabled) {
+                this.elements.clearScoresButton.textContent = 'Reset';
+                this.elements.clearScoresButton.title = 'Clear scores and access advanced options';
+            } else {
+                this.elements.clearScoresButton.textContent = 'Reset';
+                this.elements.clearScoresButton.title = 'Clear scores for this session';
+            }
+        }
     }
     
     /**
@@ -665,7 +752,7 @@ class GameUI {
      * @param {string} winner - The winner of the match
      */
     showMatchVictory(winner) {
-        // Instead of calling this.showMessage, use the special-message div
+        // Use the special-message div
         const specialMessageElement = document.getElementById('special-message');
         if (specialMessageElement) {
             specialMessageElement.innerHTML = `<span class="victory-indicator">🏆 Player ${winner} has won the match! 🏆</span>`;
@@ -824,8 +911,9 @@ class GameUI {
                 }
             }
             
-            // Update all other UI elements...
-            // [rest of the method stays the same]
+            // Update clear scores button text
+            this.updateClearScoresButtonText();
+            
         } catch (error) {
             console.error('Error in updateAll:', error);
         }

@@ -93,7 +93,7 @@
     <div class="board" id="game-board"></div>
     
     <div class="controls">
-        <!-- Game control buttons - NEW: Added Declare Draw button -->
+        <!-- Game control buttons -->
         <div class="game-controls">
             <button id="reset-button">New Game</button>
             <button id="declare-draw-button">Declare Draw</button>
@@ -102,11 +102,11 @@
         <div class="game-mode">
             <label for="game-mode-select">Play Against: </label>
             <select id="game-mode-select">
-                <option value="human">Human vs Human</option>
+                <option value="human" selected>Human vs Human</option>
                 <option value="level1">Level 1: Basic Rules</option>
                 <option value="level2">Level 2: + Bounce Rule</option>
                 <option value="level3">Level 3: + Wrap Rule</option>
-                <option value="level4" selected>Level 4: All Rules</option>
+                <option value="level4">Level 4: All Rules</option>
             </select>
         </div>
         
@@ -133,8 +133,6 @@
                 <div class="tooltip">When enabled, the first player's second move must follow the movement pattern of a knight in chess.</div>
             </div>
         </div>
-        
-        <!-- REMOVED: Board size control section -->
     </div>
     
     <div class="game-description">
@@ -146,7 +144,7 @@
         <ul>
             <li><strong>New Game:</strong> Start a fresh game, resetting the board</li>
             <li><strong>Declare Draw:</strong> End the current game as a draw (available during active games)</li>
-            <li><strong>Reset Scores:</strong> Clear all round and match scores</li>
+            <li><strong>Reset Scores:</strong> Clear all round and match scores (with advanced options if cookies enabled)</li>
         </ul>
         
         <p><strong>Game Modes:</strong></p>
@@ -172,6 +170,14 @@
             <li><strong>Match Victory:</strong> First player to reach 8 round wins AND have at least 2 more wins than their opponent</li>
             <li><strong>Matches Won:</strong> Overall match victories - the ultimate measure of success</li>
             <li><strong>Example:</strong> If the score reaches 8-7, play continues until someone achieves a 2-point lead (like 9-7) or the trailing player catches up</li>
+        </ul>
+        
+        <p><strong>Data Persistence:</strong></p>
+        <ul>
+            <li><strong>Cookie Storage:</strong> With your consent, Kalida can remember your game preferences, scores, and progress between sessions</li>
+            <li><strong>What's Saved:</strong> Game mode preferences, scoreboard data, rule settings, and tutorial completion status</li>
+            <li><strong>Privacy:</strong> All data stays on your device and is never sent to any servers</li>
+            <li><strong>Control:</strong> You can clear all saved data anytime using the Reset button's advanced options</li>
         </ul>
         
         <p><strong>Visual Cues:</strong></p>
@@ -202,6 +208,8 @@
     
     <!-- Utility files -->
     <script src="js/utils/BounceUtils.js"></script>
+    <script src="js/utils/CookieManager.js"></script>
+    <script src="js/utils/CookieConsent.js"></script>
     
     <!-- AI Base and Components -->
     <script src="js/ai/AIPlayer.js"></script>
