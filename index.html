@@ -93,7 +93,11 @@
     <div class="board" id="game-board"></div>
     
     <div class="controls">
-        <button id="reset-button">New Game</button>
+        <!-- Game control buttons - NEW: Added Declare Draw button -->
+        <div class="game-controls">
+            <button id="reset-button">New Game</button>
+            <button id="declare-draw-button">Declare Draw</button>
+        </div>
         
         <div class="game-mode">
             <label for="game-mode-select">Play Against: </label>
@@ -130,17 +134,20 @@
             </div>
         </div>
         
-        <div class="board-size-control">
-            <label for="board-size-slider">Board Size: </label>
-            <input type="range" id="board-size-slider" min="50" max="100" value="100" class="slider">
-            <span id="size-value">100%</span>
-        </div>
+        <!-- REMOVED: Board size control section -->
     </div>
     
     <div class="game-description">
         <h3>How to Play:</h3>
         <p>Kalida is a game of strategy, played on a 6x6 grid. Players take turns placing their markers (X or O) on the board.</p>
         <p><strong>Goal:</strong> Be the first to place five of your markers in a row, column, or diagonal.</p>
+        
+        <p><strong>Game Controls:</strong></p>
+        <ul>
+            <li><strong>New Game:</strong> Start a fresh game, resetting the board</li>
+            <li><strong>Declare Draw:</strong> End the current game as a draw (available during active games)</li>
+            <li><strong>Reset Scores:</strong> Clear all round and match scores</li>
+        </ul>
         
         <p><strong>Game Modes:</strong></p>
         <ul>

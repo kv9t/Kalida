@@ -39,24 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
             game.setGameMode(initialGameMode);
         }
         
-        // Add board resize slider functionality
-        const sizeSlider = document.getElementById('board-size-slider');
-        const sizeValue = document.getElementById('size-value');
-        
-        if (sizeSlider && sizeValue) {
-            // Set initial size
-            boardUI.resize(sizeSlider.value);
-            
-            // Add event listener for slider changes
-            sizeSlider.addEventListener('input', () => {
-                const newSize = sizeSlider.value;
-                boardUI.resize(newSize);
-                sizeValue.textContent = `${newSize}%`;
-            });
-        }
-        
-        // REMOVED: Clear scores button event listener (now handled in GameUI.js to avoid duplicates)
-        // The GameUI.js will handle this interaction properly
+        // REMOVED: Board resize slider functionality
+        // The board will now maintain a fixed size and the resize functionality
+        // has been completely removed from the UI components
         
         // Initialize the game AFTER setting the correct game mode
         game.initialize();

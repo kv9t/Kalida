@@ -123,6 +123,32 @@ class Game {
     }
     
     /**
+     * Declare the current game as a draw
+     * This method allows players to end the game early rather than filling the entire board
+     */
+    declareDraw() {
+        // Only allow declaring a draw if the game is currently active
+        if (!this.gameActive) {
+            console.log('Cannot declare draw - game is not active');
+            return false;
+        }
+        
+        // Set the game as inactive
+        this.gameActive = false;
+        
+        // Trigger the same game end event that would happen with a natural draw
+        // This reuses all the existing draw handling logic
+        this.triggerEvent('gameEnd', {
+            type: 'draw',
+            board: this.board.getState(),
+            declaredDraw: true // Flag to indicate this was manually declared
+        });
+        
+        console.log('Game declared as draw');
+        return true;
+    }
+    
+    /**
      * Make a move
      * @param {number} row - Row index
      * @param {number} col - Column index

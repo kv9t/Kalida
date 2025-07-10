@@ -18,9 +18,8 @@
    1. Variables - Centralized configuration for colors, sizes, and other values
    ========================================================================== */
    :root {
-    /* Board dimensions */
+    /* Board dimensions - SIMPLIFIED: Removed board width variable */
     --board-max-width: 400px;
-    --board-width: 100%;
     
     /* Colors */
     --bg-color: #f5f5f5;
@@ -38,6 +37,8 @@
     /* Button colors */
     --primary-btn-color: #3498db;
     --primary-btn-hover: #2980b9;
+    --draw-btn-color: #95a5a6;
+    --draw-btn-hover: #7f8c8d;
     --victory-color: #f39c12;
     --error-color: #e74c3c;
     --success-color: #2ecc71;
@@ -174,7 +175,7 @@ h1 {
 
 
 /* ==========================================================================
-   4. Game Board - Board container and sizing controls
+   4. Game Board - Board container (SIMPLIFIED - REMOVED SIZING CONTROLS)
    ========================================================================== */
 .board {
     display: grid !important;
@@ -182,44 +183,14 @@ h1 {
     grid-gap: 5px !important;
     margin: 0 auto 20px auto !important; 
     max-width: var(--board-max-width) !important;
-    width: var(--board-width) !important;
+    width: 100% !important;
     position: relative !important;
     visibility: visible !important;
     opacity: 1 !important;
     z-index: 1 !important;
 }
 
-.board::after {
-    content: attr(data-size-info);
-    position: absolute;
-    bottom: -15px;
-    left: 0;
-    font-size: 10px;
-    color: #999;
-    white-space: nowrap;
-}
-
-.board-size-test::after {
-    content: "Current board width: " var(--board-width);
-    display: block;
-    position: absolute;
-    bottom: -20px;
-    left: 0;
-    font-size: 10px;
-    color: #999;
-}
-
-.board-size-control {
-    margin-top: var(--spacing-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-}
-
-.slider {
-    width: 150px;
-}
+/* REMOVED: Board size info and controls - no longer needed */
 
 
 /* ==========================================================================
@@ -413,7 +384,7 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: var(--board-width); /* Match exactly the board width */
+    width: 100%; /* Match exactly the board width */
     max-width: var(--board-max-width); /* Match game board max-width */
     margin: 0 auto 8px auto; /* Center and maintain spacing */
     min-height: 40px;
@@ -616,6 +587,32 @@ button:hover {
     background-color: var(--victory-color) !important;
     font-weight: bold;
     animation: button-pulse 1.5s infinite;
+}
+
+/* NEW: Game controls container for button grouping */
+.game-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+/* NEW: Declare Draw button specific styling */
+#declare-draw-button {
+    background-color: var(--draw-btn-color);
+    color: white;
+}
+
+#declare-draw-button:hover {
+    background-color: var(--draw-btn-hover);
+}
+
+/* Disable the declare draw button when game is not active */
+#declare-draw-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 /* Checkbox and tooltip styling */
@@ -903,7 +900,8 @@ button:hover {
         align-items: center;
     }
 
-    .board-size-control {
+    /* Game controls adjustments for mobile */
+    .game-controls {
         flex-direction: column;
         gap: var(--spacing-xs);
     }
@@ -912,8 +910,5 @@ button:hover {
         margin-bottom: var(--spacing-sm);
     }
     
-    /* Make the slider wider on mobile */
-    .slider {
-        width: 200px;
-    }
+    /* REMOVED: Board size slider styles - no longer needed */
 }

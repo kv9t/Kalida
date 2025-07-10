@@ -24,14 +24,14 @@ class GameUI {
             matchScoreO: null,
             matchStatus: null,
             resetButton: null,
+            declareDrawButton: null,  // NEW: Added declare draw button
             clearScoresButton: null,
             gameModeSelect: null,
             bounceToggle: null,
             wrapToggle: null,
             missingTeethToggle: null,
-            boardSizeSlider: null,
-            sizeValueDisplay: null,
             knightMoveToggle: null
+            // REMOVED: boardSizeSlider and sizeValueDisplay
         };
         
         // Track rule toggle states when they're disabled for AI mode
@@ -59,14 +59,14 @@ class GameUI {
             this.elements.matchScoreO = document.getElementById('match-score-o');
             this.elements.matchStatus = document.getElementById('match-status');
             this.elements.resetButton = document.getElementById('reset-button');
+            this.elements.declareDrawButton = document.getElementById('declare-draw-button'); // NEW
             this.elements.clearScoresButton = document.getElementById('clear-scores-button');
             this.elements.gameModeSelect = document.getElementById('game-mode-select');
             this.elements.bounceToggle = document.getElementById('bounce-toggle');
             this.elements.wrapToggle = document.getElementById('wrap-toggle');
             this.elements.missingTeethToggle = document.getElementById('missing-teeth-toggle');
-            this.elements.boardSizeSlider = document.getElementById('board-size-slider');
-            this.elements.sizeValueDisplay = document.getElementById('size-value');
             this.elements.knightMoveToggle = document.getElementById('knight-move-toggle');
+            // REMOVED: boardSizeSlider and sizeValueDisplay references
             
             // Create board UI if not already created
             if (!this.boardUI) {
@@ -108,6 +108,28 @@ class GameUI {
                 }
                 
                 this.game.resetGame();
+            });
+        }
+        
+        // NEW: Declare Draw button
+        if (this.elements.declareDrawButton) {
+            this.elements.declareDrawButton.addEventListener('click', () => {
+                // Only allow declaring draw if game is active
+                if (!this.game.gameActive) {
+                    console.log('Cannot declare draw - game is not active');
+                    return;
+                }
+                
+                // Show confirmation dialog to prevent accidental draws
+                const confirmation = confirm(
+                    'Are you sure you want to declare this game as a draw?\n\n' +
+                    'This will end the current game immediately.'
+                );
+                
+                if (confirmation) {
+                    console.log('Player confirmed draw declaration');
+                    this.game.declareDraw();
+                }
             });
         }
         
@@ -200,16 +222,7 @@ class GameUI {
             });
         }
         
-        // Board size slider
-        if (this.elements.boardSizeSlider && this.elements.sizeValueDisplay && this.boardUI) {
-            this.elements.boardSizeSlider.addEventListener('input', () => {
-                const percentage = this.elements.boardSizeSlider.value;
-                this.elements.sizeValueDisplay.textContent = `${percentage}%`;
-                if (typeof this.boardUI.resize === 'function') {
-                    this.boardUI.resize(percentage);
-                }
-            });
-        }
+        // REMOVED: Board size slider event listener - no longer needed
     }
     
     /**
@@ -478,8 +491,13 @@ class GameUI {
             if (playerTurnElement) {
                 if (data.type === 'win') {
                     playerTurnElement.textContent = `Player ${data.winner} wins!`;
-                } else {
-                    playerTurnElement.textContent = "It's a draw!";
+                } else if (data.type === 'draw') {
+                    // NEW: Handle declared draws with different messaging
+                    if (data.declaredDraw) {
+                        playerTurnElement.textContent = "Draw declared!";
+                    } else {
+                        playerTurnElement.textContent = "It's a draw!";
+                    }
                 }
             }
             
