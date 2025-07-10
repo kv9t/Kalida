@@ -25,18 +25,11 @@ class AIPlayer {
         this.strategy = strategy;
         
         // Set thinking time based on strategy complexity
-        if (strategy instanceof RandomStrategy) {
-            this.thinkingTime = 100; // Was 300ms
-        } else if (strategy instanceof MediumStrategy) {
-            this.thinkingTime = 200; // Was 500ms
-        } else if (strategy instanceof HardStrategy) {
-            this.thinkingTime = 300; // Was 800ms
-        } else if (strategy instanceof MinimaxStrategy) {
-            this.thinkingTime = 400; // Was 1000ms
-        } else if (strategy instanceof ImpossibleStrategy) {
-            this.thinkingTime = 500; // Was 1500ms
+        // Since we only use ImpossibleStrategy now, we can simplify this
+        if (strategy && strategy.constructor.name === 'ImpossibleStrategy') {
+            this.thinkingTime = 500; // Sophisticated AI takes a bit more time
         } else {
-            this.thinkingTime = 200; // Was 500ms
+            this.thinkingTime = 300; // Default thinking time for any other strategy
         }
     }
     
@@ -46,9 +39,10 @@ class AIPlayer {
      * @param {string} player - Player marker ('X' or 'O')
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {Promise<Object>} - Promise that resolves to the selected move { row, col }
      */
-    async getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true ) {
+    async getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true) {
         if (!this.strategy) {
             throw new Error('AI player has no strategy set');
         }

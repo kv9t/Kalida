@@ -188,33 +188,26 @@
         <p>Have fun mastering the unique mechanics of Kalida!</p>
     </div>
 
-    <!-- Core files (load first) -->
+    <!-- Core game files (load first) -->
     <script src="js/core/Board.js"></script>
     <script src="js/core/Rules.js"></script>
     <script src="js/core/Game.js"></script>
     
-    <!-- Utils -->
-    <script src="js/utils/GameUtils.js"></script>
+    <!-- Utility files -->
     <script src="js/utils/BounceUtils.js"></script>
     
-    <!-- AI Base and Utils -->
+    <!-- AI Base and Components -->
     <script src="js/ai/AIPlayer.js"></script>
     <script src="js/ai/utils/WinTrackGenerator.js"></script>
     <script src="js/ai/utils/ThreatDetector.js"></script>
-
-    <!-- AI Evaluation -->
     <script src="js/ai/evaluation/BoardEvaluator.js"></script>
 
-    <!-- Strategy Modules -->
+    <!-- AI Strategy Modules -->
     <script src="js/ai/strategies/modules/BouncePatternDetector.js"></script>
     <script src="js/ai/strategies/modules/MinimaxSearch.js"></script>
     <script src="js/ai/strategies/modules/OpeningBook.js"></script>
 
-    <!-- AI Strategies -->
-    <script src="js/ai/strategies/RandomStrategy.js"></script>
-    <script src="js/ai/strategies/MediumStrategy.js"></script>
-    <script src="js/ai/strategies/HardStrategy.js"></script>
-    <script src="js/ai/strategies/MinimaxStrategy.js"></script>
+    <!-- AI Strategy (only the one we use) -->
     <script src="js/ai/strategies/ImpossibleStrategy.js"></script>
 
     <!-- AI Factory -->

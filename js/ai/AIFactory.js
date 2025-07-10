@@ -1,8 +1,8 @@
 /**
  * AIFactory.js - Factory for creating AI players
  * 
- * This factory creates different AI players with various 
- * strategies and difficulty levels.
+ * Simplified factory that creates the single AI strategy used by Kalida.
+ * The difficulty comes from rule complexity rather than AI intelligence levels.
  */
 class AIFactory {
     /**
@@ -14,47 +14,23 @@ class AIFactory {
         this.boardSize = boardSize;
         this.rules = rules;
         
-        // Create shared components used by multiple AI strategies
+        // Create shared components used by the AI strategy
         this.evaluator = new BoardEvaluator(boardSize, rules);
         this.threatDetector = new ThreatDetector(boardSize, rules);
         this.winTrackGenerator = new WinTrackGenerator(boardSize, rules);
     }
     
     /**
-     * Create an AI player with the specified difficulty
-     * @param {string} difficulty - Difficulty level ('easy', 'medium', 'hard', 'extrahard', 'impossible')
-     * @returns {AIPlayer} - AI player instance
+     * Create an AI player 
+     * @param {string} difficulty - Difficulty level (currently ignored - kept for compatibility)
+     * @returns {AIPlayer} - AI player instance with ImpossibleStrategy
      */
-    createAI(difficulty) {
+    createAI(difficulty = 'impossible') {
         const ai = new AIPlayer(this.boardSize, this.rules);
         
-        // Set strategy based on difficulty
-        switch (difficulty.toLowerCase()) {
-            case 'easy':
-                ai.setStrategy(new RandomStrategy(this.boardSize, this.rules));
-                break;
-                
-            case 'medium':
-                ai.setStrategy(new MediumStrategy(this.boardSize, this.rules, this.threatDetector));
-                break;
-                
-            case 'hard':
-                ai.setStrategy(new HardStrategy(this.boardSize, this.rules, this.threatDetector, this.evaluator));
-                break;
-                
-            case 'extrahard':
-                ai.setStrategy(new MinimaxStrategy(this.boardSize, this.rules, 4)); // Higher depth
-                break;
-                
-            case 'impossible':
-                ai.setStrategy(new ImpossibleStrategy(this.boardSize, this.rules));
-                break;
-                
-            default:
-                // Default to medium difficulty
-                ai.setStrategy(new MediumStrategy(this.boardSize, this.rules, this.threatDetector));
-                break;
-        }
+        // Always use the sophisticated strategy
+        // The "difficulty" comes from rule complexity (bounce, wrap, etc.) not AI intelligence
+        ai.setStrategy(new ImpossibleStrategy(this.boardSize, this.rules));
         
         return ai;
     }
