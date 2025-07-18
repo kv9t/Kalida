@@ -1,6 +1,6 @@
 /**
  * GameUI.js - UI components and events for Kalida
- * Updated with cookie integration for persistent preferences
+ * Updated with UIAssetManager integration for persistent preferences
  * 
  * Handles all UI components and user interactions, 
  * connecting DOM elements to game functionality
@@ -15,6 +15,9 @@ class GameUI {
     constructor(game) {
         this.game = game;
         this.boardUI = null;
+        
+        // Initialize UI Asset Manager
+        this.assetManager = new UIAssetManager();
         
         // Store references to DOM elements
         this.elements = {
@@ -114,6 +117,9 @@ class GameUI {
                 console.log('Setting UI game mode to:', this.game.gameMode);
                 this.elements.gameModeSelect.value = this.game.gameMode;
                 
+                // NEW: Update game mode SVG
+                this.assetManager.updateGameModeSVG(this.game.gameMode);
+                
                 // Trigger the UI update for rule toggles based on the actual game mode
                 this.handleGameModeChange(this.game.gameMode, this.game.gameMode !== 'human');
             }
@@ -130,6 +136,18 @@ class GameUI {
             }
             if (this.elements.knightMoveToggle) {
                 this.elements.knightMoveToggle.checked = this.game.knightMoveRuleEnabled;
+            }
+            
+            // NEW: Update rules SVG based on current game mode
+            if (this.game.gameMode !== 'human') {
+                this.assetManager.updateRulesForGameMode(this.game.gameMode);
+            } else {
+                // For human mode, determine based on current rules
+                this.assetManager.updateRulesForSettings({
+                    bounceRuleEnabled: this.game.bounceRuleEnabled,
+                    wrapRuleEnabled: this.game.wrapRuleEnabled,
+                    missingTeethRuleEnabled: this.game.missingTeethRuleEnabled
+                });
             }
             
             console.log('Applied current game state to UI:', {
@@ -233,6 +251,9 @@ class GameUI {
                 const selectedMode = e.target.value;
                 const isAIMode = selectedMode !== 'human';
                 
+                // NEW: Update game mode SVG
+                this.assetManager.updateGameModeSVG(selectedMode);
+                
                 // Handle rule toggle states based on mode
                 this.handleGameModeChange(selectedMode, isAIMode);
                 
@@ -251,6 +272,13 @@ class GameUI {
                     if (typeof this.game.setBounceRule === 'function') {
                         this.game.setBounceRule(this.elements.bounceToggle.checked);
                         this.game.resetGame();
+                        
+                        // NEW: Update rules SVG for human mode
+                        this.assetManager.updateRulesForSettings({
+                            bounceRuleEnabled: this.elements.bounceToggle.checked,
+                            wrapRuleEnabled: this.elements.wrapToggle.checked,
+                            missingTeethRuleEnabled: this.elements.missingTeethToggle.checked
+                        });
                     }
                 } else {
                     // Save the state even if disabled
@@ -267,6 +295,13 @@ class GameUI {
                     if (typeof this.game.setWrapRule === 'function') {
                         this.game.setWrapRule(this.elements.wrapToggle.checked);
                         this.game.resetGame();
+                        
+                        // NEW: Update rules SVG for human mode
+                        this.assetManager.updateRulesForSettings({
+                            bounceRuleEnabled: this.elements.bounceToggle.checked,
+                            wrapRuleEnabled: this.elements.wrapToggle.checked,
+                            missingTeethRuleEnabled: this.elements.missingTeethToggle.checked
+                        });
                     }
                 } else {
                     // Save the state even if disabled
@@ -283,6 +318,13 @@ class GameUI {
                     if (typeof this.game.setMissingTeethRule === 'function') {
                         this.game.setMissingTeethRule(this.elements.missingTeethToggle.checked);
                         this.game.resetGame();
+                        
+                        // NEW: Update rules SVG for human mode
+                        this.assetManager.updateRulesForSettings({
+                            bounceRuleEnabled: this.elements.bounceToggle.checked,
+                            wrapRuleEnabled: this.elements.wrapToggle.checked,
+                            missingTeethRuleEnabled: this.elements.missingTeethToggle.checked
+                        });
                     }
                 } else {
                     // Save the state even if disabled
@@ -356,6 +398,9 @@ class GameUI {
             // Set rule toggles based on difficulty level
             this.setRuleTogglesForLevel(selectedMode);
             
+            // NEW: Update rules SVG for AI mode
+            this.assetManager.updateRulesForGameMode(selectedMode);
+            
             // Add visual indication that these are controlled by level
             this.addLevelControlIndicator();
             
@@ -373,6 +418,13 @@ class GameUI {
                 this.elements.missingTeethToggle.disabled = false;
                 this.elements.missingTeethToggle.checked = this.savedRuleStates.missingTeeth;
             }
+            
+            // NEW: Update rules SVG for human mode
+            this.assetManager.updateRulesForSettings({
+                bounceRuleEnabled: this.savedRuleStates.bounce,
+                wrapRuleEnabled: this.savedRuleStates.wrap,
+                missingTeethRuleEnabled: this.savedRuleStates.missingTeeth
+            });
             
             // Remove level control indicator
             this.removeLevelControlIndicator();
@@ -529,6 +581,10 @@ class GameUI {
                 }
             }
             
+            // NEW: Update turn indicator using asset manager
+            this.assetManager.updateTurnIndicator(data.currentPlayer, 'playing');
+            
+            // Keep existing legacy support
             if (this.elements.playerTurn) {
                 this.elements.playerTurn.textContent = `Player ${data.currentPlayer}'s Turn`;
             }
@@ -600,7 +656,14 @@ class GameUI {
                 this.boardUI.gameBoard.classList.add('game-over');
             }
             
-            // Update player turn display to show game result instead of whose turn it is
+            // NEW: Update turn indicator using asset manager
+            if (data.type === 'win') {
+                this.assetManager.updateTurnIndicator(data.winner, 'win');
+            } else if (data.type === 'draw') {
+                this.assetManager.updateTurnIndicator(null, 'draw');
+            }
+            
+            // Keep existing legacy support
             const playerTurnElement = document.querySelector('.player-turn-indicator');
             if (playerTurnElement) {
                 if (data.type === 'win') {
@@ -629,6 +692,10 @@ class GameUI {
         this.game.on('turnChange', (data) => {
             console.log('Turn change event received', data);
             
+            // NEW: Update turn indicator using asset manager
+            this.assetManager.updateTurnIndicator(data.currentPlayer, 'playing');
+            
+            // Keep existing legacy support
             const playerTurnElement = document.querySelector('.player-turn-indicator');
             const specialMessageElement = document.getElementById('special-message');
             
@@ -664,6 +731,9 @@ class GameUI {
         
         // Match won event
         this.game.on('matchWon', (data) => {
+            // NEW: Update turn indicator for match completion
+            this.assetManager.updateTurnIndicator(data.winner, 'match_complete');
+            
             // Show prominent victory message
             this.showMatchVictory(data.winner);
             
@@ -902,6 +972,11 @@ class GameUI {
                 }
             } else if (typeof this.game.getCurrentPlayer === 'function') {
                 currentPlayer = this.game.getCurrentPlayer();
+            }
+            
+            // NEW: Update turn indicator using asset manager if not knight move required
+            if (!isKnightMoveRequired) {
+                this.assetManager.updateTurnIndicator(currentPlayer, gameActive ? 'playing' : 'game_over');
             }
             
             // Update player turn display if knight move not required
