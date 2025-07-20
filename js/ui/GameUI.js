@@ -31,6 +31,8 @@ class GameUI {
             bounceToggle: null,
             wrapToggle: null,
             missingTeethToggle: null,
+            boardSizeSlider: null,
+            sizeValueDisplay: null,
             knightMoveToggle: null
         };
         
@@ -68,6 +70,8 @@ class GameUI {
             this.elements.bounceToggle = document.getElementById('bounce-toggle');
             this.elements.wrapToggle = document.getElementById('wrap-toggle');
             this.elements.missingTeethToggle = document.getElementById('missing-teeth-toggle');
+            this.elements.boardSizeSlider = document.getElementById('board-size-slider');
+            this.elements.sizeValueDisplay = document.getElementById('size-value');
             this.elements.knightMoveToggle = document.getElementById('knight-move-toggle');
             
             // Create board UI if not already created
@@ -301,6 +305,18 @@ class GameUI {
                 this.savedRuleStates.knightMove = this.elements.knightMoveToggle.checked;
             });
         }
+
+        // Board size slider
+        if (this.elements.boardSizeSlider && this.elements.sizeValueDisplay && this.boardUI) {
+            this.elements.boardSizeSlider.addEventListener('input', () => {
+                const percentage = this.elements.boardSizeSlider.value;
+                this.elements.sizeValueDisplay.textContent = `${percentage}%`;
+                if (typeof this.boardUI.resize === 'function') {
+                    this.boardUI.resize(percentage);
+                }
+            });
+        }
+
     }
     
     /**

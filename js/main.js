@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Creating GameUI...');
         const gameUI = new GameUI(game);
         
+        
+
         // Initialize the game with cookie consent handling
         console.log('Initializing game with cookie consent...');
         game.initialize(() => {
@@ -48,6 +50,59 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (uiError) {
                     console.error('Error updating UI:', uiError);
                 }
+                
+                // Add board resize slider functionality
+                // IMPORTANT: Added after UI is fully initialized
+                try {
+                    console.log('Setting up board resize slider...');
+                    const sizeSlider = document.getElementById('board-size-slider');
+                    const sizeValue = document.getElementById('size-value');
+                    
+                    if (sizeSlider && sizeValue) {
+                        // ISSUE: Your code references 'boardUI' but we have 'gameUI'
+                        // Assuming gameUI has a board property or resize method
+                        // You'll need to adjust this based on your actual GameUI class structure
+                        
+                        // Option 1: If gameUI has a resize method
+                        if (typeof gameUI.resize === 'function') {
+                            // Set initial size
+                            gameUI.resize(sizeSlider.value);
+                            
+                            // Add event listener for slider changes
+                            sizeSlider.addEventListener('input', () => {
+                                const newSize = sizeSlider.value;
+                                gameUI.resize(newSize);
+                                sizeValue.textContent = `${newSize}%`;
+                            });
+                            console.log('Board resize slider initialized successfully');
+                        }
+                        // Option 2: If gameUI has a board property with resize method
+                        else if (gameUI.board && typeof gameUI.board.resize === 'function') {
+                            // Set initial size
+                            gameUI.board.resize(sizeSlider.value);
+                            
+                            // Add event listener for slider changes
+                            sizeSlider.addEventListener('input', () => {
+                                const newSize = sizeSlider.value;
+                                gameUI.board.resize(newSize);
+                                sizeValue.textContent = `${newSize}%`;
+                            });
+                            console.log('Board resize slider initialized successfully');
+                        }
+                        // Option 3: If you need to access boardUI differently
+                        else {
+                            console.warn('GameUI does not have expected resize method. Please check your GameUI class structure.');
+                            // You might need to create or access boardUI differently
+                            // For example: const boardUI = gameUI.boardComponent;
+                        }
+                    } else {
+                        // This is normal - not all pages might have the slider
+                        console.log('Board size slider elements not found - may not be on this page');
+                    }
+                } catch (sliderError) {
+                    console.error('Error setting up board resize slider:', sliderError);
+                }
+                
             }, 200); // Increased delay to ensure everything is ready
             
             // Check for tutorial

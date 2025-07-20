@@ -98,7 +98,11 @@
             <button id="reset-button">New Game</button>
             <button id="declare-draw-button">Declare Draw</button>
         </div>
-        
+        <div class="board-size-control">
+            <label for="board-size-slider">Board Size: </label>
+            <input type="range" id="board-size-slider" min="50" max="100" value="100" class="slider">
+            <span id="size-value">100%</span>
+        </div>
         <div class="game-mode">
             <label for="game-mode-select">Play Against: </label>
             <select id="game-mode-select">
