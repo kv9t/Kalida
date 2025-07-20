@@ -215,30 +215,31 @@ h1 {
     object-fit: contain;
 }
 
-/* Frame 355 - Rules Indicator */
+
+/* Frame 355 - Rules Indicator (Simplified - SVG handles styling) */
 .frame-355 {
     display: flex;
     width: 221px;
-    padding: 8px;
     align-items: center;
-    gap: 10px;
     align-self: stretch;
-    border-radius: 8px;
-    border: 1px solid #E6E6E6;
     box-sizing: border-box;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.frame-355:hover {
-    background-color: #f9f9f9;
 }
 
 .frame-355 img {
     width: 100%;
     height: auto;
     object-fit: contain;
+    display: block; /* Removes any extra spacing around the image */
 }
+
+.frame-355:hover {
+    background-color: #f9f9f9;
+     /* You can add a subtle hover effect here if needed, but probably not necessary */
+   /* opacity: 0.9;*/
+}
+
+
 
 /* Frame 367 - Turn Indicator */
 .frame-367 {
