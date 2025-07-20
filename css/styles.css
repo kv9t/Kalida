@@ -169,8 +169,8 @@ h1 {
 }
 
 
-/* Frame 354 - Main container for game mode and rules */
-.frame-354 {
+/* Outer Frame 354 - Container */
+.frame-354-container {
     display: flex;
     padding: 0px 12px 12px 12px;
     align-items: flex-start;
@@ -178,9 +178,10 @@ h1 {
     align-self: stretch;
     width: 100%;
     box-sizing: border-box;
+    
 }
 
-/* Frame 353 - Game Mode Selector */
+/* Frame 353 - Game Mode Selector (left side) */
 .frame-353 {
     display: flex;
     width: 136px;
@@ -194,17 +195,30 @@ h1 {
     box-sizing: border-box;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
-.frame-353:hover {
-    background-color: #f9f9f9;
+/* Inner Frame 354 - Rules Selector (right side) */
+.frame-354-rules {
+    /*display: flex;
+    width: 221px;
+    padding: 8px;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    border-radius: 8px;
+    border: 1px solid #E6E6E6;*/
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 /* Frame 366 - Simple SVG container */
 .frame-366 {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
     width: 100%;
     height: 100%;
 }
@@ -215,30 +229,22 @@ h1 {
     object-fit: contain;
 }
 
-
-/* Frame 355 - Rules Indicator (Simplified - SVG handles styling) */
-.frame-355 {
-    display: flex;
-    width: 221px;
-    align-items: center;
-    align-self: stretch;
-    box-sizing: border-box;
-    cursor: pointer;
-}
-
-.frame-355 img {
+/* Rules selector image */
+.frame-354-rules img {
     width: 100%;
     height: auto;
     object-fit: contain;
-    display: block; /* Removes any extra spacing around the image */
+    display: block;
 }
 
-.frame-355:hover {
+/* Hover effects */
+.frame-353:hover {
     background-color: #f9f9f9;
-     /* You can add a subtle hover effect here if needed, but probably not necessary */
-   /* opacity: 0.9;*/
 }
 
+.frame-354-rules:hover {
+    background-color: #f9f9f9;
+}
 
 
 /* Frame 367 - Turn Indicator */
