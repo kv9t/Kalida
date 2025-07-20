@@ -82,41 +82,58 @@
             <button id="reset-button" class="new-game-btn">New Game</button>
         </div>
 
-        <div class="score-container">
-            <!-- Round scores -->
-            <div class="score-board">
-                <div class="score-header">Round Wins</div>
-                <div class="player-scores">
-                    <div class="player-score-container player-x-container">
-                        <div class="player-name">Player X</div>
-                        <span id="score-x" class="player-score-value">0</span>
+        <!-- Frame 365 - Scoreboards Container -->
+        <div class="frame-365">
+            <!-- Round Wins Scoreboard -->
+            <div class="round-wins-scoreboard">
+                <!-- Scoreboard Title -->
+                <div class="scoreboard-title">ROUND WINS</div>
+                
+                <!-- Player Placards Container -->
+                <div class="player-placards">
+                    <!-- Frame 362 - Player X Placard -->
+                    <div class="player-placard player-x-placard">
+                        <div class="player-name">PLAYER X</div>
+                        <div class="player-score" id="score-x">0</div>
                     </div>
-                    <div class="player-score-container player-o-container">
-                        <div class="player-name">Player O</div>
-                        <span id="score-o" class="player-score-value">0</span>
-                    </div>
-                </div>
-                <button id="clear-scores-button">Reset</button>
-            </div>
-            
-            <!-- Match scores -->
-            <div class="score-board match-score-board">
-                <div class="score-header">Matches Won</div>
-                <div class="player-scores">
-                    <div class="player-score-container player-x-container">
-                        <div class="player-name">Player X</div>
-                        <span id="match-score-x" class="player-score-value">0</span>
-                    </div>
-                    <div class="player-score-container player-o-container">
-                        <div class="player-name">Player O</div>
-                        <span id="match-score-o" class="player-score-value">0</span>
+                    
+                    <!-- Frame 363 - Player O Placard -->
+                    <div class="player-placard player-o-placard">
+                        <div class="player-name">PLAYER O</div>
+                        <div class="player-score" id="score-o">0</div>
                     </div>
                 </div>
-                <div class="match-rules">First to 8 (win by 2)</div>
             </div>
-
             
+            <!-- Matches Won Scoreboard -->
+            <div class="matches-won-scoreboard">
+                <!-- Scoreboard Title -->
+                <div class="scoreboard-title">MATCHES WON</div>
+                
+                <!-- Player Placards Container -->
+                <div class="player-placards">
+                    <!-- Player X Placard -->
+                    <div class="player-placard player-x-placard">
+                        <div class="player-name">PLAYER X</div>
+                        <div class="player-score" id="match-score-x">0</div>
+                    </div>
+                    
+                    <!-- Player O Placard -->
+                    <div class="player-placard player-o-placard">
+                        <div class="player-name">PLAYER O</div>
+                        <div class="player-score" id="match-score-o">0</div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+
+
+
+
+
+
+
         
         
 

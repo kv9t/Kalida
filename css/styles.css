@@ -28,8 +28,12 @@
     --border-color: #333;
     
     /* Player colors */
-    --player-x-color: #e74c3c; /*red*/
-    --player-o-color: #3498db; /*blue*/
+    --player-x-color: #04a187; /*teal*/
+    --player-o-color: #5834db; /*indigo*/
+
+    /*--player-x-color: #e74c3c; /*red*/
+    /*--player-o-color: #3498db; /*blue*/
+
 
     --highlight-color: #FFD580;
     --hover-color: #89f88b;
@@ -341,6 +345,105 @@ h1 {
 .new-game-btn.new-match-button:hover {
     background: #e67e22;
     border-color: #e67e22;
+}
+
+/* Frame 365 - Scoreboards Container */
+.frame-365 {
+    display: flex;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Both Scoreboards - Shared Styling */
+.round-wins-scoreboard,
+.matches-won-scoreboard {
+    display: flex;
+    padding: 8px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: 8px;
+    border: 1px solid #E6E6E6;
+    box-sizing: border-box;
+}
+
+/* Scoreboard Title */
+.scoreboard-title {
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 510;
+    line-height: normal;
+    font-variant: all-small-caps;
+    text-align: center;
+}
+
+/* Player Placards Container */
+.player-placards {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+/* Individual Player Placard (Frames 362 & 363 and equivalents) */
+.player-placard {
+    display: flex;
+    height: 39px;
+    padding: 4px 12px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    border: 1.4px solid #000;
+    box-sizing: border-box;
+    flex: 1;
+}
+
+/* Player Name Typography */
+.player-name {
+    color: #000;
+    text-align: center;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 510;
+    line-height: normal;
+    font-variant: all-small-caps;
+}
+
+/* Player Score Typography */
+.player-score {
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Optional: Add some visual distinction for players */
+.player-x-placard .player-score {
+    color: var(--player-x-color, #e74c3c);
+}
+
+.player-o-placard .player-score {
+    color: var(--player-o-color, #3498db);
+}
+
+/* Optional: Hover effects for better UX */
+.player-placard:hover {
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 /* ==========================================================================
