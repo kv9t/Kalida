@@ -63,8 +63,25 @@
         <!-- Frame 367 - Turn Indicator -->
         <div class="frame-367">
             <div class="turn-indicator" id="turn-indicator">PLAYER X'S TURN</div>
+            <div class="game-status-section">
+                <div id="match-status" class="match-status">First to 8 (win by 2)</div>
+                <div id="special-message" class="special-message"></div>
+            </div>
         </div>
-        
+    
+
+        <!-- Frame 369 - Game Board Container -->
+        <div class="frame-369">
+            <!-- Current game board goes here -->
+            <div class="board" id="game-board"></div>
+        </div>
+
+        <!-- Frame 372 - Button Container -->
+        <div class="frame-372">
+            <!-- New Game button with new styling -->
+            <button id="reset-button" class="new-game-btn">New Game</button>
+        </div>
+
         <div class="score-container">
             <!-- Round scores -->
             <div class="score-board">
@@ -101,26 +118,13 @@
             
         </div>
         
-        <!-- New message container -->
-        <div class="message-container">
-            <div class="player-turn-section">
-                <div class="player-turn-indicator">Player X's Turn</div>
-            </div>
-            <div class="game-status-section">
-                <div id="match-status" class="match-status">First to 8 (win by 2)</div>
-                <div id="special-message" class="special-message"></div>
-            </div>
-        </div>
+        
 
-        <!-- Game Board container -->
-        <div class="board" id="game-board"></div>
+        
         
         <div class="controls">
             <!-- Game control buttons -->
-            <div class="game-controls">
-                <button id="reset-button">New Game</button>
-                <button id="declare-draw-button">Declare Draw</button>
-            </div>
+            
             
             <div class="game-mode">
                 <label for="game-mode-select">Play Against: </label>

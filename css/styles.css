@@ -267,6 +267,82 @@ h1 {
     line-height: normal;
     text-transform: uppercase;
 }
+
+/* Frame 369 - Game Board Container */
+.frame-369 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 12px; /* Match other frame padding if needed */
+}
+
+/* Frame 372 - Button Container */
+.frame-372 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 12px; /* Match other frame padding */
+}
+
+/* New Game Button - Updated styling */
+.new-game-btn {
+    display: flex;
+    height: 51px;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: 26px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    
+    /* Typography */
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
+}
+
+/* Button hover state */
+.new-game-btn:hover {
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+}
+
+/* Button active state */
+.new-game-btn:active {
+    background: #E8E8E8;
+    transform: scale(0.98);
+}
+
+/* Special state for "Start New Match" */
+.new-game-btn.new-match-button {
+    background: var(--victory-color, #f39c12);
+    color: white;
+    border-color: var(--victory-color, #f39c12);
+    font-weight: bold;
+}
+
+.new-game-btn.new-match-button:hover {
+    background: #e67e22;
+    border-color: #e67e22;
+}
+
 /* ==========================================================================
    4. Game Board - Board container (SIMPLIFIED - REMOVED SIZING CONTROLS)
    ========================================================================== */
@@ -274,16 +350,14 @@ h1 {
     display: grid !important;
     grid-template-columns: repeat(6, 1fr) !important;
     grid-gap: 5px !important;
-    margin: 0 auto 20px auto !important; 
     max-width: var(--board-max-width) !important;
     width: 100% !important;
     position: relative !important;
     visibility: visible !important;
     opacity: 1 !important;
     z-index: 1 !important;
+    margin: 0; /* Remove any existing margins since Frame 369 handles centering */
 }
-
-/* REMOVED: Board size info and controls - no longer needed */
 
 
 /* ==========================================================================
