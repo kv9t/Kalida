@@ -28,7 +28,7 @@
     --border-color: #333;
     
     /* Player colors */
-    --player-x-color: #04a187; /*teal*/
+    --player-x-color:  #00C7BE; /*mint*/
     --player-o-color: #5834db; /*indigo*/
 
     /*--player-x-color: #e74c3c; /*red*/
@@ -543,39 +543,100 @@ h1 {
     background-color: var(--highlight-color) !important;
 }
 
+/* ==========================================================================
+   NEW: SVG Player Marker Styles 
+   ========================================================================== */
 
+/* Base marker styling */
+.player-marker {
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.2s ease;
+    pointer-events: none; /* Prevent SVG from interfering with cell clicks */
+}
+
+/* Hover effects for markers */
+.cell:hover .player-marker {
+    transform: scale(1.1);
+}
+
+/* Marker container styling */
+.has-marker {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Player colors - these work with currentColor in SVG */
+.player-x, .marker-x {
+    color: var(--player-x-color); /* Red for X star */
+}
+
+.player-o, .marker-o {
+    color: var(--player-o-color); /* Blue for O circle */
+}
+
+/* Last move highlighting - updated for SVG markers */
+.last-move-x .player-marker {
+    filter: drop-shadow(0 0 8px var(--player-x-color));
+}
+
+.last-move-o .player-marker {
+    filter: drop-shadow(0 0 8px var(--player-o-color));
+}
+
+/* Winning cell markers get extra emphasis */
+.winning-cell .player-marker {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 6px #f39c12);
+}
+
+/* Optional: Different marker sizes for different contexts */
+.player-marker.small {
+    width: 16px;
+    height: 16px;
+}
+
+.player-marker.large {
+    width: 32px;
+    height: 32px;
+}
+
+/* Animation for marker appearance (handled by JavaScript) */
+.player-marker.appear {
+    opacity: 0;
+    transform: scale(0.1);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.player-marker.appear.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Mobile optimizations */
+@media (max-width: 600px) {
+    .player-marker {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .cell:hover .player-marker {
+        transform: scale(1.05); /* Less dramatic hover on mobile */
+    }
+}
 
 
 /* ==========================================================================
    6. Score Display - Score boards and match status indicators - REDESIGNED
    ========================================================================== */
-   .score-container {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    width: 95%;
-    max-width: var(--board-max-width); /* Match game board width */
-    margin-bottom: 8px;
-}
+   
 
-.score-board {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 6px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: var(--box-shadow);
-    max-width: calc(var(--board-max-width) / 2 - 5px);
-}
 
-.match-score-board {
-    /* Remove the blue top border */
-    border-top: none;
-    /* Add a subtle distinctive styling instead */
-    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.2);
-}
+
+
 
 .match-rules {
     font-size: 10px;
@@ -590,23 +651,7 @@ h1 {
     margin-bottom: 5px;
 }
 
-.player-scores {
-    display: flex;
-    width: 100%;
-    justify-content: space-around;
-    gap: 4px; /* Add space between player score containers */
-    margin-bottom: 5px;
-}
 
-.player-score-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 4px 4px;
-    border-radius: 4px;
-    min-width: 40%;
-    transition: transform 0.2s ease;
-}
 
 .player-score-container:hover {
     transform: scale(1.05);
@@ -628,11 +673,7 @@ h1 {
     margin-bottom: 1px;
 }
 
-.player-score-value {
-    font-size: 26px;
-    font-weight: bold;
-    line-height: 1;
-}
+
 
 #score-x, #match-score-x {
     color: var(--player-x-color);
