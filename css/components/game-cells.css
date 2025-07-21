@@ -49,7 +49,7 @@
 
 /* Disable hover effects when game is over */
 .game-over .cell:hover {
-    background-color: inherit !important;
+   /* background-color: inherit !important; */
     cursor: default !important;
 }
 
@@ -156,11 +156,11 @@
 
 /* Last move highlighting - updated for SVG markers */
 .last-move-x .player-marker {
-    filter: drop-shadow(0 0 8px var(--player-x-color));
+    filter: drop-shadow(0 0 30px var(--player-x-color));
 }
 
 .last-move-o .player-marker {
-    filter: drop-shadow(0 0 8px var(--player-o-color));
+    filter: drop-shadow(0 0 30px var(--player-o-color));
 }
 
 /* Winning cell markers get extra emphasis */
