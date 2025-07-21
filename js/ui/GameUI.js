@@ -574,6 +574,11 @@ class GameUI {
             console.log('Game reset event received', data);
             
             if (this.boardUI) {
+                // IMPORTANT: Remove the game-over class to re-enable hover effects
+                if (this.boardUI.gameBoard) {
+                    this.boardUI.gameBoard.classList.remove('game-over');
+                }
+                
                 // Make sure to clear all highlighting on reset
                 if (typeof this.boardUI.clearHighlights === 'function') {
                     this.boardUI.clearHighlights();
