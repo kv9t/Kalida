@@ -1,0 +1,21 @@
+/* ===================================================================
+   RESET - Base styling and CSS resets
+   Foundation styles that establish the basic page structure
+   =================================================================== */
+
+/* Base body reset and layout */
+body {
+    margin: 0;
+    padding: 0;
+    touch-action: manipulation;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+/* Universal box-sizing reset */
+*, *::before, *::after {
+    box-sizing: inherit;
+}

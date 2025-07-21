@@ -1,0 +1,43 @@
+/* ===================================================================
+   MESSAGES COMPONENT - Game messages and notifications
+   Status messages, notifications, and game state indicators
+   =================================================================== */
+
+/* ===== GAME MESSAGES ===== */
+
+/* Base game message styling */
+.game-message {
+    padding: 8px 15px;
+    margin: var(--spacing-xs) 0;
+    border-radius: 5px;
+    box-shadow: var(--box-shadow);
+    transition: opacity 0.5s;
+}
+
+/* Message type variations */
+.message-info {
+    background-color: var(--primary-btn-color);
+    color: white;
+}
+
+.message-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.message-error {
+    background-color: var(--error-color);
+    color: white;
+}
+
+/* Message fade animation */
+.message-fade {
+    opacity: 0;
+}
+
+/* ===== GAME STATE INDICATORS ===== */
+
+/* Disable hover effects when game is over */
+.game-over .cell:hover {
+    cursor: default !important;
+}

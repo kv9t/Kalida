@@ -1,0 +1,177 @@
+/* ===================================================================
+   CONTROLS COMPONENT - All interactive form elements and buttons
+   Buttons, selects, checkboxes, tooltips, and form controls
+   =================================================================== */
+
+/* ===== BUTTONS ===== */
+
+/* New Game Button - Primary button styling */
+.new-game-btn {
+    display: flex;
+    height: 51px;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: 26px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    
+    /* Typography */
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
+}
+
+/* Button hover state */
+.new-game-btn:hover {
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+}
+
+/* Button active state */
+.new-game-btn:active {
+    background: #E8E8E8;
+    transform: scale(0.98);
+}
+
+/* Special state for "Start New Match" */
+.new-game-btn.new-match-button {
+    background: var(--victory-color, #f39c12);
+    color: white;
+    border-color: var(--victory-color, #f39c12);
+    font-weight: bold;
+}
+
+.new-game-btn.new-match-button:hover {
+    background: #e67e22;
+    border-color: #e67e22;
+}
+
+/* General button styling */
+button {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: 16px;
+    background-color: var(--primary-btn-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 var(--spacing-xs);
+}
+
+button:hover {
+    background-color: var(--primary-btn-hover);
+}
+
+/* Game controls container for button grouping */
+.game-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Declare Draw button specific styling */
+#declare-draw-button {
+    background-color: var(--draw-btn-color);
+    color: white;
+}
+
+#declare-draw-button:hover {
+    background-color: var(--draw-btn-hover);
+}
+
+/* Disable the declare draw button when game is not active */
+#declare-draw-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ===== FORM CONTROLS ===== */
+
+/* Select dropdown styling */
+select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    margin-left: var(--spacing-xs);
+}
+
+/* ===== CHECKBOXES & TOOLTIPS ===== */
+
+/* Checkbox container */
+.checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    margin-left: var(--spacing-sm);
+    position: relative;
+    margin-bottom: var(--spacing-xs);
+}
+
+.checkbox-container input[type="checkbox"] {
+    margin-right: var(--spacing-xs);
+}
+
+/* Tooltip icon */
+.tooltip-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-color: var(--primary-btn-color);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 16px;
+    font-size: 12px;
+    cursor: help;
+    margin-left: var(--spacing-xs);
+}
+
+/* Tooltip popup */
+.tooltip {
+    visibility: hidden;
+    width: 200px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: var(--spacing-xs);
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+/* Show tooltip on hover */
+.checkbox-container:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}

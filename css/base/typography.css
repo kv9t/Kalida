@@ -1,0 +1,52 @@
+/* ===================================================================
+   TYPOGRAPHY - All text styling and font definitions
+   Base typography that affects text throughout the application
+   =================================================================== */
+
+/* Base font family and text properties */
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Header typography */
+.header h1 {
+    margin: 0;
+    color: var(--text-color);
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
+}
+
+h1 {
+    color: var(--text-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Game info typography */
+.game-info {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-secondary);
+    font-size: .8em;
+}
+
+/* Player turn typography */
+.player-turn {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-color);
+}
+
+/* Turn indicator typography */
+.turn-indicator {
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
+}
