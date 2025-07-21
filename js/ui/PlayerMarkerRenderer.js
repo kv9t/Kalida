@@ -121,7 +121,7 @@ class PlayerMarkerRenderer {
         circle.setAttribute('r', radius);
         circle.setAttribute('fill', 'none'); // Hollow circle
         circle.setAttribute('stroke', 'currentColor');
-        circle.setAttribute('stroke-width', config.strokeWidth * 1.5); // Slightly thicker for visibility
+        circle.setAttribute('stroke-width', config.strokeWidth * 3.5); // Slightly thicker for visibility
         
         svg.appendChild(circle);
         

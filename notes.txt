@@ -1,0 +1,6 @@
+For local server: 
+
+Start server:
+(1) in terminal:  navigate to game folder: cd C:\Users\senej\Desktop\Kalida\Kalida
+(2) python -m http.server 8000
+(3) go to http://localhost:8000/

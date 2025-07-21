@@ -60,9 +60,9 @@
     
     /* Shadows */
     --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    --glow-shadow-x: 0 0 8px rgba(231, 76, 60, 0.6);
-   --glow-shadow-o: 0 0 8px rgba(52, 152, 219, 0.6);
-    
+    --glow-shadow-x: 0 0 8px rgba(0, 199, 190, 0.6);  /* mint glow */
+    --glow-shadow-o: 0 0 8px rgba(88, 52, 219, 0.6);   /* indigo glow */
+
    }
 
 /* ==========================================================================
@@ -111,6 +111,13 @@ body {
     margin: 0;
     color: var(--text-color);
     /* Add your preferred font styling here */
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+   
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
 }
 
 h1 {
@@ -482,8 +489,79 @@ h1 {
     box-sizing: border-box;
 }
 
-.cell:hover {
+/* ==========================================================================
+   UPDATED: Selective Hover Effects - Only for valid, empty cells
+   ========================================================================== */
+
+
+/* Only apply hover effects to empty cells that are valid moves */
+.cell:not(.has-marker):not(.invalid-move):not(.winning-cell):not(.bounce-cell):not(.last-move-x):not(.last-move-o):not(.winning-move):hover {
     background-color: var(--hover-color);
+    cursor: pointer;
+}
+
+/* Ensure cells with markers have a default cursor */
+.cell.has-marker {
+    cursor: default;
+}
+
+/* Ensure invalid move cells have a not-allowed cursor */
+.cell.invalid-move {
+    cursor: not-allowed !important;
+    opacity: 0.5;
+}
+
+/* Special handling for knight move scenarios */
+.cell.invalid-move:hover {
+    background-color: var(--invalid-move-color) !important;
+}
+
+/* Valid knight moves get their own hover effect */
+.cell.valid-knight-move:hover {
+    background-color: rgba(155, 89, 182, 0.3) !important;
+    cursor: pointer;
+}
+
+/* Disable hover effects when game is over (keep existing) */
+.game-over .cell:hover {
+    background-color: inherit !important;
+    cursor: default !important;
+}
+
+/* Additional state: AI thinking - disable all interaction */
+.ai-thinking .cell {
+    cursor: wait !important;
+    pointer-events: none;
+}
+
+.ai-thinking .cell:hover {
+    background-color: inherit !important;
+}
+
+/* ==========================================================================
+   UPDATED: Player Marker Hover Effects
+   ========================================================================== */
+
+/* Remove hover effects on SVG markers when cell has a marker */
+.has-marker:hover .player-marker {
+    transform: none !important; /* Prevent marker scaling on hover */
+}
+
+/* Only scale markers on hover for empty cells (this shouldn't happen anyway, but for safety) */
+.cell:not(.has-marker):hover .player-marker {
+    transform: scale(1.1);
+}
+
+/* Mobile optimizations - reduce hover effects */
+@media (max-width: 600px) {
+    /* On mobile, make hover effects more subtle */
+    .cell:not(.has-marker):not(.invalid-move):not(.winning-cell):not(.bounce-cell):not(.last-move-x):not(.last-move-o):not(.winning-move):hover {
+        background-color: rgba(137, 248, 139, 0.7); /* More subtle hover */
+    }
+    
+    .cell.valid-knight-move:not(.winning-cell):not(.bounce-cell):not(.last-move-x):not(.last-move-o):hover {
+        background-color: rgba(155, 89, 182, 0.2) !important;
+    }
 }
 
 /* Player markers */
@@ -499,13 +577,13 @@ h1 {
 .last-move-x {
     border: 3px solid var(--player-x-color);
     box-shadow: var(--glow-shadow-x);
-    background-color: rgba(231, 76, 60, 0.1);
+    background-color: rgba(0, 199, 190, 0.1); /* mint background */
 }
 
 .last-move-o {
     border: 3px solid var(--player-o-color);
     box-shadow: var(--glow-shadow-o);
-    background-color: rgba(52, 152, 219, 0.1);
+    background-color: rgba(88, 52, 219, 0.1); /* indigo background */
 }
 
 /* Win condition highlighting */
@@ -529,6 +607,15 @@ h1 {
     font-size: 14px;
     color: #ffca28;
     text-shadow: 0 0 3px #000;
+}
+
+
+.cell.winning-cell,
+.cell.bounce-cell,
+.cell.last-move-x,
+.cell.last-move-o,
+.cell.winning-move {
+    cursor: default;
 }
 
 /* Bounce cells styling */
