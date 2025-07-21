@@ -1,0 +1,50 @@
+/* ===================================================================
+   CSS VARIABLES - Extracted from original styles.css Section 1
+   =================================================================== */
+
+:root {
+    /* Board dimensions - SIMPLIFIED: Removed board width variable */
+    --board-max-width: 400px;
+    
+    /* Colors */
+    --bg-color: #f5f5f5;
+    --text-color: #333;
+    --text-secondary: #555;
+    --border-color: #333;
+    
+    /* Player colors */
+    --player-x-color:  #00C7BE; /*mint*/
+    --player-o-color: #5834db; /*indigo*/
+
+    /*--player-x-color: #e74c3c; /*red*/
+    /*--player-o-color: #3498db; /*blue*/
+
+    --highlight-color: #FFD580;
+    /*--hover-color: #89f88b; */
+    --hover-color: #8f8f8f;
+    
+    /* Button colors */
+    --primary-btn-color: #3498db;
+    --primary-btn-hover: #2980b9;
+    --draw-btn-color: #95a5a6;
+    --draw-btn-hover: #7f8c8d;
+    --victory-color: #f39c12;
+    --error-color: #e74c3c;
+    --success-color: #2ecc71;
+    
+    /* Knight move colors */
+    --knight-move-color: #9b59b6;
+    --invalid-move-color: #f8d7da;
+    
+    /* Spacing */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+    --spacing-xl: 30px;
+    
+    /* Shadows */
+    --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --glow-shadow-x: 0 0 8px rgba(0, 199, 190, 0.6);  /* mint glow */
+    --glow-shadow-o: 0 0 8px rgba(88, 52, 219, 0.6);   /* indigo glow */
+}

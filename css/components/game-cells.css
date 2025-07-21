@@ -1,0 +1,214 @@
+/* ===================================================================
+   GAME CELLS COMPONENT - Extracted from original styles.css Section 5
+   =================================================================== */
+
+/* Base cell styling */
+.cell {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #fff;
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+}
+
+/* ===== HOVER EFFECTS - Only for valid, empty cells ===== */
+.cell:not(.has-marker):not(.invalid-move):not(.winning-cell):not(.bounce-cell):not(.last-move-x):not(.last-move-o):not(.winning-move):hover {
+    background-color: var(--hover-color);
+    cursor: pointer;
+}
+
+/* Ensure cells with markers have a default cursor */
+.cell.has-marker {
+    cursor: default;
+}
+
+/* Ensure invalid move cells have a not-allowed cursor */
+.cell.invalid-move {
+    cursor: not-allowed !important;
+    opacity: 0.5;
+}
+
+/* Special handling for knight move scenarios */
+.cell.invalid-move:hover {
+    background-color: var(--invalid-move-color) !important;
+}
+
+/* Valid knight moves get their own hover effect */
+.cell.valid-knight-move:hover {
+    background-color: rgba(155, 89, 182, 0.3) !important;
+    cursor: pointer;
+}
+
+/* Disable hover effects when game is over */
+.game-over .cell:hover {
+    background-color: inherit !important;
+    cursor: default !important;
+}
+
+/* AI thinking - disable all interaction */
+.ai-thinking .cell {
+    cursor: wait !important;
+    pointer-events: none;
+}
+
+.ai-thinking .cell:hover {
+    background-color: inherit !important;
+}
+
+/* ===== PLAYER MARKERS ===== */
+.player-x {
+    color: var(--player-x-color);
+}
+
+.player-o {
+    color: var(--player-o-color);
+}
+
+/* Last move highlighting */
+.last-move-x {
+    border: 4px solid var(--player-x-color);
+}
+
+.last-move-o {
+    border: 4px solid var(--player-o-color);
+}
+
+/* Win condition highlighting */
+.winning-cell {
+    background-color: var(--highlight-color);
+}
+
+.winning-move {
+    position: relative;
+    border: 3px solid #ffca28 !important;
+    box-shadow: 0 0 10px #8a12f3 !important;
+    z-index: 10;
+    animation: winning-pulse 1.5s infinite;
+}
+
+.winning-move::after {
+    content: "★";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 14px;
+    color: #ffca28;
+    text-shadow: 0 0 3px #000;
+}
+
+/* Disable hover on special cells */
+.cell.winning-cell,
+.cell.bounce-cell,
+.cell.last-move-x,
+.cell.last-move-o,
+.cell.winning-move {
+    cursor: default;
+}
+
+/* Bounce cells styling */
+.bounce-cell {
+    background-color: var(--highlight-color);
+    position: relative;
+}
+
+.bounce-cell-second {
+    background-color: var(--highlight-color) !important;
+}
+
+/* ===== SVG PLAYER MARKER STYLES ===== */
+.player-marker {
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.2s ease;
+    pointer-events: none; /* Prevent SVG from interfering with cell clicks */
+}
+
+/* Hover effects for markers */
+.cell:hover .player-marker {
+    transform: scale(1.1);
+}
+
+/* Marker container styling */
+.has-marker {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Player colors - work with currentColor in SVG */
+.player-x, .marker-x {
+    color: var(--player-x-color); /* Red for X star */
+}
+
+.player-o, .marker-o {
+    color: var(--player-o-color); /* Blue for O circle */
+}
+
+/* Last move highlighting - updated for SVG markers */
+.last-move-x .player-marker {
+    filter: drop-shadow(0 0 8px var(--player-x-color));
+}
+
+.last-move-o .player-marker {
+    filter: drop-shadow(0 0 8px var(--player-o-color));
+}
+
+/* Winning cell markers get extra emphasis */
+.winning-cell .player-marker {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 6px #f39c12);
+}
+
+/* Different marker sizes for contexts */
+.player-marker.small {
+    width: 16px;
+    height: 16px;
+}
+
+.player-marker.large {
+    width: 32px;
+    height: 32px;
+}
+
+/* Animation for marker appearance (handled by JavaScript) */
+.player-marker.appear {
+    opacity: 0;
+    transform: scale(0.1);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.player-marker.appear.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ===== MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 600px) {
+    /* More subtle hover effects on mobile */
+    .cell:not(.has-marker):not(.invalid-move):not(.winning-cell):not(.bounce-cell):not(.last-move-x):not(.last-move-o):not(.winning-move):hover {
+        background-color: rgba(137, 248, 139, 0.7);
+    }
+    
+    .cell.valid-knight-move:not(.winning-cell):not(.bounce-cell):not(.last-move-x):not(.last-move-o):hover {
+        background-color: rgba(155, 89, 182, 0.2) !important;
+    }
+
+    .player-marker {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .cell:hover .player-marker {
+        transform: scale(1.05);
+    }
+}
