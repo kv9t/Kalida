@@ -4,6 +4,10 @@
  * Implements the minimax search algorithm with alpha-beta pruning
  * for finding optimal moves in the Kalida game.
  */
+
+import BoardEvaluator from '../../evaluation/BoardEvaluator.js';
+import ThreatDetector from '../../utils/ThreatDetector.js';
+
 class MinimaxSearch {
     /**
      * Create a new minimax search
@@ -399,3 +403,5 @@ class MinimaxSearch {
         return `${boardString}|${player}|${isMaximizing ? 'max' : 'min'}`;
     }
 }
+
+export default MinimaxSearch;

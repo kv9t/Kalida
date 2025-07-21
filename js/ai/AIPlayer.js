@@ -4,6 +4,13 @@
  * This class serves as the base for all AI players,
  * delegating the actual move selection to a strategy.
  */
+
+import BoardEvaluator from './evaluation/BoardEvaluator.js';
+import ThreatDetector from './utils/ThreatDetector.js';
+import WinTrackGenerator from './utils/WinTrackGenerator.js';
+import ImpossibleStrategy from './strategies/ImpossibleStrategy.js';
+import BounceUtils from '../utils/BounceUtils.js';
+
 class AIPlayer {
     /**
      * Create a new AI player
@@ -57,3 +64,5 @@ class AIPlayer {
         });
     }
 }
+
+export default AIPlayer;

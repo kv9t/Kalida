@@ -154,3 +154,5 @@ class Board {
         return this.size;
     }
 }
+
+export default Board;

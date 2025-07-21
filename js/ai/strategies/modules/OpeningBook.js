@@ -2,6 +2,14 @@
  * OpeningBook.js - Strategic opening moves for the AI
  * This module handles the early game strategy with improved win-track awareness
  */
+// From the modules/ subdirectory, go up to ai/ level
+import BoardEvaluator from '../../evaluation/BoardEvaluator.js';
+import ThreatDetector from '../../utils/ThreatDetector.js';
+import WinTrackGenerator from '../../utils/WinTrackGenerator.js';
+import AIPlayer from '../../AIPlayer.js';
+import ImpossibleStrategy from '../ImpossibleStrategy.js';
+import BounceUtils from '../../../utils/BounceUtils.js';
+
 class OpeningBook {
     /**
      * Create a new opening book
@@ -903,3 +911,5 @@ class OpeningBook {
         return board.map(row => [...row]);
     }
 }
+
+export default OpeningBook;

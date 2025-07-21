@@ -7,6 +7,9 @@
  * - Developing threats (3 in a row with one open end)
  * - Pattern-based threats
  */
+
+import WinTrackGenerator from './WinTrackGenerator.js';
+
 class ThreatDetector {
     /**
      * Create a new threat detector
@@ -373,3 +376,5 @@ class ThreatDetector {
         return !this.arePositionsConsecutive(track, playerPositions);
     }
 }
+
+export default ThreatDetector;

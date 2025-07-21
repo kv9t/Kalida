@@ -243,3 +243,5 @@ class PlayerMarkerRenderer {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = PlayerMarkerRenderer;
 }
+
+export default PlayerMarkerRenderer;

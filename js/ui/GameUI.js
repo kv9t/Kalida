@@ -7,6 +7,9 @@
  * 
  */
 
+import UIAssetManager from './UIAssetManager.js';  // Adjust path as needed
+import BoardUI from './BoardUI.js';
+
 class GameUI {
     /**
      * Create a new game UI
@@ -1048,3 +1051,4 @@ class GameUI {
         }
     }
 }
+export default GameUI;

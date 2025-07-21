@@ -12,7 +12,6 @@
     <link rel="manifest" href="images/site.webmanifest">
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
 
-    <!-- Add this line to check if there's any CSS issue -->
     <style>
         /* Inline CSS as a fallback/test */
         .css-loaded-indicator {
@@ -35,32 +34,25 @@
     <link rel="stylesheet" href="css/styles.css?v=1.0.1">
 </head>
 
-
-
 <body>
-
     <div class="main-container">
-
+        <!-- Your existing HTML content stays the same -->
         <header class="header">
             <h1>KALIDA</h1>
         </header>
 
-        <!-- Outer Frame 354 - Container for game mode and rules selectors -->
         <div class="frame-354-container">
-            <!-- Frame 353 - Game Mode Selector (left side) -->
             <div class="frame-353 game-mode-selector">
                 <div class="frame-366">
                     <img id="game-mode-svg" src="images/Kalida_frame366_human-v-human-mode.svg" alt="Game Mode" />
                 </div>
             </div>
             
-            <!-- Inner Frame 354 - Rules Selector (right side) - renamed for clarity -->
             <div class="frame-354-rules rules-selector">
                 <img id="rules-mode-svg" src="images/Mode=Basic.svg" alt="Rules Mode" />
             </div>
         </div>
 
-        <!-- Frame 367 - Turn Indicator -->
         <div class="frame-367">
             <div class="turn-indicator" id="turn-indicator">PLAYER X'S TURN</div>
             <div class="game-status-section">
@@ -69,35 +61,22 @@
             </div>
         </div>
     
-
-        <!-- Frame 369 - Game Board Container -->
         <div class="frame-369">
-            <!-- Current game board goes here -->
             <div class="board" id="game-board"></div>
         </div>
 
-        <!-- Frame 372 - Button Container -->
         <div class="frame-372">
-            <!-- New Game button with new styling -->
             <button id="reset-button" class="new-game-btn">New Game</button>
         </div>
 
-        <!-- Frame 365 - Scoreboards Container -->
         <div class="frame-365">
-            <!-- Round Wins Scoreboard -->
             <div class="round-wins-scoreboard">
-                <!-- Scoreboard Title -->
                 <div class="scoreboard-title">ROUND WINS</div>
-                
-                <!-- Player Placards Container -->
                 <div class="player-placards">
-                    <!-- Frame 362 - Player X Placard -->
                     <div class="player-placard player-x-placard">
                         <div class="player-name">PLAYER X</div>
                         <div class="player-score" id="score-x">0</div>
                     </div>
-                    
-                    <!-- Frame 363 - Player O Placard -->
                     <div class="player-placard player-o-placard">
                         <div class="player-name">PLAYER O</div>
                         <div class="player-score" id="score-o">0</div>
@@ -105,20 +84,13 @@
                 </div>
             </div>
             
-            <!-- Matches Won Scoreboard -->
             <div class="matches-won-scoreboard">
-                <!-- Scoreboard Title -->
                 <div class="scoreboard-title">MATCHES WON</div>
-                
-                <!-- Player Placards Container -->
                 <div class="player-placards">
-                    <!-- Player X Placard -->
                     <div class="player-placard player-x-placard">
                         <div class="player-name">PLAYER X</div>
                         <div class="player-score" id="match-score-x">0</div>
                     </div>
-                    
-                    <!-- Player O Placard -->
                     <div class="player-placard player-o-placard">
                         <div class="player-name">PLAYER O</div>
                         <div class="player-score" id="match-score-o">0</div>
@@ -126,23 +98,8 @@
                 </div>
             </div>
         </div>
-
-
-
-
-
-
-
-
-        
-        
-
-        
         
         <div class="controls">
-            <!-- Game control buttons -->
-            
-            
             <div class="game-mode">
                 <label for="game-mode-select">Play Against: </label>
                 <select id="game-mode-select">
@@ -178,44 +135,10 @@
                 </div>
             </div>
         </div>
-        
-       
     </div>
-    <!-- Core game files (load first) -->
-    <script src="js/core/Board.js"></script>
-    <script src="js/core/Rules.js"></script>
-    <script src="js/core/Game.js"></script>
     
-    <!-- Utility files -->
-    <script src="js/utils/BounceUtils.js"></script>
-    <script src="js/utils/CookieManager.js"></script>
-    <script src="js/utils/CookieConsent.js"></script>
-    
-    <!-- AI Base and Components -->
-    <script src="js/ai/AIPlayer.js"></script>
-    <script src="js/ai/utils/WinTrackGenerator.js"></script>
-    <script src="js/ai/utils/ThreatDetector.js"></script>
-    <script src="js/ai/evaluation/BoardEvaluator.js"></script>
-
-    <!-- AI Strategy Modules -->
-    <script src="js/ai/strategies/modules/BouncePatternDetector.js"></script>
-    <script src="js/ai/strategies/modules/MinimaxSearch.js"></script>
-    <script src="js/ai/strategies/modules/OpeningBook.js"></script>
-
-    <!-- AI Strategy (only the one we use) -->
-    <script src="js/ai/strategies/ImpossibleStrategy.js"></script>
-
-    <!-- AI Factory -->
-    <script src="js/ai/AIFactory.js"></script>
-    
-
-    <!-- UI Components -->
-    <script src="js/ui/UIAssetManager.js"></script>
-    <script src="js/utils/PlayerMarkerRenderer.js"></script>
-    <script src="js/ui/BoardUI.js"></script>
-    <script src="js/ui/GameUI.js"></script>
-    
-    <!-- Main entry point -->
-    <script src="js/main.js"></script>
+    <!-- ONLY load the main entry point as a module -->
+    <!-- The ES6 import system will handle loading all dependencies -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

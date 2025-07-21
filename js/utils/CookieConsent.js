@@ -4,6 +4,8 @@
  * Displays a modal asking for user consent to store cookies
  * for game preferences and progress.
  */
+import CookieManager from './CookieManager.js';
+
 class CookieConsent {
     constructor(cookieManager) {
         this.cookieManager = cookieManager;
@@ -439,3 +441,5 @@ class CookieConsent {
         document.head.appendChild(style);
     }
 }
+
+export default CookieConsent;

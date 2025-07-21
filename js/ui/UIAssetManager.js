@@ -211,3 +211,5 @@ class UIAssetManager {
         return { ...this.assetMappings };
     }
 }
+
+export default UIAssetManager;

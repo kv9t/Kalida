@@ -6,6 +6,9 @@
  * moves, and showing winning patterns
  * 
  */
+import PlayerMarkerRenderer from './PlayerMarkerRenderer.js';
+
+
 class BoardUI {
     /**
      * Create a new board UI
@@ -21,7 +24,7 @@ class BoardUI {
         this.validKnightMoves = []; // Track valid knight moves
         this.isKnightMoveRequired = false; // Flag to track if knight move is required
         
-        // NEW: Initialize the marker renderer
+        // Initialize the marker renderer
         this.markerRenderer = new PlayerMarkerRenderer({
             size: 24,
             strokeWidth: 1.5,
@@ -421,3 +424,5 @@ class BoardUI {
         this.gameBoard.classList.add(`player-turn-${player.toLowerCase()}`);
     }
 }
+
+export default BoardUI;

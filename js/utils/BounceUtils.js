@@ -158,3 +158,5 @@ class BounceUtils {
         return false; // No missing teeth
     }
 }
+
+export default BounceUtils;

@@ -6,6 +6,9 @@
  * A "win track" is any set of 6 cells that could potentially 
  * contain 5 marks by a player to form a winning line.
  */
+
+import BounceUtils from '../../utils/BounceUtils.js';
+
 class WinTrackGenerator {
     /**
      * Create a new win track generator
@@ -438,3 +441,5 @@ class WinTrackGenerator {
         });
     }
 }
+
+export default WinTrackGenerator;

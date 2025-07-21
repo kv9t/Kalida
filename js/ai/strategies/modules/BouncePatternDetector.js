@@ -2,6 +2,10 @@
  * BouncePatternDetector.js - Specialized detection of bounce patterns
  * This module specifically handles bounce patterns and their evaluation
  */
+
+// FIXED: Correct import path for BounceUtils
+import BounceUtils from '../../../utils/BounceUtils.js';
+
 class BouncePatternDetector {
     /**
      * Create a new bounce pattern detector
@@ -415,9 +419,6 @@ class BouncePatternDetector {
     detectDoubleBounceThreats(board, player, opponent, missingTeethRuleEnabled) {
         const threats = [];
         
-        // We're especially looking for patterns like the one described by the user
-        // (B4, A3, B2, C1, D2) - a diagonal pattern with two bounces
-        
         // Check each player piece that's near a corner
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
@@ -800,3 +801,5 @@ class BouncePatternDetector {
         return { count, openEnds, path };
     }
 }
+
+export default BouncePatternDetector;
