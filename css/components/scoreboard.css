@@ -1,0 +1,287 @@
+/* ===================================================================
+   SCOREBOARD COMPONENT - Extracted from styles.css Section 6
+   All score display, scoreboards, and match status indicators
+   =================================================================== */
+
+/* Frame 365 - Scoreboards Container */
+.frame-365 {
+    display: flex;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Both Scoreboards - Shared Styling */
+.round-wins-scoreboard,
+.matches-won-scoreboard {
+    display: flex;
+    padding: 8px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: 8px;
+    border: 1px solid #E6E6E6;
+    box-sizing: border-box;
+}
+
+/* Scoreboard Title */
+.scoreboard-title {
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 510;
+    line-height: normal;
+    font-variant: all-small-caps;
+    text-align: center;
+}
+
+/* Player Placards Container */
+.player-placards {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+/* Individual Player Placard (Frames 362 & 363 and equivalents) */
+.player-placard {
+    display: flex;
+    height: 39px;
+    padding: 4px 12px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    border: 1.4px solid #000;
+    box-sizing: border-box;
+    flex: 1;
+}
+
+/* Player Name Typography */
+.player-name {
+    color: #000;
+    text-align: center;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 510;
+    line-height: normal;
+    font-variant: all-small-caps;
+}
+
+/* Player Score Typography */
+.player-score {
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Player color distinctions */
+.player-x-placard .player-score {
+    color: var(--player-x-color, #e74c3c);
+}
+
+.player-o-placard .player-score {
+    color: var(--player-o-color, #3498db);
+}
+
+/* Hover effects for better UX */
+.player-placard:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* ===== SCORE DISPLAY ELEMENTS ===== */
+
+.match-rules {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.score-header {
+    font-weight: bold;
+    color: var(--text-color);
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.player-score-container:hover {
+    transform: scale(1.05);
+}
+
+.player-x-container {
+    border: 2px solid var(--player-x-color);
+    background-color: rgba(231, 76, 60, 0.05);
+}
+
+.player-o-container {
+    border: 2px solid var(--player-o-color);
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+#score-x, #match-score-x {
+    color: var(--player-x-color);
+}
+
+#score-o, #match-score-o {
+    color: var(--player-o-color);
+}
+
+#clear-scores-button {
+    margin-top: 2px;
+    padding: 2px 6px;
+    font-size: 12px;
+    background-color: var(--error-color);
+}
+
+/* ===== MESSAGE CONTAINERS ===== */
+
+/* New message container */
+.message-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Match exactly the board width */
+    max-width: var(--board-max-width); /* Match game board max-width */
+    margin: 0 auto 8px auto; /* Center and maintain spacing */
+    min-height: 40px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 5px 8px; /* Slightly reduced horizontal padding */
+    box-shadow: var(--box-shadow);
+    position: relative;
+    box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+/* Special message area adjustments */
+.special-message {
+    font-size: 11px; /* Smaller font */
+    white-space: nowrap; /* Prevent text wrapping */
+    color: var(--knight-move-color);
+    font-weight: bold;
+    min-height: 20px;
+}
+
+.victory-indicator {
+    background-color: var(--victory-color);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.player-turn-section {
+    flex: 1;
+    text-align: left;
+}
+
+.game-status-section {
+    flex: 1;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.player-turn-indicator {
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.match-status {
+    font-size: 11px;
+    color: var(--error-color);
+    font-weight: bold;
+}
+
+.match-progress {
+    color: var(--error-color);
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
+}
+
+.match-champion {
+    color: var(--victory-color);
+    font-weight: bold;
+}
+
+/* ===== MOBILE RESPONSIVENESS FOR SCOREBOARDS ===== */
+
+@media (max-width: 600px) {
+    /* Score board adjustments for mobile */
+    .score-board {
+        padding: 4px;  /* Reduce padding */
+        width: 47%;    /* Make them fit side by side with gap */
+        max-width: 47%;
+    }
+    
+    .player-score-value {
+        font-size: 24px; /* Even larger on mobile */
+    }
+    
+    /* Force them to stay side by side */
+    .score-container {
+        flex-direction: row !important;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        width: 98%;
+        gap: 4px;  /* Reduce the gap */
+    }
+    
+    /* Adjust other elements */
+    .player-score-container {
+        min-width: 38%;  /* Slightly narrower */
+        padding: 2px;    /* Less padding */
+    }
+
+    /* Make the player names smaller but still readable */
+    .player-name {
+        font-size: 10px;
+    }
+
+    /* Make the reset button smaller */
+    #clear-scores-button {
+        font-size: 14px;
+        padding: 1px 4px;
+    }
+
+    .player-turn {
+        font-size: 13px;
+    }
+    
+    .match-status {
+        font-size: 13px;
+    }
+    
+    /* For very small screens */
+    @media (max-width: 350px) {
+        .message-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 3px;
+        }
+        
+        .player-turn, .match-status {
+            width: 100%;
+            text-align: center;
+            margin: 2px 0;
+        }
+    }
+}

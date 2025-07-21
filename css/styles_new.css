@@ -2,34 +2,34 @@
    KALIDA - MODULAR CSS ARCHITECTURE
    ===================================================================== */
 
-/* PHASE 1: Extracted components - MUST BE FIRST */
+/* EXTRACTED COMPONENTS - Import in correct order */
 @import url('./base/variables.css');
 @import url('./components/game-board.css');
 @import url('./components/game-cells.css');
+@import url('./components/scoreboard.css');
+@import url('./features/knight-move.css');
+@import url('./features/animations.css');
 
 /* =====================================================================
-   REMAINING STYLES - All non-extracted sections from original
-   TODO: Extract in future phases for even better organization
+   REMAINING CORE STYLES - Essential layout, typography, controls, and responsiveness
    ===================================================================== */
 
 /* ==========================================================================
-   2. Base & Typography - Basic page styling and text formatting
+   BASE & TYPOGRAPHY - Basic page styling and text formatting
    ========================================================================== */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    /*background-color: #f5f5f5; /* Keep existing background */
     touch-action: manipulation;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    /* padding-top: 20px; /* Some space from viewport top */
 }
 
-/* New main container */
+/* Main container */
 .main-container {
     display: flex;
     width: 393px;
@@ -37,13 +37,11 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    /*border: 1px solid #E6E6E6;*/
     background: #FFF;
-    /*box-shadow: 1px 4px 13px 0px rgba(0, 0, 0, 0.10);*/
     box-sizing: border-box;
 }
 
-/* New header styling */
+/* Header styling */
 .header {
     display: flex;
     width: 393px;
@@ -57,10 +55,8 @@ body {
 .header h1 {
     margin: 0;
     color: var(--text-color);
-    /* Add your preferred font styling here */
     color: #000;
     font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-   
     font-style: normal;
     font-weight: 1000;
     line-height: normal;
@@ -86,7 +82,7 @@ h1 {
 }
 
 /* ==========================================================================
-   3. Layout & Structure - Main containers and structural elements
+   LAYOUT & STRUCTURE - Frame containers and structural elements
    ========================================================================== */
 .game-description {
     margin-top: var(--spacing-xl);
@@ -124,6 +120,8 @@ h1 {
     margin-top: var(--spacing-md);
 }
 
+/* ===== FRAME CONTAINERS ===== */
+
 /* Outer Frame 354 - Container */
 .frame-354-container {
     display: flex;
@@ -133,7 +131,6 @@ h1 {
     align-self: stretch;
     width: 100%;
     box-sizing: border-box;
-    
 }
 
 /* Frame 353 - Game Mode Selector (left side) */
@@ -150,23 +147,15 @@ h1 {
     box-sizing: border-box;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 
 /* Inner Frame 354 - Rules Selector (right side) */
 .frame-354-rules {
-    /*display: flex;
-    width: 221px;
-    padding: 8px;
-    align-items: center;
-    gap: 10px;
-    align-self: stretch;
-    border-radius: 8px;
-    border: 1px solid #E6E6E6;*/
     box-sizing: border-box;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 
 /* Frame 366 - Simple SVG container */
@@ -231,10 +220,14 @@ h1 {
     align-self: stretch;
     width: 100%;
     box-sizing: border-box;
-    padding: 0 12px; /* Match other frame padding */
+    padding: 0 12px;
 }
 
-/* New Game Button - Updated styling */
+/* ==========================================================================
+   CONTROLS & INPUTS - Buttons, selectors, and interactive elements
+   ========================================================================== */
+
+/* 'New Game' Button */
 .new-game-btn {
     display: flex;
     height: 51px;
@@ -285,256 +278,7 @@ h1 {
     border-color: #e67e22;
 }
 
-/* Frame 365 - Scoreboards Container */
-.frame-365 {
-    display: flex;
-    padding: 0px 12px;
-    align-items: flex-start;
-    gap: 12px;
-    align-self: stretch;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Both Scoreboards - Shared Styling */
-.round-wins-scoreboard,
-.matches-won-scoreboard {
-    display: flex;
-    padding: 8px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    flex: 1 0 0;
-    border-radius: 8px;
-    border: 1px solid #E6E6E6;
-    box-sizing: border-box;
-}
-
-/* Scoreboard Title */
-.scoreboard-title {
-    color: #000;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 510;
-    line-height: normal;
-    font-variant: all-small-caps;
-    text-align: center;
-}
-
-/* Player Placards Container */
-.player-placards {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    width: 100%;
-    justify-content: space-between;
-}
-
-/* Individual Player Placard (Frames 362 & 363 and equivalents) */
-.player-placard {
-    display: flex;
-    height: 39px;
-    padding: 4px 12px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border-radius: 4px;
-    border: 1.4px solid #000;
-    box-sizing: border-box;
-    flex: 1;
-}
-
-/* Player Name Typography */
-.player-name {
-    color: #000;
-    text-align: center;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 510;
-    line-height: normal;
-    font-variant: all-small-caps;
-}
-
-/* Player Score Typography */
-.player-score {
-    color: #000;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 1000;
-    line-height: normal;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-/* Optional: Add some visual distinction for players */
-.player-x-placard .player-score {
-    color: var(--player-x-color, #e74c3c);
-}
-
-.player-o-placard .player-score {
-    color: var(--player-o-color, #3498db);
-}
-
-/* Optional: Hover effects for better UX */
-.player-placard:hover {
-    background-color: rgba(0, 0, 0, 0.02);
-}
-
-/* ==========================================================================
-   6. Score Display - Score boards and match status indicators - REDESIGNED
-   ========================================================================== */
-
-.match-rules {
-    font-size: 10px;
-    color: var(--text-secondary);
-    margin-top: 2px;
-}
-
-.score-header {
-    font-weight: bold;
-    color: var(--text-color);
-    font-size: 11px;
-    margin-bottom: 5px;
-}
-
-.player-score-container:hover {
-    transform: scale(1.05);
-}
-
-.player-x-container {
-    border: 2px solid var(--player-x-color);
-    background-color: rgba(231, 76, 60, 0.05);
-}
-
-.player-o-container {
-    border: 2px solid var(--player-o-color);
-    background-color: rgba(52, 152, 219, 0.05);
-}
-
-#score-x, #match-score-x {
-    color: var(--player-x-color);
-}
-
-#score-o, #match-score-o {
-    color: var(--player-o-color);
-}
-
-#clear-scores-button {
-    margin-top: 2px;
-    padding: 2px 6px;
-    font-size: 12px;
-    background-color: var(--error-color);
-}
-
-/* New message container */
-.message-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%; /* Match exactly the board width */
-    max-width: var(--board-max-width); /* Match game board max-width */
-    margin: 0 auto 8px auto; /* Center and maintain spacing */
-    min-height: 40px;
-    background-color: white;
-    border-radius: 8px;
-    padding: 5px 8px; /* Slightly reduced horizontal padding */
-    box-shadow: var(--box-shadow);
-    position: relative;
-    box-sizing: border-box; /* Ensure padding is included in width */
-}
-/* Special message area adjustments */
-.special-message {
-    font-size: 11px; /* Smaller font */
-    white-space: nowrap; /* Prevent text wrapping */
-    color: var(--knight-move-color);
-    font-weight: bold;
-    min-height: 20px;
-}
-
-.victory-indicator {
-    background-color: var(--victory-color);
-    color: white;
-    padding: 2px 5px;
-    border-radius: 4px;
-    font-weight: bold;
-    animation: pulse 1.5s infinite;
-    display: inline-block;
-    white-space: nowrap;
-}
-
-.player-turn-section {
-    flex: 1;
-    text-align: left;
-}
-
-.game-status-section {
-    flex: 1;
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.player-turn-indicator {
-    font-weight: bold;
-    font-size: 14px;
-    color: var(--text-color);
-}
-
-.match-status {
-    font-size: 11px;
-    color: var(--error-color);
-    font-weight: bold;
-}
-
-.match-progress {
-    color: var(--error-color);
-    font-weight: bold;
-    animation: pulse 1.5s infinite;
-}
-
-.knight-move-indicator {
-    background-color: var(--knight-move-color);
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    margin-left: 5px;
-    font-size: 0.9em;
-    animation: pulse 1.5s infinite;
-    display: inline-block;
-}
-
-/* Knight move indicator styling */
-.knight-move-indicator {
-    background-color: var(--knight-move-color);
-    color: white;
-    padding: 2px 5px; /* Reduced padding */
-    border-radius: 4px;
-    margin-left: 3px; /* Reduced margin */
-    font-size: 0.8em; /* Smaller font size */
-    animation: pulse 1.5s infinite;
-    display: inline-block;
-    white-space: nowrap; /* Prevent text wrapping */
-}
-
-/* Disable hover effects when game is over */
-.game-over .cell:hover {
-   /* background-color: inherit !important; /* Prevent hover color change */ 
-    cursor: default !important; /* Change cursor to default */
-}
-
-.match-champion {
-    color: var(--victory-color);
-    font-weight: bold;
-}
-
-/* ==========================================================================
-   7. Controls & Inputs - Buttons, selectors, and interactive elements
-   ========================================================================== */
+/* General form controls */
 select {
     padding: 8px;
     border-radius: 5px;
@@ -558,13 +302,7 @@ button:hover {
     background-color: var(--primary-btn-hover);
 }
 
-.new-match-button {
-    background-color: var(--victory-color) !important;
-    font-weight: bold;
-    animation: button-pulse 1.5s infinite;
-}
-
-/* NEW: Game controls container for button grouping */
+/* Game controls container for button grouping */
 .game-controls {
     display: flex;
     gap: var(--spacing-sm);
@@ -573,7 +311,7 @@ button:hover {
     margin-bottom: var(--spacing-md);
 }
 
-/* NEW: Declare Draw button specific styling */
+/* Declare Draw button specific styling */
 #declare-draw-button {
     background-color: var(--draw-btn-color);
     color: white;
@@ -653,7 +391,7 @@ button:hover {
 }
 
 /* ==========================================================================
-   8. Messages & Notifications - Game messages and status indicators
+   MESSAGES & NOTIFICATIONS - Game messages and status indicators
    ========================================================================== */
 .game-message {
     padding: 8px 15px;
@@ -682,144 +420,13 @@ button:hover {
     opacity: 0;
 }
 
-/* ==========================================================================
-   9. Knight Move Feature - Styles for knight move game mode
-   ========================================================================== */
-
-.valid-knight-move {
-    position: relative;
-    border: 2px dashed var(--knight-move-color) !important;
-    background-color: rgba(155, 89, 182, 0.15) !important;
-}
-
-.valid-knight-move::before {
-    content: "♘";
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    font-size: 14px;
-    color: var(--knight-move-color);
-}
-
-.invalid-move {
-    opacity: 0.5;
-    cursor: not-allowed !important;
-}
-
-.invalid-move:hover {
-    background-color: var(--invalid-move-color) !important;
-}
-
-.invalid-move-hover {
-    background-color: var(--invalid-move-color) !important;
-    cursor: not-allowed !important;
-}
-
-.knight-move-required {
-    position: relative;
-}
-
-.knight-move-required::before {
-    content: none;
-}
-
-.first-move-reference {
-    box-shadow: 0 0 0 3px var(--knight-move-color) !important;
-    position: relative;
-    z-index: 5;
-}
-
-.first-move-reference::after {
-    content: "Origin";
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--knight-move-color);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 10px;
-    white-space: nowrap;
+/* Disable hover effects when game is over */
+.game-over .cell:hover {
+    cursor: default !important;
 }
 
 /* ==========================================================================
-   10. Animations - Keyframes and animation definitions
-   ========================================================================== */
-@keyframes champion-glow {
-    0% { text-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-    50% { text-shadow: 0 0 15px rgba(243, 156, 18, 0.8); }
-    100% { text-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-}
-
-@keyframes winner-pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
-}
-
-@keyframes victory-pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.9; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes button-pulse {
-    0% { box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-    50% { box-shadow: 0 0 15px rgba(243, 156, 18, 0.8); }
-    100% { box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-}
-
-@keyframes winning-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-@keyframes pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
-}
-
-/* AI thinking indicator - Board overlay */
-.ai-thinking {
-    position: relative;
-    pointer-events: none; /* Prevent clicks during AI's turn */
-}
-
-.ai-thinking::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(155, 89, 182, 0.2); /* Soft purple background */
-    animation: thinking-pulse 1.5s infinite;
-    border-radius: 5px;
-    z-index: 5;
-}
-
-@keyframes thinking-pulse {
-    0% { opacity: 0.3; }
-    50% { opacity: 0.7; }
-    100% { opacity: 0.3; }
-}
-
-/* Text indicator for AI thinking */
-.thinking-indicator {
-    color: var(--knight-move-color); /* Purple color to match the board overlay */
-    font-weight: bold;
-    animation: pulse 1.5s infinite; /* Reuse existing pulse animation */
-    display: inline-block;
-    padding: 2px 5px;
-    border-radius: 4px;
-    background-color: rgba(155, 89, 182, 0.1);
-}
-
-/* ==========================================================================
-   11. Media Queries - Responsive adjustments for different screen sizes
+   MEDIA QUERIES - Responsive adjustments for different screen sizes
    ========================================================================== */
 @media (max-width: 600px) {
     
@@ -827,12 +434,6 @@ button:hover {
     .game-description {
         width: 95%;
         font-size: 14px;
-    }
-    
-    /* Score board adjustments */
-    .score-board {
-        width: 80%;
-        max-width: none;
     }
     
     /* Control adjustments */
@@ -857,66 +458,5 @@ button:hover {
     
     .controls > * {
         margin-bottom: var(--spacing-sm);
-    }
-
-    /* Score board adjustments for mobile */
-    .score-board {
-        padding: 4px;  /* Reduce padding */
-        width: 47%;    /* Make them fit side by side with gap */
-        max-width: 47%;
-    }
-    
-    .player-score-value {
-        font-size: 24px; /* Even larger on mobile */
-    }
-    
-    /* Force them to stay side by side */
-    .score-container {
-        flex-direction: row !important;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        width: 98%;
-        gap: 4px;  /* Reduce the gap */
-    }
-    
-    /* Adjust other elements */
-    .player-score-container {
-        min-width: 38%;  /* Slightly narrower */
-        padding: 2px;    /* Less padding */
-    }
-
-    /* Make the player names smaller but still readable */
-    .player-name {
-        font-size: 10px;
-    }
-
-    /* Make the reset button smaller */
-    #clear-scores-button {
-        font-size: 14px;
-        padding: 1px 4px;
-    }
-
-    .player-turn {
-        font-size: 13px;
-    }
-    
-    .match-status {
-        font-size: 13px;
-    }
-    
-    /* For very small screens */
-    @media (max-width: 350px) {
-        .message-container {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 3px;
-        }
-        
-        .player-turn, .match-status {
-            width: 100%;
-            text-align: center;
-            margin: 2px 0;
-        }
     }
 }

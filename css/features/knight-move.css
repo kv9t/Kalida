@@ -1,0 +1,91 @@
+/* ===================================================================
+   KNIGHT MOVE FEATURE - Extracted from styles.css Section 9
+   All styles specific to the knight move game rule
+   =================================================================== */
+
+/* Knight move indicator in text */
+.knight-move-indicator {
+    background-color: var(--knight-move-color);
+    color: white;
+    padding: 2px 5px; /* Reduced padding */
+    border-radius: 4px;
+    margin-left: 3px; /* Reduced margin */
+    font-size: 0.8em; /* Smaller font size */
+    animation: pulse 1.5s infinite;
+    display: inline-block;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Valid knight move cells */
+.valid-knight-move {
+    position: relative;
+    border: 2px dashed var(--knight-move-color) !important;
+    background-color: rgba(155, 89, 182, 0.15) !important;
+}
+
+.valid-knight-move::before {
+    content: "♘";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 14px;
+    color: var(--knight-move-color);
+}
+
+/* Invalid move cells */
+.invalid-move {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+.invalid-move:hover {
+    background-color: var(--invalid-move-color) !important;
+}
+
+.invalid-move-hover {
+    background-color: var(--invalid-move-color) !important;
+    cursor: not-allowed !important;
+}
+
+/* Knight move required state */
+.knight-move-required {
+    position: relative;
+}
+
+.knight-move-required::before {
+    content: none;
+}
+
+/* First move reference highlighting */
+.first-move-reference {
+    box-shadow: 0 0 0 3px var(--knight-move-color) !important;
+    position: relative;
+    z-index: 5;
+}
+
+.first-move-reference::after {
+    content: "Origin";
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--knight-move-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+/* Hover effects for knight move scenarios (defined in game-cells.css but repeated here for clarity) */
+.cell.valid-knight-move:hover {
+    background-color: rgba(155, 89, 182, 0.3) !important;
+    cursor: pointer;
+}
+
+/* Mobile optimizations for knight move */
+@media (max-width: 600px) {
+    .cell.valid-knight-move:not(.winning-cell):not(.bounce-cell):not(.last-move-x):not(.last-move-o):hover {
+        background-color: rgba(155, 89, 182, 0.2) !important;
+    }
+}
