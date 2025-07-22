@@ -382,6 +382,9 @@ class GameUI {
         
         // Update all UI elements
         this.updateAll();
+        
+        // Apply current game state to any existing controls
+        this.applySavedPreferences();
     }
     
     /**

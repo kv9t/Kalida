@@ -17,11 +17,23 @@ class GameSettingsPopup {
         this.popup = null;
         this.isOpen = false;
         
+        // Track current selections vs saved selections
+        this.currentSelections = {
+            playingAgainst: 'human',
+            gameMode: 'basic'
+        };
+        
+        this.savedSelections = {
+            playingAgainst: 'human', 
+            gameMode: 'basic'
+        };
+        
         // Bind methods to preserve 'this' context
         this.show = this.show.bind(this);
         this.hide = this.hide.bind(this);
         this.handleOutsideClick = this.handleOutsideClick.bind(this);
         this.handleEscapeKey = this.handleEscapeKey.bind(this);
+        this.saveChanges = this.saveChanges.bind(this);
     }
     
     /**
@@ -141,28 +153,69 @@ class GameSettingsPopup {
                             <!-- Frame 372: Human vs Human option -->
                             <button class="frame-372 play-against-option" data-mode="human">
                                 <div class="option-content">
-                                    
-                                    <span class="option-text">Human vs Human</span>
                                     <img src="images/human_icon_w_brain.svg" alt="Human vs Human" class="option-icon">
+                                    <span class="option-text">Human vs Human</span>
                                 </div>
                             </button>
                             
                             <!-- Frame 372: Computer option -->
                             <button class="frame-372 play-against-option" data-mode="computer">
                                 <div class="option-content">
-                                    
-                                    <span class="option-text">Computer</span>
                                     <img src="images/computer_player_icon.svg" alt="Computer" class="option-icon">
+                                    <span class="option-text">Computer</span>
                                 </div>
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Frame 374: Game Mode section (placeholder for now) -->
+                    <!-- Frame 374: Game Mode section -->
                     <div class="frame-374 game-mode-section">
                         <h3 class="section-title">Game Mode</h3>
-                        <p class="coming-soon">Game mode options will be added in the next update...</p>
+                        
+                        <div class="game-mode-options">
+                            <!-- Frame 373: Basic Mode -->
+                            <button class="frame-373 game-mode-option" data-mode="basic">
+                                <img src="images/basic-board-example.svg" alt="Basic Mode" class="mode-icon">
+                                <div class="frame-375 mode-details">
+                                    <h4 class="mode-title">Basic</h4>
+                                    <p class="mode-description">Standard 5-in-a-row rules. Get 5 pieces in a straight line to win.</p>
+                                </div>
+                            </button>
+                            
+                            <!-- Frame 373: Bounce Mode -->
+                            <button class="frame-373 game-mode-option" data-mode="bounce">
+                                <img src="images/bounce-board-example.svg" alt="Bounce Mode" class="mode-icon">
+                                <div class="frame-375 mode-details">
+                                    <h4 class="mode-title">Bounce</h4>
+                                    <p class="mode-description">Basic rules + diagonal lines can bounce off board edges to form winning patterns.</p>
+                                </div>
+                            </button>
+                            
+                            <!-- Frame 373: Diagonal Wrap Mode -->
+                            <button class="frame-373 game-mode-option" data-mode="diagonal-wrap">
+                                <img src="images/diagonal-wrap-board-example.svg" alt="Diagonal Wrap Mode" class="mode-icon">
+                                <div class="frame-375 mode-details">
+                                    <h4 class="mode-title">Diagonal Wrap</h4>
+                                    <p class="mode-description">Basic rules + board wraps around edges. Lines can continue from one side to the other.</p>
+                                </div>
+                            </button>
+                            
+                            <!-- Frame 373: All Rules Mode -->
+                            <button class="frame-373 game-mode-option" data-mode="all">
+                                <img src="images/all-board-example.svg" alt="All Rules Mode" class="mode-icon">
+                                <div class="frame-375 mode-details">
+                                    <h4 class="mode-title">All</h4>
+                                    <p class="mode-description">All rules enabled: bounce patterns, wrapping, and advanced winning conditions.</p>
+                                </div>
+                            </button>
+                        </div>
                     </div>
+                </div>
+                
+                <!-- Frame 375: Save overlay (hidden by default) -->
+                <div class="frame-375 save-overlay" style="display: none;">
+                    <p class="save-explanation">This will start new game</p>
+                    <button class="save-button">Save</button>
                 </div>
             </div>
         `;
@@ -186,17 +239,32 @@ class GameSettingsPopup {
         playAgainstOptions.forEach(option => {
             option.addEventListener('click', (e) => {
                 const mode = e.currentTarget.getAttribute('data-mode');
-                this.handlePlayAgainstChange(mode);
+                this.handlePlayAgainstSelection(mode);
             });
         });
+        
+        // Game mode options
+        const gameModeOptions = this.popup.querySelectorAll('.game-mode-option');
+        gameModeOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                const mode = e.currentTarget.getAttribute('data-mode');
+                this.handleGameModeSelection(mode);
+            });
+        });
+        
+        // Save button
+        const saveButton = this.popup.querySelector('.save-button');
+        if (saveButton) {
+            saveButton.addEventListener('click', this.saveChanges);
+        }
     }
     
     /**
-     * Handle changes to the "Playing Against" setting
+     * Handle selection of "Playing Against" option (doesn't apply changes yet)
      * @param {string} mode - 'human' or 'computer'
      */
-    handlePlayAgainstChange(mode) {
-        console.log('Play against mode changed to:', mode);
+    handlePlayAgainstSelection(mode) {
+        console.log('Play against selection:', mode);
         
         // Update visual selection
         const options = this.popup.querySelectorAll('.play-against-option');
@@ -209,25 +277,159 @@ class GameSettingsPopup {
             selectedOption.classList.add('selected');
         }
         
-        // Update game mode based on selection
-        if (mode === 'human') {
-            // Set to human vs human mode
+        // Update current selections
+        this.currentSelections.playingAgainst = mode;
+        
+        // If switching to computer, default to basic mode
+        if (mode === 'computer' && this.currentSelections.gameMode === 'basic') {
+            this.currentSelections.gameMode = 'basic';
+            this.updateGameModeSelection('basic');
+        }
+        
+        // Check if we need to show save overlay
+        this.checkForChanges();
+    }
+    
+    /**
+     * Handle selection of game mode option (doesn't apply changes yet)
+     * @param {string} mode - 'basic', 'bounce', 'diagonal-wrap', or 'all'
+     */
+    handleGameModeSelection(mode) {
+        console.log('Game mode selection:', mode);
+        
+        // Update visual selection
+        this.updateGameModeSelection(mode);
+        
+        // Update current selections
+        this.currentSelections.gameMode = mode;
+        
+        // Check if we need to show save overlay
+        this.checkForChanges();
+    }
+    
+    /**
+     * Update the visual selection for game mode
+     * @param {string} mode - The selected game mode
+     */
+    updateGameModeSelection(mode) {
+        const options = this.popup.querySelectorAll('.game-mode-option');
+        options.forEach(option => {
+            option.classList.remove('selected');
+        });
+        
+        const selectedOption = this.popup.querySelector(`.game-mode-option[data-mode="${mode}"]`);
+        if (selectedOption) {
+            selectedOption.classList.add('selected');
+        }
+    }
+    
+    /**
+     * Check if current selections differ from saved selections and show/hide save overlay
+     */
+    checkForChanges() {
+        const hasChanges = this.currentSelections.playingAgainst !== this.savedSelections.playingAgainst ||
+                          this.currentSelections.gameMode !== this.savedSelections.gameMode;
+        
+        const saveOverlay = this.popup.querySelector('.save-overlay');
+        const explanationText = this.popup.querySelector('.save-explanation');
+        
+        if (hasChanges) {
+            // Determine the appropriate message
+            let message = 'This will start new game';
+            if (this.currentSelections.playingAgainst !== this.savedSelections.playingAgainst) {
+                message = 'This will start new game & reset scores';
+            }
+            
+            explanationText.textContent = message;
+            saveOverlay.style.display = 'flex';
+        } else {
+            saveOverlay.style.display = 'none';
+        }
+    }
+    
+    /**
+     * Save the current selections and apply them to the game
+     */
+    saveChanges() {
+        console.log('Saving changes:', this.currentSelections);
+        
+        const willResetScores = this.currentSelections.playingAgainst !== this.savedSelections.playingAgainst;
+        
+        // Apply the changes to the game
+        if (this.currentSelections.playingAgainst === 'human') {
+            // Set human vs human mode with selected rules
             this.game.setGameMode('human');
-        } else if (mode === 'computer') {
-            // For now, default to level 1 when computer is selected
-            // Later, this could be determined by the game mode section
-            this.game.setGameMode('level1');
+            this.applyGameModeRules(this.currentSelections.gameMode);
+        } else {
+            // Set computer mode with appropriate level
+            const computerGameMode = this.mapGameModeToLevel(this.currentSelections.gameMode);
+            this.game.setGameMode(computerGameMode);
         }
         
-        // Update the main UI to reflect the change
-        if (this.gameUI && typeof this.gameUI.applySavedPreferences === 'function') {
-            this.gameUI.applySavedPreferences();
+        // Reset scores if changing opponent type
+        if (willResetScores) {
+            this.game.clearScores();
+            this.game.resetMatchScores();
         }
         
-        // Close popup after a short delay to show the selection
+        // Update saved selections to match current
+        this.savedSelections = { ...this.currentSelections };
+        
+        // Hide save overlay
+        const saveOverlay = this.popup.querySelector('.save-overlay');
+        saveOverlay.style.display = 'none';
+        
+        // Update the main UI
+        if (this.gameUI && typeof this.gameUI.refreshAfterSettingsChange === 'function') {
+            this.gameUI.refreshAfterSettingsChange();
+        }
+        
+        // Close popup after a short delay
         setTimeout(() => {
             this.hide();
-        }, 500);
+        }, 300);
+    }
+    
+    /**
+     * Apply game mode rules for human vs human play
+     * @param {string} gameMode - The selected game mode
+     */
+    applyGameModeRules(gameMode) {
+        // Map game modes to rule combinations
+        switch(gameMode) {
+            case 'basic':
+                this.game.setBounceRule(false);
+                this.game.setWrapRule(false);
+                break;
+            case 'bounce':
+                this.game.setBounceRule(true);
+                this.game.setWrapRule(false);
+                break;
+            case 'diagonal-wrap':
+                this.game.setBounceRule(false);
+                this.game.setWrapRule(true);
+                break;
+            case 'all':
+                this.game.setBounceRule(true);
+                this.game.setWrapRule(true);
+                break;
+        }
+    }
+    
+    /**
+     * Map game mode to computer difficulty level
+     * @param {string} gameMode - The selected game mode
+     * @returns {string} - The corresponding computer level
+     */
+    mapGameModeToLevel(gameMode) {
+        // Map game modes to existing computer levels
+        switch(gameMode) {
+            case 'basic': return 'level1';
+            case 'bounce': return 'level2';
+            case 'diagonal-wrap': return 'level3';
+            case 'all': return 'level4';
+            default: return 'level1';
+        }
     }
     
     /**
@@ -236,21 +438,65 @@ class GameSettingsPopup {
     updatePopupContent() {
         if (!this.popup) return;
         
-        // Update selected play against option
+        // Determine current game settings from the game state
+        const currentGameMode = this.game.gameMode;
+        let playAgainstMode = 'human';
+        let gameMode = 'basic';
+        
+        if (currentGameMode !== 'human') {
+            playAgainstMode = 'computer';
+            // Map computer levels back to game modes
+            switch(currentGameMode) {
+                case 'level1': gameMode = 'basic'; break;
+                case 'level2': gameMode = 'bounce'; break;
+                case 'level3': gameMode = 'diagonal-wrap'; break;
+                case 'level4': gameMode = 'all'; break;
+                default: gameMode = 'basic';
+            }
+        } else {
+            // For human mode, determine game mode from rules
+            if (this.game.bounceRuleEnabled && this.game.wrapRuleEnabled) {
+                gameMode = 'all';
+            } else if (this.game.bounceRuleEnabled) {
+                gameMode = 'bounce';
+            } else if (this.game.wrapRuleEnabled) {
+                gameMode = 'diagonal-wrap';
+            } else {
+                gameMode = 'basic';
+            }
+        }
+        
+        // Update saved selections to match current game state
+        this.savedSelections = {
+            playingAgainst: playAgainstMode,
+            gameMode: gameMode
+        };
+        
+        // Set current selections to match saved (no changes initially)
+        this.currentSelections = { ...this.savedSelections };
+        
+        // Update visual selections
+        this.updatePlayAgainstSelection(playAgainstMode);
+        this.updateGameModeSelection(gameMode);
+        
+        // Hide save overlay initially
+        const saveOverlay = this.popup.querySelector('.save-overlay');
+        if (saveOverlay) {
+            saveOverlay.style.display = 'none';
+        }
+    }
+    
+    /**
+     * Update the visual selection for playing against options
+     * @param {string} mode - The selected playing against mode
+     */
+    updatePlayAgainstSelection(mode) {
         const options = this.popup.querySelectorAll('.play-against-option');
         options.forEach(option => {
             option.classList.remove('selected');
         });
         
-        // Determine current mode and select appropriate option
-        const currentMode = this.game.gameMode;
-        let playAgainstMode = 'human';
-        
-        if (currentMode !== 'human') {
-            playAgainstMode = 'computer';
-        }
-        
-        const selectedOption = this.popup.querySelector(`[data-mode="${playAgainstMode}"]`);
+        const selectedOption = this.popup.querySelector(`.play-against-option[data-mode="${mode}"]`);
         if (selectedOption) {
             selectedOption.classList.add('selected');
         }
