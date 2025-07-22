@@ -200,7 +200,7 @@
     align-self: stretch;
     border-radius: 8px;
     border: 1px solid #E6E6E6;
-    background: #F7F7F7;
+    background: #FFF;
     cursor: pointer;
     transition: all 0.2s ease;
     box-sizing: border-box;
@@ -222,16 +222,24 @@
 
 .option-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: 10px;
     width: 100%;
+    padding: 0 4px;
 }
 
 .option-icon {
-    width: 24px;
-    height: 24px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
+    flex-shrink: 0;
+    /* Force consistent sizing regardless of SVG internal dimensions */
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 50px;
+    max-height: 50px;
 }
 
 .option-text {
@@ -273,7 +281,7 @@
     align-self: stretch;
     border-radius: 8px;
     border: 1px solid #E6E6E6;
-    background: #F7F7F7;
+    background: #FFF;
     cursor: pointer;
     transition: all 0.2s ease;
     box-sizing: border-box;
@@ -329,6 +337,7 @@
     font-style: normal;
     font-weight: 400;
     line-height: 1.3;
+    text-align: left;
 }
 
 .frame-373.game-mode-option.selected .mode-description {
@@ -443,6 +452,25 @@
         width: 90vw;
         max-width: 350px;
     }
+    
+    /* Playing Against button adjustments for mobile */
+    .option-content {
+        gap: 8px;
+        padding: 0 2px;
+    }
+    
+    .option-text {
+        font-size: 12px;
+    }
+    
+    .option-icon {
+        width: 20px;
+        height: 20px;
+        min-width: 20px;
+        min-height: 20px;
+        max-width: 20px;
+        max-height: 20px;
+    }
 }
 
 @media (max-width: 400px) {
@@ -474,6 +502,20 @@
     .frame-375.save-overlay {
         width: 95vw;
         padding: 8px;
+    }
+    
+    /* Playing Against buttons stay horizontal even on very small screens */
+    .frame-372.play-against-option {
+        height: 45px; /* Slightly smaller height for very small screens */
+    }
+    
+    .option-text {
+        font-size: 11px;
+    }
+    
+    .option-icon {
+        width: 18px;
+        height: 18px;
     }
 }
 

@@ -153,16 +153,18 @@ class GameSettingsPopup {
                             <!-- Frame 372: Human vs Human option -->
                             <button class="frame-372 play-against-option" data-mode="human">
                                 <div class="option-content">
-                                    <img src="images/human_icon_w_brain.svg" alt="Human vs Human" class="option-icon">
-                                    <span class="option-text">Human vs Human</span>
+                                <span class="option-text">Human vs. Human</span>    
+                                <img src="images/human_icon_w_brain.svg" alt="Human vs Human" class="option-icon">
+                                    
                                 </div>
                             </button>
                             
                             <!-- Frame 372: Computer option -->
                             <button class="frame-372 play-against-option" data-mode="computer">
                                 <div class="option-content">
-                                    <img src="images/computer_player_icon.svg" alt="Computer" class="option-icon">
-                                    <span class="option-text">Computer</span>
+                                <span class="option-text">Computer</span>    
+                                <img src="images/computer_player_icon.svg" alt="Computer" class="option-icon">
+                                    
                                 </div>
                             </button>
                         </div>
