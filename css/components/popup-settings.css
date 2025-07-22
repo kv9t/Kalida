@@ -1,0 +1,323 @@
+/* ===================================================================
+   POPUP SETTINGS COMPONENT - Game Settings popup styling
+   All styles for the game settings popup modal
+   =================================================================== */
+
+/* ===== POPUP BACKDROP AND CONTAINER ===== */
+
+.game-settings-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.game-settings-popup.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.game-settings-popup.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.popup-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.popup-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Layout from Figma design */
+    display: flex;
+    width: 369px;
+    height: 660px;
+    max-height: 90vh; /* Ensure it fits on smaller screens */
+    padding: 24px 0px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    
+    /* Styling from Figma design */
+    border-radius: 8px;
+    border: 1.4px solid #999;
+    background: #FFF;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    
+    /* Prevent content from overflowing */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.game-settings-popup.show .popup-container {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* ===== POPUP HEADER (Frame 376) ===== */
+
+.frame-376.popup-header {
+    display: flex;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.popup-title {
+    margin: 0;
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
+    flex: 1;
+}
+
+/* ===== CLOSE BUTTON (Frame 374) ===== */
+
+.frame-374.close-icon {
+    display: flex;
+    width: 30px;
+    height: 30px;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    position: absolute;
+    right: 12px;
+    top: -6px; /* Adjust to align with title */
+    border-radius: 26px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.frame-374.close-icon:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.frame-374.close-icon svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+
+/* ===== SCROLLABLE CONTENT AREA ===== */
+
+.popup-content {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Custom scrollbar styling */
+.popup-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* ===== PLAYING AGAINST SECTION (Frame 373) ===== */
+
+.frame-373.playing-against-section {
+    display: flex;
+    padding: 12px 12px 0px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+}
+
+.section-title {
+    margin: 0;
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 510;
+    line-height: normal;
+    font-variant: all-small-caps;
+}
+
+.play-against-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+/* ===== PLAY AGAINST OPTIONS (Frame 372) ===== */
+
+.frame-372.play-against-option {
+    display: flex;
+    height: 51px;
+    padding: 4px 8px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    border-radius: 8px;
+    border: 1px solid #E6E6E6;
+    background: #F7F7F7;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.frame-372.play-against-option:hover {
+    background: #EDEDED;
+    border-color: #DADADA;
+}
+
+.frame-372.play-against-option.selected {
+    background: var(--primary-btn-color, #3498db);
+    border-color: var(--primary-btn-color, #3498db);
+    color: white;
+}
+
+.frame-372.play-against-option.selected .option-text {
+    color: white;
+}
+
+.option-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.option-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.option-text {
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 1000;
+    line-height: normal;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* ===== GAME MODE SECTION (Frame 374) ===== */
+
+.frame-374.game-mode-section {
+    padding: 12px 12px 0px 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.coming-soon {
+    margin: 10px 0 0 0;
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px dashed #ccc;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 600px) {
+    .popup-container {
+        width: 90vw;
+        max-width: 350px;
+        height: 80vh;
+        max-height: 600px;
+        margin: 10px;
+    }
+    
+    .popup-title {
+        font-size: 16px;
+    }
+    
+    .frame-373.playing-against-section {
+        padding: 8px 8px 0px 8px;
+    }
+    
+    .frame-374.game-mode-section {
+        padding: 8px 8px 0px 8px;
+    }
+}
+
+@media (max-width: 400px) {
+    .popup-container {
+        width: 95vw;
+        height: 85vh;
+        padding: 16px 0px;
+    }
+    
+    .frame-376.popup-header {
+        padding: 0px 8px;
+    }
+    
+    .frame-374.close-icon {
+        right: 8px;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Focus styles for keyboard navigation */
+.frame-374.close-icon:focus,
+.frame-372.play-against-option:focus {
+    outline: 2px solid var(--primary-btn-color, #3498db);
+    outline-offset: 2px;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .game-settings-popup,
+    .popup-container,
+    .frame-372.play-against-option,
+    .frame-374.close-icon {
+        transition: none;
+    }
+    
+    .popup-container {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}

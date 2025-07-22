@@ -16,6 +16,7 @@
 @import url('./components/scoreboard.css');
 @import url('./components/controls.css');
 @import url('./components/messages.css');
+@import url('./components/popup-settings.css'); /* NEW: Add the popup styles */
 
 /* ===== FEATURE STYLES - Game-specific features ===== */
 @import url('./features/knight-move.css');
@@ -23,4 +24,3 @@
 
 /* ===== RESPONSIVE STYLES - Media queries (load last) ===== */
 @import url('./layout/responsive.css');
-

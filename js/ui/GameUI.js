@@ -9,6 +9,9 @@
 
 import UIAssetManager from './UIAssetManager.js';  // Adjust path as needed
 import BoardUI from './BoardUI.js';
+import GameSettingsPopup from './GameSettingsPopup.js'; // Import the popup component
+
+
 
 class GameUI {
     /**
@@ -22,6 +25,9 @@ class GameUI {
         // Initialize UI Asset Manager
         this.assetManager = new UIAssetManager();
         
+        // NEW: Initialize Game Settings Popup
+        this.settingsPopup = new GameSettingsPopup(this.game, this);
+
         // Store references to DOM elements
         this.elements = {
             playerTurn: null,
@@ -48,7 +54,7 @@ class GameUI {
             knightMove: true
         };
         
-        // NEW: Track if we've applied saved preferences yet
+        // Track if we've applied saved preferences yet
         this.hasAppliedSavedPreferences = false;
         
         // Initialize the UI
@@ -90,7 +96,10 @@ class GameUI {
             
             // Register game event handlers
             this.registerGameEvents();
-            
+
+            // Initialize the settings popup
+            this.settingsPopup.initialize();
+                        
             // Initialize the UI with current game state
             this.updateAll();
             
@@ -248,6 +257,7 @@ class GameUI {
             });
         }
         
+        /* COMMENTED OUT - Game mode selected now handled by popup
         // Game mode select
         if (this.elements.gameModeSelect) {
             this.elements.gameModeSelect.addEventListener('change', (e) => {
@@ -266,7 +276,8 @@ class GameUI {
                 }
             });
         }
-        
+        */
+
         // Bounce rule toggle
         if (this.elements.bounceToggle) {
             this.elements.bounceToggle.addEventListener('change', () => {
@@ -347,6 +358,44 @@ class GameUI {
             });
         }
     }
+
+    /**
+     * NEW: Method to refresh the UI after popup changes
+     * This is called by the popup when settings are changed
+     */
+    refreshAfterSettingsChange() {
+        console.log('Refreshing UI after settings change');
+        
+        // Update the asset manager
+        this.assetManager.updateGameModeSVG(this.game.gameMode);
+        
+        // Update rule display based on current mode
+        if (this.game.gameMode !== 'human') {
+            this.assetManager.updateRulesForGameMode(this.game.gameMode);
+        } else {
+            this.assetManager.updateRulesForSettings({
+                bounceRuleEnabled: this.game.bounceRuleEnabled,
+                wrapRuleEnabled: this.game.wrapRuleEnabled,
+                missingTeethRuleEnabled: this.game.missingTeethRuleEnabled
+            });
+        }
+        
+        // Update all UI elements
+        this.updateAll();
+    }
+    
+    /**
+     * Clean up resources when the UI is destroyed
+     */
+    destroy() {
+        // NEW: Clean up the settings popup
+        if (this.settingsPopup) {
+            this.settingsPopup.destroy();
+        }
+        
+        // Clean up other resources...
+        console.log('GameUI destroyed');
+    }
     
     /**
      * Show advanced clear options for users with cookies enabled
@@ -376,6 +425,8 @@ class GameUI {
         }
     }
     
+
+
     /**
      * Handle game mode changes and rule toggle states
      * @param {string} selectedMode - The selected game mode
