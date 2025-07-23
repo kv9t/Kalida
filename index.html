@@ -99,7 +99,117 @@
                 </div>
             </div>
         </div>
+        <div class="frame-378">
+            <button class="about-btn" id="about-btn">ABOUT</button>
+            <button class="tutorial-btn" id="tutorial-btn">TUTORIAL</button>
+        </div>
         
+        <!-- ABOUT Modal (placeholder) -->
+        <div id="about-modal" class="modal-backdrop about-modal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2 class="modal-title">About Kalida</h2>
+                    <button class="modal-close-btn" data-modal="about">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M13 1L1 13M1 1L13 13" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-content">
+                    <p>This is a placeholder for the About modal.</p>
+                    <p>Future content will include game information, credits, and version details.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TUTORIAL Modal -->
+        <div id="tutorial-modal" class="modal-backdrop tutorial-modal">
+            <div class="modal-container tutorial-container">
+                <div class="modal-header">
+                    <h2 class="modal-title">Tutorial</h2>
+                    <button class="modal-close-btn" data-modal="tutorial">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M13 1L1 13M1 1L13 13" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-content">
+                    <!-- Slide 1: Cover Page -->
+                    <div class="tutorial-slide active cover" data-slide="0">
+                        <h3>Welcome to Kalida!</h3>
+                        <p>Learn how to play this strategic board game step by step.</p>
+                        <div class="tutorial-nav cover">
+                            <button class="tutorial-nav-btn primary" data-action="start">LEARN TO PLAY →</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 2: Tutorial Content 1 -->
+                    <div class="tutorial-slide" data-slide="1">
+                        <h3>Game Basics</h3>
+                        <p>This is placeholder content for the first tutorial slide. Future content will explain basic game mechanics and objectives.</p>
+                        <div class="progress-indicator">
+                            <div class="progress-dot active"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                        </div>
+                        <div class="tutorial-nav">
+                            <div></div> <!-- Empty space for centering -->
+                            <button class="tutorial-nav-btn primary" data-action="next">NEXT →</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 3: Tutorial Content 2 -->
+                    <div class="tutorial-slide" data-slide="2">
+                        <h3>Making Moves</h3>
+                        <p>This is placeholder content for the second tutorial slide. Future content will explain how to make moves and place pieces.</p>
+                        <div class="progress-indicator">
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot active"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                        </div>
+                        <div class="tutorial-nav">
+                            <button class="tutorial-nav-btn" data-action="prev">← BACK</button>
+                            <button class="tutorial-nav-btn primary" data-action="next">NEXT →</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 4: Tutorial Content 3 -->
+                    <div class="tutorial-slide" data-slide="3">
+                        <h3>Special Rules</h3>
+                        <p>This is placeholder content for the third tutorial slide. Future content will explain special rules like bouncing and wrapping.</p>
+                        <div class="progress-indicator">
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot active"></div>
+                            <div class="progress-dot"></div>
+                        </div>
+                        <div class="tutorial-nav">
+                            <button class="tutorial-nav-btn" data-action="prev">← BACK</button>
+                            <button class="tutorial-nav-btn primary" data-action="next">NEXT →</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 5: Final Slide -->
+                    <div class="tutorial-slide" data-slide="4">
+                        <h3>Ready to Play!</h3>
+                        <p>This is placeholder content for the final tutorial slide. Future content will summarize key points and encourage the player to start.</p>
+                        <div class="progress-indicator">
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot active"></div>
+                        </div>
+                        <div class="tutorial-nav">
+                            <button class="tutorial-nav-btn" data-action="prev">← BACK</button>
+                            <button class="tutorial-nav-btn primary" data-action="finish">LET'S PLAY!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!--<div class="controls">
             <div class="game-mode">
                 <label for="game-mode-select">Play Against: </label>

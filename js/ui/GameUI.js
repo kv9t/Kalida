@@ -7,10 +7,11 @@
  * 
  */
 
-import UIAssetManager from './UIAssetManager.js';  // Adjust path as needed
+import UIAssetManager from './UIAssetManager.js';
 import BoardUI from './BoardUI.js';
-import GameSettingsPopup from './GameSettingsPopup.js'; // Import the popup component
-
+import GameSettingsPopup from './GameSettingsPopup.js';
+import AboutModal from './AboutModal.js'; // NEW: Import AboutModal
+import TutorialModal from './TutorialModal.js'; // NEW: Import TutorialModal
 
 
 class GameUI {
@@ -25,8 +26,13 @@ class GameUI {
         // Initialize UI Asset Manager
         this.assetManager = new UIAssetManager();
         
-        // NEW: Initialize Game Settings Popup
+        // Initialize Game Settings Popup
         this.settingsPopup = new GameSettingsPopup(this.game, this);
+
+        // Initialize modal components
+        this.aboutModal = new AboutModal(this.game, this);
+        this.tutorialModal = new TutorialModal(this.game, this);
+
 
         // Store references to DOM elements
         this.elements = {
@@ -43,7 +49,9 @@ class GameUI {
             bounceToggle: null,
             wrapToggle: null,
             missingTeethToggle: null,
-            knightMoveToggle: null
+            knightMoveToggle: null,
+            aboutButton: null,
+            tutorialButton: null
         };
         
         // Track rule toggle states when they're disabled for AI mode
@@ -81,7 +89,11 @@ class GameUI {
             this.elements.wrapToggle = document.getElementById('wrap-toggle');
             this.elements.missingTeethToggle = document.getElementById('missing-teeth-toggle');
             this.elements.knightMoveToggle = document.getElementById('knight-move-toggle');
+            this.elements.aboutButton = document.getElementById('about-btn');
+            this.elements.tutorialButton = document.getElementById('tutorial-btn');
             
+
+
             // Create board UI if not already created
             if (!this.boardUI) {
                 this.boardUI = new BoardUI(
@@ -99,6 +111,10 @@ class GameUI {
 
             // Initialize the settings popup
             this.settingsPopup.initialize();
+
+            // Initialize modal components
+            this.aboutModal.initialize();
+            this.tutorialModal.initialize();
                         
             // Initialize the UI with current game state
             this.updateAll();
@@ -109,6 +125,52 @@ class GameUI {
         }
     }
     
+    /**
+     * Show tutorial modal programmatically
+     */
+    showTutorial() {
+        if (this.tutorialModal) {
+            this.tutorialModal.show();
+        }
+    }
+
+     /**
+     * Method to show about modal programmatically
+     */
+    showAbout() {
+        if (this.aboutModal) {
+            this.aboutModal.show();
+        }
+    }
+
+    /**
+     * Check if any modal is currently open
+     * Useful for preventing certain game actions when modals are open
+     */
+    isModalOpen() {
+        return (this.aboutModal && this.aboutModal.isOpen) || 
+               (this.tutorialModal && this.tutorialModal.isOpen) ||
+               (this.settingsPopup && this.settingsPopup.isOpen);
+    }
+    
+    /**
+     * Updated cleanup method to include new modals
+     */
+    cleanup() {
+        // Existing cleanup code...
+        
+        // NEW: Cleanup modal components
+        if (this.aboutModal) {
+            this.aboutModal.cleanup();
+        }
+        
+        if (this.tutorialModal) {
+            this.tutorialModal.cleanup();
+        }
+        
+        console.log('GameUI cleanup complete (including modals)');
+    }
+
     /**
      * Apply saved preferences from cookies to UI elements
      */

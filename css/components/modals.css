@@ -1,0 +1,302 @@
+/* ===================================================================
+   MODALS COMPONENT - About and Tutorial modal windows
+   Styling for modal overlays, containers, and tutorial navigation
+   =================================================================== */
+
+/* ===== MODAL BACKDROP & CONTAINER ===== */
+
+/* Modal backdrop overlay */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-backdrop.show {
+    display: block;
+    opacity: 1;
+}
+
+/* Modal container */
+.modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 350px;
+    width: 90%;
+    max-height: 600px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.modal-container.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Tutorial modal container - larger max height */
+.tutorial-container {
+    max-height: 600px;
+}
+
+/* ===== MODAL HEADER ===== */
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px 24px;
+    border-bottom: 1px solid #E6E6E6;
+    box-sizing: border-box;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+.modal-close-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    padding: 0;
+    outline: none;
+}
+
+.modal-close-btn:hover {
+    background: #f0f0f0;
+}
+
+.modal-close-btn:focus {
+    outline: 2px solid #007AFF;
+    outline-offset: 2px;
+}
+
+/* ===== MODAL CONTENT ===== */
+
+.modal-content {
+    padding: 24px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    max-height: calc(600px - 80px); /* Subtract header height */
+}
+
+/* Basic modal content styling */
+.modal-content p {
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+    color: #333;
+}
+
+.modal-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== TUTORIAL SPECIFIC STYLES ===== */
+
+/* Tutorial slides */
+.tutorial-slide {
+    display: none;
+    min-height: 280px;
+    text-align: center;
+}
+
+.tutorial-slide.active {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+.tutorial-slide h3 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+.tutorial-slide p {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    font-size: 16px;
+}
+
+/* ===== TUTORIAL NAVIGATION ===== */
+
+.tutorial-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    gap: 12px;
+}
+
+/* Cover slide navigation - centered */
+.tutorial-nav.cover {
+    justify-content: center;
+}
+
+.tutorial-nav-btn {
+    padding: 12px 24px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+    transition: all 0.2s ease;
+    outline: none;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.tutorial-nav-btn:hover {
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+    transform: translateY(-1px);
+}
+
+.tutorial-nav-btn:active {
+    transform: scale(0.98);
+}
+
+.tutorial-nav-btn:focus {
+    outline: 2px solid #007AFF;
+    outline-offset: 2px;
+}
+
+/* Primary button styling */
+.tutorial-nav-btn.primary {
+    background: #007AFF;
+    color: white;
+    border-color: #007AFF;
+}
+
+.tutorial-nav-btn.primary:hover {
+    background: #0056CC;
+    border-color: #0056CC;
+}
+
+/* ===== PROGRESS INDICATOR ===== */
+
+.progress-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #E6E6E6;
+    transition: background 0.2s ease;
+}
+
+.progress-dot.active {
+    background: #666;
+}
+
+/* Hide progress indicator for cover slide */
+.tutorial-slide.cover .progress-indicator {
+    display: none;
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 400px) {
+    .modal-container {
+        max-width: 95%;
+        margin: 20px;
+    }
+    
+    .modal-header {
+        padding: 16px 20px 12px 20px;
+    }
+    
+    .modal-content {
+        padding: 20px;
+    }
+    
+    .tutorial-nav-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+    
+    .tutorial-slide {
+        min-height: 250px;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .modal-container,
+    .modal-backdrop,
+    .tutorial-nav-btn,
+    .progress-dot {
+        transition: none;
+    }
+    
+    .tutorial-slide {
+        animation: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .modal-container {
+        border: 2px solid #000;
+    }
+    
+    .modal-header {
+        border-bottom-color: #000;
+        border-bottom-width: 2px;
+    }
+    
+    .tutorial-nav-btn {
+        border-color: #000;
+        border-width: 2px;
+    }
+}
