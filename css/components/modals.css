@@ -301,15 +301,15 @@
     }
 }
 
+
 /* ===================================================================
    TUTORIAL PANEL 1 - FIGMA DESIGN IMPLEMENTATION
-   Add these styles to components/modals.css
    =================================================================== */
 
 /* Tutorial Cover Slide - Frame 373 container */
 .tutorial-frame-373 {
     display: flex;
-    padding: 120px 12px 0px 12px;
+    padding: 74px 12px 0px 12px;
     flex-direction: column;
     align-items: center;
     gap: 16px;
@@ -386,37 +386,164 @@
 
 /* Cover slide specific adjustments */
 .tutorial-slide.cover {
-    min-height: 450px; /* Increased to accommodate the larger layout */
+    min-height: 100%; /* Take full container height */
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    flex: 1; /* Take remaining space in modal content */
 }
 
-/* Adjust modal container height for tutorial */
+/* Frame 378 - Button container (Figma specs) */
+.tutorial-slide.cover .tutorial-nav {
+    display: flex;
+    padding: 32px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    justify-content: center; /* Keep centered for cover slide */
+}
+
+/* Frame 355 - The actual button (Figma specs) */
+.tutorial-slide.cover .tutorial-nav-btn {
+    display: flex;
+    height: 40px;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: 26px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    
+    /* Button text typography */
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: uppercase;
+    
+    /* Remove previous primary button styling for cover */
+    border-color: #E6E6E6;
+    background: #FAFAFA;
+    
+    /* Remove default button behaviors */
+    outline: none;
+    transform: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.tutorial-slide.cover .tutorial-nav-btn:hover {
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+    transform: none; /* Prevent any movement */
+}
+
+.tutorial-slide.cover .tutorial-nav-btn:focus {
+    outline: none; /* Remove blue outline */
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+}
+
+.tutorial-slide.cover .tutorial-nav-btn:active {
+    background: #E8E8E8;
+    border-color: #C0C0C0;
+    transform: none; /* Prevent any scaling */
+}
+
+/* Adjust modal container for tutorial - WEBSITE Figma specs */
 .tutorial-container {
-    max-height: 650px; /* Increased to accommodate new layout */
+    /* Website Slide 1 layout specs */
+    display: flex;
+    width: 369px;
+    height: 660px;
+    padding: 24px 0px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1.4px solid #999;
+    background: #FFF;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    
+    /* Override default modal container positioning */
+    max-width: 369px;
+    max-height: 660px;
+    min-width: 369px;
+    min-height: 660px;
+}
+
+/* Remove default modal content padding for tutorial */
+.tutorial-modal .modal-content {
+    padding: 0;
+    overflow: hidden; /* Prevent scrollbars */
+    flex: 1; /* Take remaining space */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Modal close button adjustments to match Frame 374 specs */
-.tutorial-modal .modal-close-btn {
+.tutorial-modal .modal-close-btn,
+.tutorial-close-btn {
     width: 30px;
     height: 30px;
     padding: 8px;
     border-radius: 26px;
     position: absolute;
-    right: 36px;
+    right: 12px;
     top: 18.5px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    z-index: 10;
 }
 
-.tutorial-modal .modal-close-btn svg {
+.tutorial-modal .modal-close-btn:hover,
+.tutorial-close-btn:hover {
+    background: #f0f0f0;
+}
+
+.tutorial-modal .modal-close-btn svg,
+.tutorial-close-btn svg {
     width: 13px;
     height: 13px;
+    flex-shrink: 0;
+    aspect-ratio: 1/1;
+}
+
+/* Frame 367 - Spacer (Website specs) */
+.tutorial-frame-367 {
+    display: flex;
+    height: 19px;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    flex-shrink: 0;
+    align-self: stretch;
 }
 
 /* Responsive adjustments */
 @media (max-width: 400px) {
+    .tutorial-container {
+        /* On small screens, use responsive dimensions */
+        width: 95%;
+        height: 90vh;
+        min-width: auto;
+        min-height: auto;
+        max-width: 95%;
+        max-height: 90vh;
+    }
+    
     .tutorial-frame-373 {
-        padding: 80px 12px 0px 12px;
+        padding: 60px 12px 0px 12px;
     }
     
     .tutorial-welcome-title {
@@ -435,6 +562,18 @@
     }
     
     .tutorial-slide.cover {
-        min-height: 400px;
+        min-height: 100%;
+    }
+}
+
+/* Ensure exact dimensions on larger screens */
+@media (min-width: 401px) {
+    .tutorial-container {
+        width: 369px !important;
+        height: 660px !important;
+        max-width: 369px !important;
+        max-height: 660px !important;
+        min-width: 369px !important;
+        min-height: 660px !important;
     }
 }

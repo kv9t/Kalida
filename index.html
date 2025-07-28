@@ -125,17 +125,20 @@
         <!-- TUTORIAL Modal -->
         <div id="tutorial-modal" class="modal-backdrop tutorial-modal">
             <div class="modal-container tutorial-container">
-                <div class="modal-header">
-                    <h2 class="modal-title">Tutorial</h2>
-                    <button class="modal-close-btn" data-modal="tutorial">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path d="M13 1L1 13M1 1L13 13" stroke="#666" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                    </button>
-                </div>
+                <!-- Close button positioned absolutely within container -->
+                <button class="modal-close-btn tutorial-close-btn" data-modal="tutorial">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                        <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                        <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                    </svg>
+                </button>
+                
                 <div class="modal-content">
-                    <!-- Slide 1: Cover Page - Updated to match Figma design -->
+                    <!-- Slide 1: Cover Page -->
                     <div class="tutorial-slide active cover" data-slide="0">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
                         <!-- Frame 373 - Main content container -->
                         <div class="tutorial-frame-373">
                             <!-- Welcome to Kalida title -->
@@ -147,13 +150,17 @@
                             <!-- SVG board image container -->
                             <div class="tutorial-board-image">
                                 <!-- Placeholder for tutorial_cover_board-img.svg -->
-                                <img src="images/tutorial_cover_board-img.svg" alt="Kalida game board" class="tutorial-board-svg">
+                                <!-- Replace this div with: <img src="assets/tutorial_cover_board-img.svg" alt="Kalida game board" class="tutorial-board-svg"> -->
+                                <div class="tutorial-board-placeholder">
+                                    tutorial_cover_board-img.svg<br>
+                                    <small>(175×175px)</small>
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Frame 378 - Navigation (existing structure, just updated button text) -->
+                        <!-- Frame 378 - Navigation (updated with Figma specs) -->
                         <div class="tutorial-nav cover">
-                            <button class="tutorial-nav-btn primary" data-action="start">LEARN TO PLAY →</button>
+                            <button class="tutorial-nav-btn" data-action="start">Learn to play →</button>
                         </div>
                     </div>
                     
