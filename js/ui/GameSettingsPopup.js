@@ -106,6 +106,8 @@ class GameSettingsPopup {
             if (this.popup && this.popup.parentNode) {
                 this.popup.parentNode.removeChild(this.popup);
             }
+            // ← FIX: Reset the popup reference to null
+            this.popup = null;
             this.isOpen = false;
         }, 300);
         
