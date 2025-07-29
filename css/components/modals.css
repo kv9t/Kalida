@@ -1,6 +1,6 @@
 /* ===================================================================
    MODALS COMPONENT - About and Tutorial modal windows
-   Styling for modal overlays, containers, and tutorial navigation
+   Fixed to match Figma design exactly
    =================================================================== */
 
 /* ===== MODAL BACKDROP & CONTAINER ===== */
@@ -24,7 +24,7 @@
     opacity: 1;
 }
 
-/* Modal container */
+/* Default modal container */
 .modal-container {
     position: fixed;
     top: 50%;
@@ -48,12 +48,352 @@
     transform: translate(-50%, -50%) scale(1);
 }
 
-/* Tutorial modal container - larger max height */
+/* ===== TUTORIAL MODAL - FIGMA EXACT IMPLEMENTATION ===== */
+
+/* Tutorial container - EXACT Figma dimensions */
 .tutorial-container {
-    max-height: 600px;
+    /* Override default modal container with Figma specs */
+    width: 369px !important;
+    height: 660px !important;
+    max-width: 369px !important;
+    max-height: 660px !important;
+    min-width: 369px !important;
+    min-height: 660px !important;
+    
+    /* Figma container styles */
+    padding: 24px 0px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1.4px solid #999;
+    background: #FFF;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    
+    /* Layout */
+    display: flex;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
 }
 
-/* ===== MODAL HEADER ===== */
+/* Tutorial modal content - remove default padding */
+.tutorial-modal .modal-content {
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* ===== TUTORIAL SLIDES SYSTEM - SIMPLIFIED ===== */
+
+/* All tutorial slides - hidden by default */
+.tutorial-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    display: none;
+    transition: opacity 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* Active slide - visible */
+.tutorial-slide.active {
+    opacity: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== COVER SLIDE - FIGMA EXACT LAYOUT ===== */
+
+.tutorial-slide.cover {
+    /* Use exact Figma structure */
+    justify-content: flex-start;
+    align-items: stretch;
+    position: relative; /* Override absolute for cover */
+}
+
+/* Frame 367 - Spacer (Figma specs) */
+.tutorial-frame-367 {
+    display: flex;
+    height: 19px;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    flex-shrink: 0;
+    align-self: stretch;
+}
+
+/* Frame 373 - Main content container (Figma specs) */
+.tutorial-frame-373 {
+    display: flex;
+    padding: 74px 12px 0px 12px;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    align-self: stretch;
+    flex: 1;
+    box-sizing: border-box;
+}
+
+/* Welcome to Kalida title - EXACT Figma typography */
+.tutorial-welcome-title {
+    color: #000 !important;
+    text-align: center !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 32px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    word-wrap: break-word;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block;
+}
+
+/* Game subtitle - EXACT Figma typography */
+.tutorial-game-subtitle {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 16px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: normal !important;
+    font-variant: all-small-caps !important;
+    word-wrap: break-word;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    display: block;
+}
+
+/* Board image container */
+.tutorial-board-image {
+    width: 175px;
+    height: 175px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Actual board SVG */
+.tutorial-board-svg {
+    width: 175px;
+    height: 175px;
+    object-fit: contain;
+}
+
+/* ===== TUTORIAL NAVIGATION ===== */
+
+/* Cover slide navigation - Figma specs */
+.tutorial-nav.cover {
+    display: flex;
+    padding: 32px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+/* Cover slide button - EXACT Figma specs */
+.tutorial-slide.cover .tutorial-nav-btn {
+    display: flex !important;
+    height: 40px !important;
+    padding: 8px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: 26px !important;
+    border: 1px solid #E6E6E6 !important;
+    background: #FAFAFA !important;
+    
+    /* EXACT Figma button typography */
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 700 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    word-wrap: break-word;
+    
+    /* Remove conflicting styles */
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.tutorial-slide.cover .tutorial-nav-btn:hover {
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+}
+
+.tutorial-slide.cover .tutorial-nav-btn:focus {
+    outline: 2px solid #007AFF;
+    outline-offset: 2px;
+}
+
+.tutorial-slide.cover .tutorial-nav-btn:active {
+    background: #E8E8E8;
+    border-color: #C0C0C0;
+}
+
+/* ===== NON-COVER SLIDES ===== */
+
+.tutorial-slide:not(.cover) {
+    padding: 60px 24px 40px 24px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.tutorial-slide h3 {
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    flex-shrink: 0;
+}
+
+.tutorial-slide p {
+    color: #666;
+    line-height: 1.5;
+    margin: 0 0 30px 0;
+    font-size: 16px;
+    flex-shrink: 0;
+    max-width: 280px;
+}
+
+/* Regular navigation */
+.tutorial-nav:not(.cover) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    flex-shrink: 0;
+    margin-top: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Regular navigation buttons */
+.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn) {
+    padding: 12px 24px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+    transition: all 0.2s ease;
+    outline: none;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):hover {
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+    transform: translateY(-1px);
+}
+
+.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):active {
+    transform: scale(0.98);
+}
+
+.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):focus {
+    outline: 2px solid #007AFF;
+    outline-offset: 2px;
+}
+
+/* Primary button styling */
+.tutorial-nav-btn.primary {
+    background: #007AFF !important;
+    color: white !important;
+    border-color: #007AFF !important;
+}
+
+.tutorial-nav-btn.primary:hover {
+    background: #0056CC !important;
+    border-color: #0056CC !important;
+}
+
+/* ===== PROGRESS INDICATOR ===== */
+
+.progress-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+    flex-shrink: 0;
+}
+
+.progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #E6E6E6;
+    transition: background 0.2s ease;
+}
+
+.progress-dot.active {
+    background: #666;
+}
+
+/* Hide progress indicator for cover slide */
+.tutorial-slide.cover .progress-indicator {
+    display: none;
+}
+
+/* ===== CLOSE BUTTON - FIGMA SPECS ===== */
+
+.tutorial-modal .modal-close-btn,
+.tutorial-close-btn {
+    width: 30px;
+    height: 30px;
+    padding: 8px;
+    border-radius: 26px;
+    position: absolute;
+    right: 12px;
+    top: 18.5px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    z-index: 10;
+}
+
+.tutorial-modal .modal-close-btn:hover,
+.tutorial-close-btn:hover {
+    background: #f0f0f0;
+}
+
+.tutorial-modal .modal-close-btn svg,
+.tutorial-close-btn svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+
+/* ===== STANDARD MODAL STYLES (for About modal) ===== */
 
 .modal-header {
     display: flex;
@@ -96,16 +436,13 @@
     outline-offset: 2px;
 }
 
-/* ===== MODAL CONTENT ===== */
-
 .modal-content {
     padding: 24px;
     box-sizing: border-box;
     overflow-y: auto;
-    max-height: calc(600px - 80px); /* Subtract header height */
+    max-height: calc(600px - 80px);
 }
 
-/* Basic modal content styling */
 .modal-content p {
     margin: 0 0 16px 0;
     line-height: 1.5;
@@ -116,434 +453,20 @@
     margin-bottom: 0;
 }
 
-/* ===== TUTORIAL SPECIFIC STYLES ===== */
-
-/* Tutorial slides */
-.tutorial-slide {
-    display: none;
-    min-height: 280px;
-    text-align: center;
-}
-
-.tutorial-slide.active {
-    display: block;
-    animation: slideIn 0.3s ease;
-}
-
-.tutorial-slide h3 {
-    margin: 0 0 16px 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #000;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-}
-
-.tutorial-slide p {
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 24px;
-    font-size: 16px;
-}
-
-/* ===== TUTORIAL NAVIGATION ===== */
-
-.tutorial-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 24px;
-    gap: 12px;
-}
-
-/* Cover slide navigation - centered */
-.tutorial-nav.cover {
-    justify-content: center;
-}
-
-.tutorial-nav-btn {
-    padding: 12px 24px;
-    border: 1px solid #E6E6E6;
-    background: #FAFAFA;
-    border-radius: 20px;
-    cursor: pointer;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #000;
-    transition: all 0.2s ease;
-    outline: none;
-    white-space: nowrap;
-    box-sizing: border-box;
-}
-
-.tutorial-nav-btn:hover {
-    background: #F0F0F0;
-    border-color: #D0D0D0;
-    transform: translateY(-1px);
-}
-
-.tutorial-nav-btn:active {
-    transform: scale(0.98);
-}
-
-.tutorial-nav-btn:focus {
-    outline: 2px solid #007AFF;
-    outline-offset: 2px;
-}
-
-/* Primary button styling */
-.tutorial-nav-btn.primary {
-    background: #007AFF;
-    color: white;
-    border-color: #007AFF;
-}
-
-.tutorial-nav-btn.primary:hover {
-    background: #0056CC;
-    border-color: #0056CC;
-}
-
-/* ===== PROGRESS INDICATOR ===== */
-
-.progress-indicator {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin: 20px 0;
-}
-
-.progress-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #E6E6E6;
-    transition: background 0.2s ease;
-}
-
-.progress-dot.active {
-    background: #666;
-}
-
-/* Hide progress indicator for cover slide */
-.tutorial-slide.cover .progress-indicator {
-    display: none;
-}
-
-/* ===== ANIMATIONS ===== */
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
 /* ===== RESPONSIVE DESIGN ===== */
 
 @media (max-width: 400px) {
-    .modal-container {
-        max-width: 95%;
-        margin: 20px;
-    }
-    
-    .modal-header {
-        padding: 16px 20px 12px 20px;
-    }
-    
-    .modal-content {
-        padding: 20px;
-    }
-    
-    .tutorial-nav-btn {
-        padding: 10px 16px;
-        font-size: 13px;
-    }
-    
-    .tutorial-slide {
-        min-height: 250px;
-    }
-}
-
-/* ===== ACCESSIBILITY ===== */
-
-/* Respect user's motion preferences */
-@media (prefers-reduced-motion: reduce) {
-    .modal-container,
-    .modal-backdrop,
-    .tutorial-nav-btn,
-    .progress-dot {
-        transition: none;
-    }
-    
-    .tutorial-slide {
-        animation: none;
-    }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-    .modal-container {
-        border: 2px solid #000;
-    }
-    
-    .modal-header {
-        border-bottom-color: #000;
-        border-bottom-width: 2px;
-    }
-    
-    .tutorial-nav-btn {
-        border-color: #000;
-        border-width: 2px;
-    }
-}
-
-
-/* ===================================================================
-   TUTORIAL PANEL 1 - FIGMA DESIGN IMPLEMENTATION
-   =================================================================== */
-
-/* Tutorial Cover Slide - Frame 373 container */
-.tutorial-frame-373 {
-    display: flex;
-    padding: 74px 12px 0px 12px;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    align-self: stretch;
-    box-sizing: border-box;
-}
-
-/* Welcome to Kalida title - Figma typography specs */
-.tutorial-welcome-title {
-    color: #000;
-    text-align: center;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 32px;
-    font-style: normal;
-    font-weight: 1000;
-    line-height: normal;
-    text-transform: uppercase;
-    margin: 0;
-    padding: 0;
-}
-
-/* Game subtitle - Figma typography specs */
-.tutorial-game-subtitle {
-    color: #000;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 510;
-    line-height: normal;
-    font-variant: all-small-caps;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-}
-
-/* Board image container */
-.tutorial-board-image {
-    width: 175px;
-    height: 175px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Actual SVG styling (when SVG is implemented) */
-.tutorial-board-svg {
-    width: 175px;
-    height: 175px;
-    object-fit: contain;
-}
-
-/* Temporary placeholder styling (remove when SVG is added) */
-.tutorial-board-placeholder {
-    width: 175px;
-    height: 175px;
-    background: #f8f8f8;
-    border: 2px dashed #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: #999;
-    text-align: center;
-    border-radius: 8px;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-}
-
-.tutorial-board-placeholder small {
-    font-size: 10px;
-    color: #bbb;
-    margin-top: 4px;
-}
-
-/* Cover slide specific adjustments */
-.tutorial-slide.cover {
-    min-height: 100%; /* Take full container height */
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex: 1; /* Take remaining space in modal content */
-}
-
-/* Frame 378 - Button container (Figma specs) */
-.tutorial-slide.cover .tutorial-nav {
-    display: flex;
-    padding: 32px 12px;
-    align-items: flex-start;
-    gap: 12px;
-    align-self: stretch;
-    justify-content: center; /* Keep centered for cover slide */
-}
-
-/* Frame 355 - The actual button (Figma specs) */
-.tutorial-slide.cover .tutorial-nav-btn {
-    display: flex;
-    height: 40px;
-    padding: 8px;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    flex: 1 0 0;
-    border-radius: 26px;
-    border: 1px solid #E6E6E6;
-    background: #FAFAFA;
-    
-    /* Button text typography */
-    color: #000;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
-    text-transform: uppercase;
-    
-    /* Remove previous primary button styling for cover */
-    border-color: #E6E6E6;
-    background: #FAFAFA;
-    
-    /* Remove default button behaviors */
-    outline: none;
-    transform: none;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    cursor: pointer;
-}
-
-.tutorial-slide.cover .tutorial-nav-btn:hover {
-    background: #F0F0F0;
-    border-color: #D0D0D0;
-    transform: none; /* Prevent any movement */
-}
-
-.tutorial-slide.cover .tutorial-nav-btn:focus {
-    outline: none; /* Remove blue outline */
-    background: #F0F0F0;
-    border-color: #D0D0D0;
-}
-
-.tutorial-slide.cover .tutorial-nav-btn:active {
-    background: #E8E8E8;
-    border-color: #C0C0C0;
-    transform: none; /* Prevent any scaling */
-}
-
-/* Adjust modal container for tutorial - WEBSITE Figma specs */
-.tutorial-container {
-    /* Website Slide 1 layout specs */
-    display: flex;
-    width: 369px;
-    height: 660px;
-    padding: 24px 0px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    border-radius: 8px;
-    border: 1.4px solid #999;
-    background: #FFF;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-    
-    /* Override default modal container positioning */
-    max-width: 369px;
-    max-height: 660px;
-    min-width: 369px;
-    min-height: 660px;
-}
-
-/* Remove default modal content padding for tutorial */
-.tutorial-modal .modal-content {
-    padding: 0;
-    overflow: hidden; /* Prevent scrollbars */
-    flex: 1; /* Take remaining space */
-    display: flex;
-    flex-direction: column;
-}
-
-/* Modal close button adjustments to match Frame 374 specs */
-.tutorial-modal .modal-close-btn,
-.tutorial-close-btn {
-    width: 30px;
-    height: 30px;
-    padding: 8px;
-    border-radius: 26px;
-    position: absolute;
-    right: 12px;
-    top: 18.5px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
-    z-index: 10;
-}
-
-.tutorial-modal .modal-close-btn:hover,
-.tutorial-close-btn:hover {
-    background: #f0f0f0;
-}
-
-.tutorial-modal .modal-close-btn svg,
-.tutorial-close-btn svg {
-    width: 13px;
-    height: 13px;
-    flex-shrink: 0;
-    aspect-ratio: 1/1;
-}
-
-/* Frame 367 - Spacer (Website specs) */
-.tutorial-frame-367 {
-    display: flex;
-    height: 19px;
-    padding: 0px 12px;
-    align-items: flex-start;
-    gap: 12px;
-    flex-shrink: 0;
-    align-self: stretch;
-}
-
-/* Responsive adjustments */
-@media (max-width: 400px) {
     .tutorial-container {
-        /* On small screens, use responsive dimensions */
-        width: 95%;
-        height: 90vh;
-        min-width: auto;
-        min-height: auto;
-        max-width: 95%;
-        max-height: 90vh;
+        width: 95% !important;
+        height: 90vh !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        max-width: 95% !important;
+        max-height: 90vh !important;
     }
     
     .tutorial-frame-373 {
-        padding: 60px 12px 0px 12px;
+        padding: 40px 12px 0px 12px;
     }
     
     .tutorial-welcome-title {
@@ -555,14 +478,13 @@
     }
     
     .tutorial-board-image,
-    .tutorial-board-svg,
-    .tutorial-board-placeholder {
+    .tutorial-board-svg {
         width: 150px;
         height: 150px;
     }
     
-    .tutorial-slide.cover {
-        min-height: 100%;
+    .tutorial-slide:not(.cover) {
+        padding: 40px 20px 40px 20px;
     }
 }
 
@@ -575,5 +497,28 @@
         max-height: 660px !important;
         min-width: 369px !important;
         min-height: 660px !important;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+@media (prefers-reduced-motion: reduce) {
+    .modal-container,
+    .modal-backdrop,
+    .tutorial-nav-btn,
+    .progress-dot,
+    .tutorial-slide {
+        transition: none;
+    }
+}
+
+@media (prefers-contrast: high) {
+    .modal-container {
+        border: 2px solid #000;
+    }
+    
+    .tutorial-nav-btn {
+        border-color: #000;
+        border-width: 2px;
     }
 }
