@@ -248,14 +248,259 @@
     border-color: #C0C0C0;
 }
 
-/* ===== NON-COVER SLIDES ===== */
+/* ===== NON-COVER, NON-CONTENT SLIDES (e.g., slides 3, 4 if they use different layout) ===== */
 
-.tutorial-slide:not(.cover) {
+.tutorial-slide:not(.cover):not(.tutorial-content-slide) {
     padding: 60px 24px 40px 24px;
     text-align: center;
     justify-content: center;
     align-items: center;
     gap: 20px;
+}
+
+.tutorial-slide:not(.cover):not(.tutorial-content-slide) h3 {
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    flex-shrink: 0;
+}
+
+.tutorial-slide:not(.cover):not(.tutorial-content-slide) p {
+    color: #666;
+    line-height: 1.5;
+    margin: 0 0 30px 0;
+    font-size: 16px;
+    flex-shrink: 0;
+    max-width: 280px;
+}
+
+/* ===== GENERIC TUTORIAL CONTENT SLIDES (reusable for slides 2, 3, 4, etc.) ===== */
+
+/* Content slide layout */
+.tutorial-content-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    display: none;
+    transition: opacity 0.3s ease;
+    box-sizing: border-box;
+    justify-content: flex-start;
+    align-items: stretch;
+    flex-direction: column;
+}
+
+/* Active content slide */
+.tutorial-content-slide.active {
+    opacity: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Content container */
+.tutorial-frame-373.tutorial-content {
+    padding: 74px 12px 0px 12px;
+    gap: 16px;
+}
+
+/* ===== TYPOGRAPHY - EXACT FIGMA SPECS ===== */
+
+/* Content slide title - EXACT Figma typography */
+.tutorial-content-title {
+    color: #000 !important;
+    text-align: center !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 32px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block;
+}
+
+/* Content slide subtitle - EXACT Figma typography */
+.tutorial-content-subtitle {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 16px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: normal !important;
+    font-variant: all-small-caps !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    display: block;
+}
+
+/* Tutorial explanation text - EXACT Figma typography */
+.tutorial-explanation {
+    width: 100%;
+    max-width: 300px;
+    color: #000 !important;
+    text-align: center !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: 24px !important; /* 171.429% */
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block;
+}
+
+/* ===== TUTORIAL EXAMPLES - SIMPLIFIED SVG APPROACH ===== */
+
+/* Examples container */
+.tutorial-examples {
+    padding: 32px 0px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+    display: inline-flex;
+    flex-wrap: wrap;
+}
+
+/* Individual example */
+.tutorial-example {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    display: inline-flex;
+}
+
+/* Board example SVG - EXACT Figma dimensions */
+.tutorial-board-example {
+    width: 100.54px;
+    height: 100.54px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Checkmark SVG */
+.tutorial-checkmark {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
+}
+
+/* ===== CONTENT SLIDE NAVIGATION ===== */
+
+/* Navigation section container */
+.tutorial-nav-section.tutorial-content-nav {
+    align-self: stretch;
+    padding: 32px 12px;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 24px;
+    display: flex;
+    flex-shrink: 0;
+}
+
+/* Navigation buttons container (for slides with back/next buttons) */
+.tutorial-nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 280px;
+}
+
+/* Content slide button - EXACT Figma specs */
+.tutorial-nav-btn.tutorial-content-btn {
+    height: 40px !important;
+    padding: 8px 16px !important;
+    background: #FAFAFA !important;
+    border-radius: 26px !important;
+    border: 1px solid #E6E6E6 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px;
+    display: inline-flex !important;
+    
+    /* EXACT Figma button typography */
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 700 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+/* Single button (like slide 2) spans full width */
+.tutorial-nav-section.tutorial-content-nav > .tutorial-nav-btn.tutorial-content-btn {
+    align-self: stretch !important;
+}
+
+/* Dual buttons (like slide 3+) have auto width */
+.tutorial-nav-buttons .tutorial-nav-btn.tutorial-content-btn {
+    flex: 0 0 auto;
+    min-width: 100px;
+}
+
+/* Content button hover state */
+.tutorial-nav-btn.tutorial-content-btn:hover {
+    background: #F0F0F0 !important;
+    border-color: #D0D0D0 !important;
+}
+
+/* Content button focus state */
+.tutorial-nav-btn.tutorial-content-btn:focus {
+    outline: 2px solid #007AFF;
+    outline-offset: 2px;
+}
+
+/* Content button active state */
+.tutorial-nav-btn.tutorial-content-btn:active {
+    background: #E8E8E8 !important;
+    border-color: #C0C0C0 !important;
+}
+
+/* ===== CONTENT SLIDE PROGRESS DOTS ===== */
+
+/* Progress dots container */
+.tutorial-progress-dots {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0px;
+}
+
+/* Individual progress dots - EXACT Figma dimensions */
+.tutorial-progress-dots .progress-dot {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50%;
+    margin: 0;
+    transition: background 0.2s ease;
+}
+
+/* Active dot - EXACT Figma color */
+.tutorial-progress-dots .progress-dot.active {
+    background: #999999 !important;
+}
+
+/* Inactive dots - EXACT Figma color */
+.tutorial-progress-dots .progress-dot:not(.active) {
+    background: #E6E6E6 !important;
 }
 
 .tutorial-slide h3 {
@@ -276,8 +521,8 @@
     max-width: 280px;
 }
 
-/* Regular navigation */
-.tutorial-nav:not(.cover) {
+/* Regular navigation (excluding slide 2 which has custom navigation) */
+.tutorial-nav:not(.cover):not(.slide-2-nav) {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -289,8 +534,8 @@
     box-sizing: border-box;
 }
 
-/* Regular navigation buttons */
-.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn) {
+/* Regular navigation buttons (excluding cover and slide 2) */
+.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):not(.slide-2-btn) {
     padding: 12px 24px;
     border: 1px solid #E6E6E6;
     background: #FAFAFA;
@@ -306,17 +551,17 @@
     box-sizing: border-box;
 }
 
-.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):hover {
+.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):not(.slide-2-btn):hover {
     background: #F0F0F0;
     border-color: #D0D0D0;
     transform: translateY(-1px);
 }
 
-.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):active {
+.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):not(.slide-2-btn):active {
     transform: scale(0.98);
 }
 
-.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):focus {
+.tutorial-nav-btn:not(.tutorial-slide.cover .tutorial-nav-btn):not(.slide-2-btn):focus {
     outline: 2px solid #007AFF;
     outline-offset: 2px;
 }
@@ -333,9 +578,9 @@
     border-color: #0056CC !important;
 }
 
-/* ===== PROGRESS INDICATOR ===== */
+/* ===== PROGRESS INDICATOR (for slides other than cover and slide 2) ===== */
 
-.progress-indicator {
+.progress-indicator:not(.tutorial-progress-dots) {
     display: flex;
     justify-content: center;
     gap: 8px;
@@ -343,7 +588,7 @@
     flex-shrink: 0;
 }
 
-.progress-dot {
+.progress-indicator:not(.tutorial-progress-dots) .progress-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -351,7 +596,7 @@
     transition: background 0.2s ease;
 }
 
-.progress-dot.active {
+.progress-indicator:not(.tutorial-progress-dots) .progress-dot.active {
     background: #666;
 }
 
@@ -483,7 +728,26 @@
         height: 150px;
     }
     
-    .tutorial-slide:not(.cover) {
+    /* Content slide responsive */
+    .tutorial-content-title {
+        font-size: 28px !important;
+    }
+    
+    .tutorial-content-subtitle {
+        font-size: 14px !important;
+    }
+    
+    .tutorial-board-example {
+        width: 80px !important;
+        height: 80px !important;
+    }
+    
+    .tutorial-checkmark {
+        width: 24px !important;
+        height: 24px !important;
+    }
+    
+    .tutorial-slide:not(.cover):not(.tutorial-content-slide) {
         padding: 40px 20px 40px 20px;
     }
 }

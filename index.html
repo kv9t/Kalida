@@ -123,7 +123,7 @@
         </div>
 
         <!-- TUTORIAL Modal -->
-        <div id="tutorial-modal" class="modal-backdrop tutorial-modal">
+       <div id="tutorial-modal" class="modal-backdrop tutorial-modal">
             <div class="modal-container tutorial-container">
                 <!-- Close button positioned absolutely within container -->
                 <button class="modal-close-btn tutorial-close-btn" data-modal="tutorial">
@@ -134,92 +134,249 @@
                 </button>
                 
                 <div class="modal-content">
-                    <!-- Slide 1: Cover Page - Website Figma specs -->
+                    <!-- Slide 1: Cover Page - EXACT Figma Structure -->
                     <div class="tutorial-slide active cover" data-slide="0">
-                        <!-- Frame 367 - Spacer -->
+                        <!-- Frame 367 - Spacer (19px height) -->
                         <div class="tutorial-frame-367"></div>
                         
                         <!-- Frame 373 - Main content container -->
                         <div class="tutorial-frame-373">
                             <!-- Welcome to Kalida title -->
-                            <h1 class="tutorial-welcome-title">Welcome to Kalida</h1>
+                            <div class="tutorial-welcome-title">Welcome to<br/>Kalida</div>
                             
                             <!-- Game subtitle -->
-                            <p class="tutorial-game-subtitle">A game of 5-in-a-row strategy</p>
+                            <div class="tutorial-game-subtitle">a game of 5-in-a-row strategy</div>
                             
-                            <!-- SVG board image container -->
+                            <!-- Board image container -->
                             <div class="tutorial-board-image">
                                 <img src="images/tutorial_cover_board-img.svg" alt="Kalida game board" class="tutorial-board-svg">
                             </div>
                         </div>
                         
-                        <!-- Frame 378 - Navigation (updated with Figma specs) -->
+                        <!-- Frame 378 - Navigation button -->
                         <div class="tutorial-nav cover">
                             <button class="tutorial-nav-btn" data-action="start">Learn to play →</button>
                         </div>
                     </div>
                     
-                    <!-- Slide 2: Tutorial Content 1 -->
-                    <div class="tutorial-slide" data-slide="1">
-                        <h3>Game Basics</h3>
-                        <p>This is placeholder content for the first tutorial slide. Future content will explain basic game mechanics and objectives.</p>
-                        <div class="progress-indicator">
-                            <div class="progress-dot active"></div>
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot"></div>
+                    <!-- Slide 2: 5-in-a-row Tutorial - Simplified SVG Structure -->
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="1">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <!-- Title -->
+                            <div class="tutorial-content-title">5-in-a-row</div>
+                            
+                            <!-- Subtitle -->
+                            <div class="tutorial-content-subtitle">the most basic way to win</div>
+                            
+                            <!-- Visual examples container -->
+                            <div class="tutorial-examples">
+                                <!-- Example 1: Row -->
+                                <div class="tutorial-example">
+                                    <img src="images/five-in-a-row_row_img.svg" alt="Row win example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 2: Diagonal -->
+                                <div class="tutorial-example">
+                                    <img src="images/five-in-a-row_diag_img.svg" alt="Diagonal win example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 3: Column -->
+                                <div class="tutorial-example">
+                                    <img src="images/five-in-a-row_col_img.svg" alt="Column win example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                            </div>
+                            
+                            <!-- Explanation text -->
+                            <div class="tutorial-explanation">Place five of your markers in a row, column, or diagonal.</div>
                         </div>
-                        <div class="tutorial-nav">
-                            <div></div> <!-- Empty space for centering -->
-                            <button class="tutorial-nav-btn primary" data-action="next">NEXT →</button>
+                        
+                        <!-- Navigation section -->
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <!-- Next button -->
+                            <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="next">Next →</button>
+                            
+                            <!-- Progress dots -->
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Slide 3: Tutorial Content 2 -->
-                    <div class="tutorial-slide" data-slide="2">
-                        <h3>Making Moves</h3>
-                        <p>This is placeholder content for the second tutorial slide. Future content will explain how to make moves and place pieces.</p>
-                        <div class="progress-indicator">
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot active"></div>
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot"></div>
+                    <!-- Slide 3: Bounce Tutorial -->
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="2">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <!-- Title -->
+                            <div class="tutorial-content-title">BOUNCE</div>
+                            
+                            <!-- Subtitle -->
+                            <div class="tutorial-content-subtitle">BOUNCING OFF THE WALLS</div>
+                            
+                            <!-- Visual examples container -->
+                            <div class="tutorial-examples">
+                                <!-- Example 1: Single Bounce -->
+                                <div class="tutorial-example">
+                                    <img src="images/bounce_single_img.svg" alt="Single bounce example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 2: Double Bounce Narrow -->
+                                <div class="tutorial-example">
+                                    <img src="images/bounce_double-narrow_img.svg" alt="Double bounce narrow example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 3: Double Bounce Wide -->
+                                <div class="tutorial-example">
+                                    <img src="images/bounce_double-wide_img.svg" alt="Double bounce wide example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                            </div>
+                            
+                            <!-- Explanation text -->
+                            <div class="tutorial-explanation">Diagonal lines can "bounce" off board edges to form winning patterns. Up to two bounces are allowed per winning line.</div>
                         </div>
-                        <div class="tutorial-nav">
-                            <button class="tutorial-nav-btn" data-action="prev">← BACK</button>
-                            <button class="tutorial-nav-btn primary" data-action="next">NEXT →</button>
+                        
+                        <!-- Navigation section -->
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <!-- Navigation buttons -->
+                            <div class="tutorial-nav-buttons">
+                                <button class="tutorial-nav-btn tutorial-content-btn" data-action="prev">← Back</button>
+                                <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="next">Next →</button>
+                            </div>
+                            
+                            <!-- Progress dots -->
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Slide 4: Tutorial Content 3 -->
-                    <div class="tutorial-slide" data-slide="3">
-                        <h3>Special Rules</h3>
-                        <p>This is placeholder content for the third tutorial slide. Future content will explain special rules like bouncing and wrapping.</p>
-                        <div class="progress-indicator">
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot active"></div>
-                            <div class="progress-dot"></div>
+                    <!-- Slide 4: Placeholder Tutorial Content -->
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="3">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <!-- Title -->
+                            <div class="tutorial-content-title">DIAGONAL WRAP</div>
+                            
+                            <!-- Subtitle -->
+                            <div class="tutorial-content-subtitle">A real brain twister</div>
+                            
+                            <!-- Visual examples container -->
+                            <div class="tutorial-examples">
+                                <!-- Example 1 -->
+                                <div class="tutorial-example">
+                                    <img src="images/diag-wrap_four-and-two.svg" alt="Example 1" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 2 -->
+                                <div class="tutorial-example">
+                                    <img src="images/diag-wrap_great-diag.svg" alt="Example 2" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 3 -->
+                                <div class="tutorial-example">
+                                    <img src="images/diag-wrap_four-and-two_dbl-wrap.svg" alt="Example 3" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                            </div>
+                            
+                            <!-- Explanation text -->
+                            <div class="tutorial-explanation">Diagonal lines can “wrap around” the board - left connects to right, top connects to bottom. Up to two wraps allowed per winning line.</div>
                         </div>
-                        <div class="tutorial-nav">
-                            <button class="tutorial-nav-btn" data-action="prev">← BACK</button>
-                            <button class="tutorial-nav-btn primary" data-action="next">NEXT →</button>
+                        
+                        <!-- Navigation section -->
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <!-- Navigation buttons -->
+                            <div class="tutorial-nav-buttons">
+                                <button class="tutorial-nav-btn tutorial-content-btn" data-action="prev">← Back</button>
+                                <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="next">Next →</button>
+                            </div>
+                            
+                            <!-- Progress dots -->
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Slide 5: Final Slide -->
-                    <div class="tutorial-slide" data-slide="4">
-                        <h3>Ready to Play!</h3>
-                        <p>This is placeholder content for the final tutorial slide. Future content will summarize key points and encourage the player to start.</p>
-                        <div class="progress-indicator">
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot"></div>
-                            <div class="progress-dot active"></div>
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="4">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <!-- Title -->
+                            <div class="tutorial-content-title">READY TO PLAY!</div>
+                            
+                            <!-- Subtitle -->
+                            <div class="tutorial-content-subtitle">YOU'VE LEARNED THE BASICS</div>
+                            
+                            <!-- Visual examples container -->
+                            <div class="tutorial-examples">
+                                <!-- Example 1 -->
+                                <div class="tutorial-example">
+                                    <img src="images/final_board1.svg" alt="Example 1" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 2 -->
+                                <div class="tutorial-example">
+                                    <img src="images/final_board2.svg" alt="Example 2" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 3 -->
+                                <div class="tutorial-example">
+                                    <img src="images/final_board3.svg" alt="Example 3" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                            </div>
+                            
+                            <!-- Explanation text -->
+                            <div class="tutorial-explanation">This is placeholder content for the final tutorial slide. Future content will summarize key points and encourage the player to start.</div>
                         </div>
-                        <div class="tutorial-nav">
-                            <button class="tutorial-nav-btn" data-action="prev">← BACK</button>
-                            <button class="tutorial-nav-btn primary" data-action="finish">LET'S PLAY!</button>
+                        
+                        <!-- Navigation section -->
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <!-- Navigation buttons -->
+                            <div class="tutorial-nav-buttons">
+                                <button class="tutorial-nav-btn tutorial-content-btn" data-action="prev">← Back</button>
+                                <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="finish">Let's Play!</button>
+                            </div>
+                            
+                            <!-- Progress dots -->
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot active"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
