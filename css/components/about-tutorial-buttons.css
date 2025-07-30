@@ -1,6 +1,7 @@
 /* ===================================================================
    ABOUT & TUTORIAL BUTTONS COMPONENT - Frame 378 button container
    Styling for the ABOUT and TUTORIAL buttons in the main view
+   UPDATED: Remove blue focus outline to match Figma design  
    =================================================================== */
 
 /* Frame 378 - ABOUT and TUTORIAL buttons container */
@@ -38,8 +39,8 @@
     line-height: normal;
     text-transform: uppercase;
     
-    /* Remove default button styling */
-    outline: none;
+    /* Remove default button styling and blue outline */
+    outline: none !important;
     box-sizing: border-box;
 }
 
@@ -61,11 +62,11 @@
     transition: all 0.1s ease;
 }
 
-/* Focus states for accessibility */
+/* Focus states - REMOVE BLUE OUTLINE */
 .about-btn:focus,
 .tutorial-btn:focus {
-    outline: 2px solid #007AFF;
-    outline-offset: 2px;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Disabled state (if needed in future) */
@@ -77,6 +78,7 @@
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+    outline: none !important;
 }
 
 /* Individual button customizations (if needed in future) */

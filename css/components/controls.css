@@ -1,6 +1,7 @@
 /* ===================================================================
    CONTROLS COMPONENT - All interactive form elements and buttons
    Buttons, selects, checkboxes, tooltips, and form controls
+   UPDATED: Remove blue focus outline to match Figma design
    =================================================================== */
 
 /* ===== BUTTONS ===== */
@@ -29,6 +30,9 @@
     font-weight: 1000;
     line-height: normal;
     text-transform: uppercase;
+    
+    /* Remove blue focus outline */
+    outline: none !important;
 }
 
 /* Button hover state */
@@ -41,6 +45,12 @@
 .new-game-btn:active {
     background: #E8E8E8;
     transform: scale(0.98);
+}
+
+/* Remove focus outline */
+.new-game-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Special state for "Start New Match" */
@@ -56,6 +66,11 @@
     border-color: #e67e22;
 }
 
+.new-game-btn.new-match-button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 /* General button styling */
 button {
     padding: var(--spacing-sm) var(--spacing-lg);
@@ -66,10 +81,16 @@ button {
     border-radius: 5px;
     cursor: pointer;
     margin: 0 var(--spacing-xs);
+    outline: none !important;
 }
 
 button:hover {
     background-color: var(--primary-btn-hover);
+}
+
+button:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Game controls container for button grouping */
@@ -91,6 +112,11 @@ button:hover {
     background-color: var(--draw-btn-hover);
 }
 
+#declare-draw-button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 /* Disable the declare draw button when game is not active */
 #declare-draw-button:disabled {
     background-color: #bdc3c7;
@@ -107,6 +133,12 @@ select {
     border: 1px solid #ddd;
     font-size: 16px;
     margin-left: var(--spacing-xs);
+    outline: none !important;
+}
+
+select:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* ===== CHECKBOXES & TOOLTIPS ===== */
@@ -122,6 +154,12 @@ select {
 
 .checkbox-container input[type="checkbox"] {
     margin-right: var(--spacing-xs);
+    outline: none !important;
+}
+
+.checkbox-container input[type="checkbox"]:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Tooltip icon */
@@ -137,6 +175,12 @@ select {
     font-size: 12px;
     cursor: help;
     margin-left: var(--spacing-xs);
+    outline: none !important;
+}
+
+.tooltip-icon:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Tooltip popup */
