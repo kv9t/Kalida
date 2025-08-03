@@ -865,3 +865,326 @@
         border-width: 2px;
     }
 }
+
+
+/* ===== ABOUT MODAL - FIGMA EXACT IMPLEMENTATION ===== */
+
+/* About container - Smaller than tutorial modal */
+.about-container {
+    /* Override default modal container with compact specs for About */
+    width: 369px !important;
+    height: 480px !important;
+    max-width: 369px !important;
+    max-height: 480px !important;
+    min-width: 369px !important;
+    min-height: 480px !important;
+    
+    /* Figma container styles - match tutorial modal */
+    padding: 24px 0px !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1.4px solid #999;
+    background: #FFF;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    
+    /* Layout */
+    display: flex;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+
+/* About modal content - remove default padding */
+.about-modal .modal-content,
+.about-content {
+    padding: 0 !important;
+    overflow-y: auto;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* ===== FRAME 367 - MODAL TITLE/HEADER ===== */
+
+.about-frame-367 {
+    display: flex;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+/* About modal title - EXACT Figma typography */
+.about-modal-title {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 16px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ===== FRAME 373 - CREATED BY SECTION ===== */
+
+.about-frame-373.created-by-section {
+    display: flex;
+    padding: 12px 12px 0px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+/* Section titles (Created by, History) - EXACT Figma typography */
+.about-section-title {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 12px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: normal !important;
+    font-variant: all-small-caps !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ===== CREATOR CARDS (Frame 373 and Frame 375) ===== */
+
+.about-frame-373.creator-card,
+.about-frame-375.creator-card {
+    display: flex;
+    padding: 12px;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    border-bottom: 1px solid #E6E6E6;
+    box-sizing: border-box;
+}
+
+/* Creator icons - EXACT Figma dimensions */
+.creator-icon {
+    width: 50px !important;
+    height: 43.75px !important;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Creator details container */
+.creator-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    flex: 1;
+}
+
+/* Creator names - EXACT Figma typography */
+.creator-name {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Creator descriptions - EXACT Figma typography */
+.creator-description {
+    align-self: stretch;
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 12px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ===== FRAME 374 - HISTORY SECTION ===== */
+
+.about-frame-374.history-section {
+    display: flex;
+    padding: 12px 12px 0px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+/* ===== HISTORY CARD ===== */
+
+.about-frame-373.history-card {
+    display: flex;
+    padding: 12px;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    border-bottom: 1px solid #E6E6E6;
+    box-sizing: border-box;
+}
+
+/* History icon - same dimensions as creator icons */
+.history-icon {
+    width: 50px !important;
+    height: 43.75px !important;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* History details container */
+.history-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    flex: 1;
+}
+
+/* History title - same typography as creator names */
+.history-title {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* History description - same typography as creator descriptions */
+.history-description {
+    align-self: stretch;
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 12px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ===== CLOSE BUTTON - REUSE EXISTING MODAL STYLING ===== */
+
+.about-close-btn {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 8px !important;
+    border-radius: 26px !important;
+    position: absolute !important;
+    right: 12px !important;
+    top: 18.5px !important;
+    border: none !important;
+    background: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.2s ease !important;
+    z-index: 10 !important;
+    outline: none !important;
+}
+
+.about-close-btn:hover {
+    background: #f0f0f0 !important;
+}
+
+.about-close-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.about-close-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+    flex-shrink: 0 !important;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 400px) {
+    .about-container {
+        width: 95% !important;
+        height: 85vh !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        max-width: 95% !important;
+        max-height: 85vh !important;
+    }
+    
+    .about-frame-373.created-by-section,
+    .about-frame-374.history-section {
+        padding: 8px 8px 0px 8px;
+    }
+    
+    .about-modal-title {
+        font-size: 14px !important;
+    }
+    
+    .creator-icon,
+    .history-icon {
+        width: 40px !important;
+        height: 35px !important;
+    }
+    
+    .creator-name,
+    .history-title {
+        font-size: 12px !important;
+    }
+    
+    .creator-description,
+    .history-description {
+        font-size: 11px !important;
+    }
+}
+
+/* Ensure exact dimensions on larger screens */
+@media (min-width: 401px) {
+    .about-container {
+        width: 369px !important;
+        height: 480px !important;
+        max-width: 369px !important;
+        max-height: 480px !important;
+        min-width: 369px !important;
+        min-height: 480px !important;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+@media (prefers-reduced-motion: reduce) {
+    .about-modal,
+    .about-container,
+    .about-close-btn {
+        transition: none !important;
+    }
+}
+
+@media (prefers-contrast: high) {
+    .about-container {
+        border: 2px solid #000 !important;
+    }
+    
+    .about-frame-373.creator-card,
+    .about-frame-375.creator-card,
+    .about-frame-373.history-card {
+        border-bottom-width: 2px !important;
+        border-bottom-color: #000 !important;
+    }
+}
