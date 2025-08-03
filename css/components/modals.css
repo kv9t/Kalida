@@ -1188,3 +1188,407 @@
         border-bottom-color: #000 !important;
     }
 }
+
+
+/* ===== SCOREBOARD MODAL - PLACEHOLDER IMPLEMENTATION ===== */
+
+/* Scoreboard container - Medium size between About and Tutorial */
+.scoreboard-container {
+    /* Override default modal container */
+    width: 369px !important;
+    height: 520px !important;
+    max-width: 369px !important;
+    max-height: 520px !important;
+    min-width: 369px !important;
+    min-height: 520px !important;
+    
+    /* Figma container styles - match other modals */
+    padding: 24px 0px !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1.4px solid #999;
+    background: #FFF;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    
+    /* Layout */
+    display: flex;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Scoreboard modal content */
+.scoreboard-modal .modal-content,
+.scoreboard-content {
+    padding: 0 !important;
+    overflow-y: auto;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    gap: 20px;
+    padding: 0 12px !important;
+    box-sizing: border-box;
+}
+
+/* ===== HEADER SECTION ===== */
+
+.scoreboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+    flex-shrink: 0;
+}
+
+/* Scoreboard modal title - match other modal typography */
+.scoreboard-modal-title {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 18px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center;
+}
+
+/* ===== EXPLANATION SECTION ===== */
+
+.scoreboard-explanation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.scoreboard-description {
+    color: #333 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center;
+    max-width: 300px;
+}
+
+/* ===== CURRENT SCORES SECTION ===== */
+
+.current-scores-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    margin: 0 12px;
+}
+
+.current-scores-title {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 600 !important;
+    line-height: normal !important;
+    font-variant: all-small-caps !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center;
+}
+
+.current-scores {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.score-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 200px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background: #FFF;
+    border: 1px solid #E6E6E6;
+}
+
+.player-label {
+    color: #333 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 13px !important;
+    font-style: normal !important;
+    font-weight: 500 !important;
+    line-height: normal !important;
+    font-variant: all-small-caps !important;
+}
+
+.score-value {
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 18px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-align: center;
+    min-width: 24px;
+}
+
+/* Player-specific score colors */
+.player-x-score {
+    color: var(--player-x-color, #00C7BE) !important;
+}
+
+.player-o-score {
+    color: var(--player-o-color, #5834db) !important;
+}
+
+/* ===== ACTION BUTTONS SECTION ===== */
+
+.scoreboard-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: auto; /* Push to bottom */
+    padding: 16px 12px 12px 12px;
+    flex-shrink: 0;
+}
+
+.scoreboard-action-btn {
+    display: flex;
+    height: 44px;
+    padding: 8px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 26px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* Typography */
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 600 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    
+    /* Remove default button styling */
+    outline: none !important;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.scoreboard-action-btn:hover {
+    background: #F0F0F0 !important;
+    border-color: #D0D0D0 !important;
+    transform: translateY(-1px);
+}
+
+.scoreboard-action-btn:active {
+    background: #E8E8E8 !important;
+    border-color: #C0C0C0 !important;
+    transform: scale(0.98);
+}
+
+.scoreboard-action-btn:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3) !important;
+}
+
+/* Danger button styling (Reset All Scores) */
+.scoreboard-action-btn.danger {
+    background: #fee !important;
+    border-color: #fcc !important;
+    color: #c33 !important;
+}
+
+.scoreboard-action-btn.danger:hover {
+    background: #fdd !important;
+    border-color: #faa !important;
+    color: #a11 !important;
+}
+
+.scoreboard-action-btn.danger:active {
+    background: #fcc !important;
+    border-color: #f99 !important;
+}
+
+/* ===== CLOSE BUTTON - REUSE EXISTING MODAL STYLING ===== */
+
+.scoreboard-close-btn {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 8px !important;
+    border-radius: 26px !important;
+    position: absolute !important;
+    right: 12px !important;
+    top: 18.5px !important;
+    border: none !important;
+    background: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.2s ease !important;
+    z-index: 10 !important;
+    outline: none !important;
+}
+
+.scoreboard-close-btn:hover {
+    background: #f0f0f0 !important;
+}
+
+.scoreboard-close-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.scoreboard-close-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+    flex-shrink: 0 !important;
+}
+
+/* ===== SCOREBOARD HOVER EFFECTS ===== */
+
+/* Make scoreboard divs look clickable */
+.round-wins-scoreboard,
+.matches-won-scoreboard {
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.round-wins-scoreboard:hover,
+.matches-won-scoreboard:hover {
+    background: #f8f9fa !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Add a subtle click indicator */
+.round-wins-scoreboard::after,
+.matches-won-scoreboard::after {
+    content: "👆";
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.round-wins-scoreboard:hover::after,
+.matches-won-scoreboard:hover::after {
+    opacity: 0.6;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 400px) {
+    .scoreboard-container {
+        width: 95% !important;
+        height: 85vh !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        max-width: 95% !important;
+        max-height: 85vh !important;
+    }
+    
+    .scoreboard-modal-title {
+        font-size: 16px !important;
+    }
+    
+    .scoreboard-description {
+        font-size: 13px !important;
+    }
+    
+    .current-scores-section {
+        margin: 0 4px;
+        padding: 12px;
+    }
+    
+    .scoreboard-actions {
+        padding: 12px 4px 8px 4px;
+    }
+    
+    .scoreboard-action-btn {
+        height: 40px !important;
+        font-size: 12px !important;
+    }
+}
+
+/* Ensure exact dimensions on larger screens */
+@media (min-width: 401px) {
+    .scoreboard-container {
+        width: 369px !important;
+        height: 520px !important;
+        max-width: 369px !important;
+        max-height: 520px !important;
+        min-width: 369px !important;
+        min-height: 520px !important;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+@media (prefers-reduced-motion: reduce) {
+    .scoreboard-modal,
+    .scoreboard-container,
+    .scoreboard-close-btn,
+    .scoreboard-action-btn,
+    .round-wins-scoreboard,
+    .matches-won-scoreboard {
+        transition: none !important;
+        transform: none !important;
+    }
+    
+    .round-wins-scoreboard:hover,
+    .matches-won-scoreboard:hover {
+        transform: none !important;
+    }
+    
+    .scoreboard-action-btn:hover {
+        transform: none !important;
+    }
+}
+
+@media (prefers-contrast: high) {
+    .scoreboard-container {
+        border: 2px solid #000 !important;
+    }
+    
+    .scoreboard-action-btn {
+        border-color: #000 !important;
+        border-width: 2px !important;
+    }
+    
+    .current-scores-section {
+        border-color: #000 !important;
+        border-width: 2px !important;
+    }
+    
+    .score-display {
+        border-color: #000 !important;
+        border-width: 2px !important;
+    }
+}

@@ -10,8 +10,9 @@
 import UIAssetManager from './UIAssetManager.js';
 import BoardUI from './BoardUI.js';
 import GameSettingsPopup from './GameSettingsPopup.js';
-import AboutModal from './AboutModal.js'; // NEW: Import AboutModal
-import TutorialModal from './TutorialModal.js'; // NEW: Import TutorialModal
+import AboutModal from './AboutModal.js'; // Import AboutModal
+import TutorialModal from './TutorialModal.js'; // Import TutorialModal
+import ScoreboardModal from './ScoreboardModal.js'; // Import ScoreboardModal
 
 
 class GameUI {
@@ -32,7 +33,7 @@ class GameUI {
         // Initialize modal components
         this.aboutModal = new AboutModal(this.game, this);
         this.tutorialModal = new TutorialModal(this.game, this);
-
+        this.scoreboardModal = new ScoreboardModal(this.game, this); 
 
         // Store references to DOM elements
         this.elements = {
@@ -115,7 +116,8 @@ class GameUI {
             // Initialize modal components
             this.aboutModal.initialize();
             this.tutorialModal.initialize();
-                        
+            this.scoreboardModal.initialize();
+
             // Initialize the UI with current game state
             this.updateAll();
             
@@ -143,6 +145,32 @@ class GameUI {
         }
     }
 
+    // ===== SCOREBOARD MODAL =====
+    /**
+     * Show scoreboard modal programmatically
+     * @param {string} scoreboardType - 'round' or 'match'
+     */
+    showScoreboardModal(scoreboardType = 'round') {
+        if (this.scoreboardModal) {
+            this.scoreboardModal.show(scoreboardType);
+        }
+    }
+
+    /**
+     * Method to show scoreboard modal for round wins
+     */
+    showRoundScoreboard() {
+        this.showScoreboardModal('round');
+    }
+
+    /**
+     * Method to show scoreboard modal for match wins  
+     */
+    showMatchScoreboard() {
+        this.showScoreboardModal('match');
+    }
+
+
     /**
      * Check if any modal is currently open
      * Useful for preventing certain game actions when modals are open
@@ -150,22 +178,24 @@ class GameUI {
     isModalOpen() {
         return (this.aboutModal && this.aboutModal.isOpen) || 
                (this.tutorialModal && this.tutorialModal.isOpen) ||
-               (this.settingsPopup && this.settingsPopup.isOpen);
+               (this.settingsPopup && this.settingsPopup.isOpen) ||
+               (this.scoreboardModal && this.scoreboardModal.isOpen); // NEW: Include scoreboard modal
     }
     
     /**
      * Updated cleanup method to include new modals
      */
     cleanup() {
-        // Existing cleanup code...
-        
-        // NEW: Cleanup modal components
         if (this.aboutModal) {
             this.aboutModal.cleanup();
         }
         
         if (this.tutorialModal) {
             this.tutorialModal.cleanup();
+        }
+        
+        if (this.scoreboardModal) { // NEW: Cleanup scoreboard modal
+            this.scoreboardModal.cleanup();
         }
         
         console.log('GameUI cleanup complete (including modals)');

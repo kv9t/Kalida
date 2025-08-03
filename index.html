@@ -445,6 +445,62 @@
             </div>
         </div>
 
+        <!-- SCOREBOARD Modal -->   
+        <div id="scoreboard-modal" class="modal-backdrop scoreboard-modal">
+            <div class="modal-container scoreboard-container">
+                <!-- Close button positioned absolutely within container -->
+                <button class="modal-close-btn scoreboard-close-btn" data-modal="scoreboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                        <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                        <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                    </svg>
+                </button>
+                
+                <div class="modal-content scoreboard-content">
+                    <!-- Modal title/header -->
+                    <div class="scoreboard-header">
+                        <h2 class="scoreboard-modal-title">Round Wins</h2>
+                    </div>
+                    
+                    <!-- Score explanation -->
+                    <div class="scoreboard-explanation">
+                        <p class="scoreboard-description">Each time a player gets 5 in a row, they win a round. Track your wins here!</p>
+                    </div>
+                    
+                    <!-- Current scores display -->
+                    <div class="current-scores-section">
+                        <h3 class="current-scores-title">Current Scores</h3>
+                        <div class="current-scores">
+                            <div class="score-display">
+                                <span class="player-label">Player X:</span> 
+                                <span class="score-value player-x-score">0</span>
+                            </div>
+                            <div class="score-display">
+                                <span class="player-label">Player O:</span> 
+                                <span class="score-value player-o-score">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action buttons -->
+                    <div class="scoreboard-actions">
+                        <button class="scoreboard-action-btn reset-round-btn" data-action="reset-round">
+                            Reset Round Wins
+                        </button>
+                        <button class="scoreboard-action-btn reset-match-btn" data-action="reset-match">
+                            Reset Match Wins
+                        </button>
+                        <button class="scoreboard-action-btn reset-all-btn danger" data-action="reset-all">
+                            Reset All Scores
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
         <!--<div class="controls">
             <div class="game-mode">
                 <label for="game-mode-select">Play Against: </label>
