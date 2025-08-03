@@ -1190,17 +1190,17 @@
 }
 
 
-/* ===== SCOREBOARD MODAL - PLACEHOLDER IMPLEMENTATION ===== */
+/* ===== SCOREBOARD MODAL - FIGMA EXACT IMPLEMENTATION ===== */
 
-/* Scoreboard container - Medium size between About and Tutorial */
+/* Scoreboard container - Taller to accommodate new content */
 .scoreboard-container {
     /* Override default modal container */
     width: 369px !important;
-    height: 520px !important;
+    height: 660px !important;
     max-width: 369px !important;
-    max-height: 520px !important;
+    max-height: 660px !important;
     min-width: 369px !important;
-    min-height: 520px !important;
+    min-height: 660px !important;
     
     /* Figma container styles - match other modals */
     padding: 24px 0px !important;
@@ -1229,154 +1229,79 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    gap: 20px;
-    padding: 0 12px !important;
     box-sizing: border-box;
 }
 
-/* ===== HEADER SECTION ===== */
+/* ===== FRAME 367 - MODAL TITLE ===== */
 
-.scoreboard-header {
+.scoreboard-frame-367 {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 0;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
     flex-shrink: 0;
 }
 
-/* Scoreboard modal title - match other modal typography */
+/* Scoreboard modal title - EXACT Figma typography */
 .scoreboard-modal-title {
     color: #000 !important;
     font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
-    font-size: 18px !important;
+    font-size: 16px !important;
     font-style: normal !important;
     font-weight: 1000 !important;
     line-height: normal !important;
     text-transform: uppercase !important;
     margin: 0 !important;
     padding: 0 !important;
-    text-align: center;
 }
 
-/* ===== EXPLANATION SECTION ===== */
+/* ===== FRAME 373 - SUBTITLE SECTION ===== */
 
-.scoreboard-explanation {
+.scoreboard-frame-373.subtitle-section {
     display: flex;
+    padding: 12px 12px 0px 12px;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
     flex-shrink: 0;
 }
 
-.scoreboard-description {
-    color: #333 !important;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
-    font-size: 14px !important;
-    font-style: normal !important;
-    font-weight: 400 !important;
-    line-height: 1.4 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    text-align: center;
-    max-width: 300px;
-}
-
-/* ===== CURRENT SCORES SECTION ===== */
-
-.current-scores-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid #E6E6E6;
-    background: #FAFAFA;
-    margin: 0 12px;
-}
-
-.current-scores-title {
+/* Subtitle - EXACT Figma typography */
+.scoreboard-subtitle {
     color: #000 !important;
     font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
-    font-size: 14px !important;
+    font-size: 12px !important;
     font-style: normal !important;
-    font-weight: 600 !important;
+    font-weight: 510 !important;
     line-height: normal !important;
     font-variant: all-small-caps !important;
     margin: 0 !important;
     padding: 0 !important;
-    text-align: center;
 }
 
-.current-scores {
+/* ===== FRAME 372 & 375 - BUTTON SECTIONS ===== */
+
+.scoreboard-frame-372.cancel-button-section,
+.scoreboard-frame-375.reset-button-section {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-}
-
-.score-display {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 200px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    background: #FFF;
-    border: 1px solid #E6E6E6;
-}
-
-.player-label {
-    color: #333 !important;
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
-    font-size: 13px !important;
-    font-style: normal !important;
-    font-weight: 500 !important;
-    line-height: normal !important;
-    font-variant: all-small-caps !important;
-}
-
-.score-value {
-    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
-    font-size: 18px !important;
-    font-style: normal !important;
-    font-weight: 1000 !important;
-    line-height: normal !important;
-    text-align: center;
-    min-width: 24px;
-}
-
-/* Player-specific score colors */
-.player-x-score {
-    color: var(--player-x-color, #00C7BE) !important;
-}
-
-.player-o-score {
-    color: var(--player-o-color, #5834db) !important;
-}
-
-/* ===== ACTION BUTTONS SECTION ===== */
-
-.scoreboard-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    padding: 5px 12px;
+    align-items: flex-start;
     gap: 12px;
-    margin-top: auto; /* Push to bottom */
-    padding: 16px 12px 12px 12px;
+    align-self: stretch;
     flex-shrink: 0;
 }
 
-.scoreboard-action-btn {
+/* Buttons - EXACT Figma specifications */
+.scoreboard-button {
     display: flex;
-    height: 44px;
-    padding: 8px 16px;
+    height: 51px;
+    padding: 8px;
     justify-content: center;
     align-items: center;
     gap: 10px;
+    flex: 1 0 0;
     border-radius: 26px;
     border: 1px solid #E6E6E6;
     background: #FAFAFA;
@@ -1388,7 +1313,7 @@
     font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
     font-size: 14px !important;
     font-style: normal !important;
-    font-weight: 600 !important;
+    font-weight: 1000 !important;
     line-height: normal !important;
     text-transform: uppercase !important;
     
@@ -1398,39 +1323,204 @@
     white-space: nowrap;
 }
 
-.scoreboard-action-btn:hover {
+.scoreboard-button:hover {
     background: #F0F0F0 !important;
     border-color: #D0D0D0 !important;
-    transform: translateY(-1px);
 }
 
-.scoreboard-action-btn:active {
+.scoreboard-button:active {
     background: #E8E8E8 !important;
     border-color: #C0C0C0 !important;
     transform: scale(0.98);
 }
 
-.scoreboard-action-btn:focus {
+.scoreboard-button:focus {
     outline: none !important;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3) !important;
+    box-shadow: none !important;
 }
 
-/* Danger button styling (Reset All Scores) */
-.scoreboard-action-btn.danger {
-    background: #fee !important;
-    border-color: #fcc !important;
-    color: #c33 !important;
+
+.reset-button {
+    background: #F2F2F2;
+    border: 1px solid #E6E6E6;
+    color: #000; 
 }
 
-.scoreboard-action-btn.danger:hover {
-    background: #fdd !important;
-    border-color: #faa !important;
-    color: #a11 !important;
+.reset-button:hover {
+    background: #F2F2F2;
+    border: 1px solid #E6E6E6;
+    color: #000; 
 }
 
-.scoreboard-action-btn.danger:active {
-    background: #fcc !important;
-    border-color: #f99 !important;
+.reset-button:active {
+    background: #F2F2F2;
+    border: 1px solid #E6E6E6;
+    color: #000; 
+}
+
+/* ===== FRAME 378 - ABOUT SCORING SECTION ===== */
+
+.scoreboard-frame-378.about-scoring-section {
+    display: flex;
+    padding: 12px 12px 0px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* About scoring title - EXACT Figma typography */
+.about-scoring-title {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 12px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: normal !important;
+    font-variant: all-small-caps !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ===== SCORING CARDS (Frame 373) ===== */
+
+.scoreboard-frame-373.scoring-card {
+    display: flex;
+    padding: 12px;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    border-bottom: 1px solid #E6E6E6;
+    box-sizing: border-box;
+}
+
+/* Card icon area */
+.card-icon-area {
+    width: 50px;
+    height: 43.75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Regular card icon */
+.card-icon {
+    width: 50px;
+    height: 43.75px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Card content area */
+.card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    flex: 1;
+}
+
+/* Card titles - EXACT Figma typography */
+.card-title {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Card descriptions - EXACT Figma typography */
+.card-description {
+    align-self: stretch;
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 12px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ===== MINI SCOREBOARDS (Frame 376, 362, 363) ===== */
+
+/* Frame 376 - Mini scoreboards container */
+.scoreboard-frame-376.mini-scoreboards {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6.269px;
+    width: 100%;
+    height: 100%;
+}
+
+/* Frame 362 & 363 - Individual mini scoreboard containers */
+.scoreboard-frame-362.mini-scoreboard-container,
+.scoreboard-frame-363.mini-scoreboard-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 5.224px;
+    width: 40px;
+}
+
+/* Frame 1 - Individual mini player cards */
+.mini-scoreboard-frame-1 {
+    display: flex;
+    height: 20.373px;
+    
+    padding: 2.09px 6.269px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2.09px;
+    border: 0.731px solid #000;
+    box-sizing: border-box;
+    flex: 1;
+}
+
+/* Mini player names - EXACT Figma typography */
+.mini-scoreboard-frame-1 .mini-player-name {
+    color: #000 !important;
+    text-align: center !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 5.224px !important;
+    font-style: normal !important;
+    font-weight: 510 !important;
+    line-height: normal !important;
+    font-variant: all-small-caps !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Mini player scores - EXACT Figma typography */
+.mini-scoreboard-frame-1 .mini-player-score {
+    color: #000 !important;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 8.358px !important;
+    font-style: normal !important;
+    font-weight: 1000 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Player X mini scoreboards styling */
+.player-x-mini .mini-player-score {
+    color: var(--player-x-color, #00C7BE) !important;
+}
+
+/* Player O mini scoreboards styling */
+.player-o-mini .mini-player-score {
+    color: var(--player-o-color, #5834db) !important;
 }
 
 /* ===== CLOSE BUTTON - REUSE EXISTING MODAL STYLING ===== */
@@ -1485,21 +1575,23 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Add a subtle click indicator */
+/* Add a subtle info icon indicator */
 .round-wins-scoreboard::after,
 .matches-won-scoreboard::after {
-    content: "👆";
+    content: "ⓘ";
     position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 10px;
+    top: 6px;
+    right: 6px;
+    font-size: 12px;
     opacity: 0;
     transition: opacity 0.2s ease;
+    color: #666;
+    font-weight: normal;
 }
 
 .round-wins-scoreboard:hover::after,
 .matches-won-scoreboard:hover::after {
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */

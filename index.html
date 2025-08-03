@@ -448,7 +448,7 @@
         <!-- SCOREBOARD Modal -->   
         <div id="scoreboard-modal" class="modal-backdrop scoreboard-modal">
             <div class="modal-container scoreboard-container">
-                <!-- Close button positioned absolutely within container -->
+                <!-- Frame 374: Close button positioned absolutely within container -->
                 <button class="modal-close-btn scoreboard-close-btn" data-modal="scoreboard">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
                         <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
@@ -457,42 +457,98 @@
                 </button>
                 
                 <div class="modal-content scoreboard-content">
-                    <!-- Modal title/header -->
-                    <div class="scoreboard-header">
-                        <h2 class="scoreboard-modal-title">Round Wins</h2>
+                    <!-- Frame 367: Modal title -->
+                    <div class="scoreboard-frame-367">
+                        <h2 class="scoreboard-modal-title">RESET SCORES?</h2>
                     </div>
                     
-                    <!-- Score explanation -->
-                    <div class="scoreboard-explanation">
-                        <p class="scoreboard-description">Each time a player gets 5 in a row, they win a round. Track your wins here!</p>
+                    <!-- Frame 373: Subtitle -->
+                    <div class="scoreboard-frame-373 subtitle-section">
+                        <p class="scoreboard-subtitle">THIS WILL RESET ALL SCORES TO ZERO</p>
                     </div>
                     
-                    <!-- Current scores display -->
-                    <div class="current-scores-section">
-                        <h3 class="current-scores-title">Current Scores</h3>
-                        <div class="current-scores">
-                            <div class="score-display">
-                                <span class="player-label">Player X:</span> 
-                                <span class="score-value player-x-score">0</span>
+                    <!-- Frame 372: NO, CANCEL button -->
+                    <div class="scoreboard-frame-372 cancel-button-section">
+                        <button class="scoreboard-button cancel-button" data-action="cancel">NO, CANCEL</button>
+                    </div>
+                    
+                    <!-- Frame 375: YES, RESET button -->
+                    <div class="scoreboard-frame-375 reset-button-section">
+                        <button class="scoreboard-button reset-button" data-action="reset-all">YES, RESET</button>
+                    </div>
+                    
+                    <!-- Frame 378: ABOUT SCORING section -->
+                    <div class="scoreboard-frame-378 about-scoring-section">
+                        <h3 class="about-scoring-title">ABOUT SCORING</h3>
+                        
+                        <!-- Card 1: Round Wins -->
+                        <div class="scoreboard-frame-373 scoring-card round-wins-card">
+                            <div class="card-icon-area">
+                                <img src="images/five-in-a-row_row_img.svg" alt="Round Wins" class="card-icon">
                             </div>
-                            <div class="score-display">
-                                <span class="player-label">Player O:</span> 
-                                <span class="score-value player-o-score">0</span>
+                            <div class="card-content">
+                                <h4 class="card-title">ROUND WINS</h4>
+                                <p class="card-description">Each time you win a single game by getting 5 in a row.</p>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Action buttons -->
-                    <div class="scoreboard-actions">
-                        <button class="scoreboard-action-btn reset-round-btn" data-action="reset-round">
-                            Reset Round Wins
-                        </button>
-                        <button class="scoreboard-action-btn reset-match-btn" data-action="reset-match">
-                            Reset Match Wins
-                        </button>
-                        <button class="scoreboard-action-btn reset-all-btn danger" data-action="reset-all">
-                            Reset All Scores
-                        </button>
+                        
+                        <!-- Card 2: Match Victory -->
+                        <div class="scoreboard-frame-373 scoring-card match-victory-card">
+                            <div class="card-icon-area">
+                                <!-- Frame 376: Mini scoreboards container -->
+                                <div class="scoreboard-frame-376 mini-scoreboards">
+                                    <!-- Frame 362: Top scoreboard -->
+                                    <div class="scoreboard-frame-362 mini-scoreboard-container">
+                                        <div class="mini-scoreboard-frame-1 player-x-mini">
+                                            <div class="mini-player-name">Player X</div>
+                                            <div class="mini-player-score">9</div>
+                                        </div>
+                                        
+                                    </div>
+                                    <!-- Frame 363: Bottom scoreboard (same structure) -->
+                                    <div class="scoreboard-frame-363 mini-scoreboard-container">
+                                       
+                                        <div class="mini-scoreboard-frame-1 player-o-mini">
+                                            <div class="mini-player-name">Player O</div>
+                                            <div class="mini-player-score">1</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <h4 class="card-title">MATCH VICTORY</h4>
+                                <p class="card-description">First player to reach 8 round wins AND have at least 2 more wins than their opponent.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Card 3: Matches Won -->
+                        <div class="scoreboard-frame-373 scoring-card matches-won-card">
+                            <div class="card-icon-area">
+                                <!-- Frame 376: Mini scoreboards container -->
+                                <div class="scoreboard-frame-376 mini-scoreboards">
+                                    <!-- Frame 362: Top scoreboard -->
+                                    <div class="scoreboard-frame-362 mini-scoreboard-container">
+                                        <div class="mini-scoreboard-frame-1 player-x-mini">
+                                            <div class="mini-player-name">Player X</div>
+                                            <div class="mini-player-score">12</div>
+                                        </div>
+                                        
+                                    </div>
+                                    <!-- Frame 363: Bottom scoreboard (same structure) -->
+                                    <div class="scoreboard-frame-363 mini-scoreboard-container">
+                                        
+                                        <div class="mini-scoreboard-frame-1 player-o-mini">
+                                            <div class="mini-player-name">Player O</div>
+                                            <div class="mini-player-score">22</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <h4 class="card-title">MATCHES WON</h4>
+                                <p class="card-description">Overall match victories - the ultimate measure of success.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
