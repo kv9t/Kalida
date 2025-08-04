@@ -260,10 +260,7 @@ class TutorialModal {
     
     this.hide();
     
-    // Optional: Show a welcome message
-    if (this.gameUI && typeof this.gameUI.showMessage === 'function') {
-        this.gameUI.showMessage('Welcome to Kalida! Enjoy playing!', 'success');
-    }
+
 }
     
     /**

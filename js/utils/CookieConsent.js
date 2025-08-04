@@ -287,11 +287,11 @@ class CookieConsent {
             .cookie-consent-container {
                 /* Override default modal container with compact specs */
                 width: 369px !important;
-                height: 480px !important;
+                height: auto !important; /* Auto height instead of fixed 480px */
+                max-height: 80vh !important; /*  Reasonable max height */
+                min-height: 300px !important; /*  Reasonable minimum */
                 max-width: 369px !important;
-                max-height: 480px !important;
                 min-width: 369px !important;
-                min-height: 480px !important;
                 
                 /* Figma container styles - match tutorial modal */
                 padding: 24px 0px !important;
@@ -313,12 +313,13 @@ class CookieConsent {
             /* Cookie consent modal content - remove default padding */
             .cookie-consent-modal .modal-content {
                 padding: 0 !important;
-                overflow: hidden;
+                overflow-y: auto;
                 height: 100%;
                 width: 100%;
                 display: flex;
                 flex-direction: column;
                 position: relative;
+                max-height: calc(80vh - 48px); 
             }
             
             /* ===== HEADER SECTION ===== */
@@ -407,16 +408,16 @@ class CookieConsent {
             /* ===== CONTENT SECTION ===== */
             
             .cookie-content-section {
+                min-height: 300px;
                 padding: 16px 12px 50px 12px; /* Reduced bottom padding for compact nav */
                 flex: 1;
-                
                 display: flex;
                 flex-direction: column;
                 gap: 12px; /* Reduced gap for more compact layout */
                 align-items: center;
             }
             
-            /* Main description - like tutorial explanation */
+            /* Main description */
             .cookie-description {
                 width: 100%;
                 max-width: 300px;
@@ -471,7 +472,7 @@ class CookieConsent {
             .cookie-detail-item {
                 color: #000 !important;
                 font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
-                font-size: 11px !important;
+                font-size: 12px !important;
                 font-style: normal !important;
                 font-weight: 400 !important;
                 line-height: 1.3 !important;
@@ -647,16 +648,16 @@ class CookieConsent {
             
             @media (max-width: 400px) {
                 .cookie-consent-container {
-                    width: 95% !important;
-                    height: 85vh !important;
-                    min-width: auto !important;
-                    min-height: auto !important;
-                    max-width: 95% !important;
-                    max-height: 85vh !important;
-                }
+                width: 95% !important;
+                height: auto !important; 
+                min-width: auto !important;
+                min-height: 250px !important; /*  Smaller minimum for mobile */
+                max-width: 95% !important;
+                max-height: 75vh !important; /*  Better mobile max height */
+            }
                 
                 .cookie-frame-373 {
-                    padding: 30px 12px 0px 12px;
+                    padding: 20px 12px 0px 12px;
                 }
                 
                 .cookie-consent-title {
@@ -675,17 +676,24 @@ class CookieConsent {
                 .cookie-icon {
                     font-size: 36px;
                 }
+
+                /* Ensure nav section stays at bottom */
+                .cookie-nav-section {
+                    position: relative !important; /* Allow it to flow naturally on mobile */
+                    margin-top: auto !important; /* Push to bottom */
+                }
+
             }
             
             /* Ensure exact dimensions on larger screens */
             @media (min-width: 401px) {
                 .cookie-consent-container {
                     width: 369px !important;
-                    height: 480px !important;
+                    height: auto !important; /*  Auto height instead of fixed */
+                    max-height: 80vh !important; /* Reasonable max height */
+                    min-height: 300px !important; /* Reasonable minimum */
                     max-width: 369px !important;
-                    max-height: 480px !important;
                     min-width: 369px !important;
-                    min-height: 480px !important;
                 }
             }
             

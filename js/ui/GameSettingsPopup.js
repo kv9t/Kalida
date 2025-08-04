@@ -182,7 +182,7 @@ class GameSettingsPopup {
                                 <img src="images/basic-board-example.svg" alt="Basic Mode" class="mode-icon">
                                 <div class="frame-375 mode-details">
                                     <h4 class="mode-title">Basic</h4>
-                                    <p class="mode-description">Standard 5-in-a-row rules. Get 5 pieces in a straight line to win.</p>
+                                    <p class="mode-description">Get 5 pieces in a straight line to win.</p>
                                 </div>
                             </button>
                             
@@ -191,7 +191,7 @@ class GameSettingsPopup {
                                 <img src="images/bounce-board-example.svg" alt="Bounce Mode" class="mode-icon">
                                 <div class="frame-375 mode-details">
                                     <h4 class="mode-title">Bounce</h4>
-                                    <p class="mode-description">Basic rules + diagonal lines can bounce off board edges to form winning patterns.</p>
+                                    <p class="mode-description">Basic rules + diagonal lines can bounce off board edges to win.</p>
                                 </div>
                             </button>
                             
@@ -200,7 +200,7 @@ class GameSettingsPopup {
                                 <img src="images/diagonal-wrap-board-example.svg" alt="Diagonal Wrap Mode" class="mode-icon">
                                 <div class="frame-375 mode-details">
                                     <h4 class="mode-title">Diagonal Wrap</h4>
-                                    <p class="mode-description">Basic rules + board wraps around edges. Lines can continue from one side to the other.</p>
+                                    <p class="mode-description">Basic rules + diagonal lines can continue from one side to the other.</p>
                                 </div>
                             </button>
                             
@@ -209,7 +209,7 @@ class GameSettingsPopup {
                                 <img src="images/all-board-example.svg" alt="All Rules Mode" class="mode-icon">
                                 <div class="frame-375 mode-details">
                                     <h4 class="mode-title">All</h4>
-                                    <p class="mode-description">All rules enabled: bounce patterns, wrapping, and advanced winning conditions.</p>
+                                    <p class="mode-description">All rules enabled: basic, bounce, and wrapping.</p>
                                 </div>
                             </button>
                         </div>
