@@ -4,6 +4,10 @@
  * Performs heuristic evaluation of board positions for minimax algorithm,
  * considering win potential, threat development, and strategic positions.
  */
+
+import ThreatDetector from '../utils/ThreatDetector.js';
+import WinTrackGenerator from '../utils/WinTrackGenerator.js';
+
 class BoardEvaluator {
     /**
      * Create a new board evaluator
@@ -280,3 +284,5 @@ class BoardEvaluator {
         return emptyCells * (gameProgressFactor < 0.5 ? 1 : -1);
     }
 }
+
+export default BoardEvaluator;

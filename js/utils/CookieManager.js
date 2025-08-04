@@ -263,3 +263,5 @@ class CookieManager {
         }
     }
 }
+
+export default CookieManager;

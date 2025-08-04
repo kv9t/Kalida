@@ -4,6 +4,14 @@
  * This strategy combines minimax, pattern recognition, and advanced
  * heuristics to create an extremely challenging AI opponent.
  */
+
+
+import BoardEvaluator from '../evaluation/BoardEvaluator.js';
+import ThreatDetector from '../utils/ThreatDetector.js';
+import WinTrackGenerator from '../utils/WinTrackGenerator.js';
+import BouncePatternDetector from './modules/BouncePatternDetector.js';
+import MinimaxSearch from './modules/MinimaxSearch.js';
+import OpeningBook from './modules/OpeningBook.js';
 class ImpossibleStrategy {
     /**
      * Create a new impossible strategy
@@ -46,6 +54,7 @@ class ImpossibleStrategy {
      * @param {string} player - Current player ('X' or 'O')
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {Object} - The selected move { row, col }
      */
     getMove(board, player, bounceRuleEnabled = true, missingTeethRuleEnabled = true, wrapRuleEnabled = true) {
@@ -72,10 +81,9 @@ class ImpossibleStrategy {
                 return blockingMove;
             }
             
-            // NEW STEP: Check for critical opponent threats (like 3-in-a-row with open ends)
             // 2.5. Third priority: Check for opponent's forced win threats
             const opponentThreats = this.threatDetector.detectThreats(
-                board, opponent, bounceRuleEnabled, missingTeethRuleEnabled
+                board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
             );
             
             // Filter for critical threats - forced wins (3 in a row with open ends) and high priority threats
@@ -109,7 +117,6 @@ class ImpossibleStrategy {
             }
             
             // 4. Special pattern detection using win tracks for 4-in-a-row and double bounces
-            // This helps catch patterns the minimax might miss at lower depths
             const specialPatternMove = this.findSpecialPatternMove(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
             if (specialPatternMove) {
                 console.log("Found special pattern move");
@@ -141,8 +148,7 @@ class ImpossibleStrategy {
                 }
             }
             
-            // As another layer of defense, check for any opponent threats with medium priority
-            // This helps catch threats that might have been scored lower but are still dangerous
+            // Check for medium priority opponent threats
             if (opponentThreats.length > 0) {
                 const mediumThreats = opponentThreats.filter(threat => 
                     threat.priority >= 40 && threat.type !== 'block'
@@ -169,7 +175,7 @@ class ImpossibleStrategy {
             const searchDepth = this.determineSearchDepth(board);
             
             // 7. Run optimized minimax search with iterative deepening
-            const timeLimit = 1000; // 1 second max for thinking (reduced from 1.5s)
+            const timeLimit = 1000; // 1 second max for thinking
             const startTime = Date.now();
             
             // Try iterative deepening to find the best move within time constraints
@@ -178,8 +184,9 @@ class ImpossibleStrategy {
             
             while (currentDepth <= searchDepth) {
                 console.log(`Running minimax at depth ${currentDepth}...`);
+                // FIXED: Pass wrapRuleEnabled parameter
                 const move = this.minimaxSearch.findBestMove(
-                    board, player, currentDepth, bounceRuleEnabled, missingTeethRuleEnabled
+                    board, player, currentDepth, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
                 );
                 
                 if (move && typeof move.row === 'number' && typeof move.col === 'number') {
@@ -217,7 +224,7 @@ class ImpossibleStrategy {
             
             // 8. Fallback: Get all threat-based moves for AI player
             const threats = this.threatDetector.detectThreats(
-                board, player, bounceRuleEnabled, missingTeethRuleEnabled
+                board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
             );
             
             if (threats.length > 0) {
@@ -320,6 +327,7 @@ class ImpossibleStrategy {
      * @param {string} player - Player to find winning move for
      * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
      * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
      * @returns {Object|null} - Winning move or null if none found
      */
     findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled = true) {
@@ -365,7 +373,7 @@ class ImpossibleStrategy {
                     
                     // Verify this would actually be a win
                     const result = this.rules.checkWin(
-                        testBoard, emptyPos.row, emptyPos.col, bounceRuleEnabled, missingTeethRuleEnabled
+                        testBoard, emptyPos.row, emptyPos.col, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
                     );
                     
                     if (result.winner === player) {
@@ -379,7 +387,7 @@ class ImpossibleStrategy {
         
         // As a backup, check through threat detector
         const threats = this.threatDetector.detectThreats(
-            board, player, bounceRuleEnabled, missingTeethRuleEnabled
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
         
         const winningThreats = threats.filter(t => t.type === 'win');
@@ -392,7 +400,6 @@ class ImpossibleStrategy {
     
     /**
      * Find special pattern moves that might be missed by regular minimax
-     * This includes double bounce patterns and patterns with complex wrap/bounce combinations
      * @param {Array} board - Current board state
      * @param {string} player - Current player
      * @param {string} opponent - Opponent player
@@ -402,14 +409,6 @@ class ImpossibleStrategy {
      */
     findSpecialPatternMove(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled) {
         if (!bounceRuleEnabled) return null;
-        
-        // Look for special "wide-U" and "narrow-U" double bounce patterns
-        // These patterns can be missed by standard minimax search at lower depths
-        
-        // Key patterns to look for:
-        // 1. Two pieces diagonally with one bounce point between
-        // 2. Three pieces in a bounce configuration
-        // 3. Four pieces with one empty spot for a double bounce win
         
         // Look for player pieces near edges (where bounce patterns start)
         for (let row = 0; row < this.boardSize; row++) {
@@ -551,12 +550,7 @@ class ImpossibleStrategy {
      * @returns {Object} - Strategic move { row, col }
      */
     selectStrategicPosition(board, player) {
-        // Prioritize positions that:
-        // 1. Are empty
-        // 2. Are in the center region if available
-        // 3. Have good connectivity to existing pieces
-        // 4. Avoid getting boxed in
-        
+        // Rate each empty cell
         const emptyCells = [];
         const centerRegion = [
             [1, 1], [1, 2], [1, 3], [1, 4],
@@ -565,7 +559,6 @@ class ImpossibleStrategy {
             [4, 1], [4, 2], [4, 3], [4, 4]
         ];
         
-        // Rate each empty cell
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
                 if (board[row][col] === '') {
@@ -706,3 +699,5 @@ class ImpossibleStrategy {
         this.playerHistory[player].push({ row, col, move: this.moveCount });
     }
 }
+
+export default ImpossibleStrategy;

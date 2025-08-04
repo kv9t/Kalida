@@ -5,6 +5,9 @@
  * wrap, bounce) and special rules like missing teeth.
  * 
  */
+
+import BounceUtils from '../utils/BounceUtils.js';
+
 class Rules {
     /**
      * Create a new rules engine
@@ -719,3 +722,5 @@ class Rules {
         return null;
     }
 }
+
+export default Rules;

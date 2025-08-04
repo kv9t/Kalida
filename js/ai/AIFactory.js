@@ -4,6 +4,12 @@
  * Simplified factory that creates the single AI strategy used by Kalida.
  * The difficulty comes from rule complexity rather than AI intelligence levels.
  */
+import BoardEvaluator from './evaluation/BoardEvaluator.js';
+import ThreatDetector from './utils/ThreatDetector.js';
+import WinTrackGenerator from './utils/WinTrackGenerator.js';
+import AIPlayer from './AIPlayer.js';
+import ImpossibleStrategy from './strategies/ImpossibleStrategy.js';
+
 class AIFactory {
     /**
      * Create a new AI factory
@@ -35,3 +41,5 @@ class AIFactory {
         return ai;
     }
 }
+
+export default AIFactory;

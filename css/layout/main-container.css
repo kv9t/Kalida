@@ -1,0 +1,166 @@
+/* ===================================================================
+   MAIN CONTAINER LAYOUT - App structure and frame containers
+   All structural layout elements that define the app's visual hierarchy
+   =================================================================== */
+
+/* Primary app container */
+.main-container {
+    display: flex;
+    width: 393px;
+    height: 852px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    background: #FFF;
+    box-sizing: border-box;
+}
+
+/* Header container */
+.header {
+    display: flex;
+    width: 393px;
+    padding: 24px 24px 20px 24px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+}
+
+.header-divider {
+    width: 100%;
+    height: 1px;
+    background: #E6E6E6;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* Game description container */
+.game-description {
+    margin-top: var(--spacing-xl);
+    width: 95%;
+    max-width: 600px;
+    text-align: left;
+    background-color: #fff;
+    padding: var(--spacing-md);
+    border-radius: 5px;
+    box-shadow: var(--box-shadow);
+}
+
+/* Controls container */
+.controls {
+    margin-top: var(--spacing-lg);
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Game messages container */
+.game-messages {
+    margin: var(--spacing-sm) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 30px;
+}
+
+/* Game mode container */
+.game-mode {
+    margin-top: var(--spacing-md);
+}
+
+/* Game rules container */
+.game-rules {
+    margin-top: var(--spacing-md);
+}
+
+/* ===== FRAME CONTAINERS ===== */
+
+/* Outer Frame 354 - Container for game mode and rules selectors */
+.frame-354-container {
+    display: flex;
+    padding: 0px 12px 12px 12px;
+    align-items: flex-start;
+    gap: 13px;
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Frame 353 - Game Mode Selector (left side) */
+.frame-353 {
+    display: flex;
+    width: 136px;
+    height: 54px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Inner Frame 354 - Rules Selector (right side) */
+.frame-354-rules {
+    display: flex;
+    width: 221px;
+    height: 54px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Frame 366 - Playing Against Button Container */
+.frame-366 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.frame-366 img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Rules selector image */
+.frame-354-rules img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* Frame hover effects */
+.frame-353:hover {
+    background-color: #f9f9f9;
+}
+
+.frame-354-rules:hover {
+    background-color: #f9f9f9;
+}
+
+/* Frame 367 - Turn Indicator Container */
+.frame-367 {
+    display: flex;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Frame 372 - 'New Game' Button Container */
+.frame-372 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 12px;
+}

@@ -1,0 +1,91 @@
+/* ===================================================================
+   ABOUT & TUTORIAL BUTTONS COMPONENT - Frame 378 button container
+   Styling for the ABOUT and TUTORIAL buttons in the main view
+   UPDATED: Remove blue focus outline to match Figma design  
+   =================================================================== */
+
+/* Frame 378 - ABOUT and TUTORIAL buttons container */
+.frame-378 {
+    display: flex;
+    width: 393px;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+/* Base button styling for both ABOUT and TUTORIAL buttons */
+.about-btn,
+.tutorial-btn {
+    display: flex;
+    height: 40px;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: 26px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* Typography */
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-transform: uppercase;
+    
+    /* Remove default button styling and blue outline */
+    outline: none !important;
+    box-sizing: border-box;
+}
+
+/* Hover effects */
+.about-btn:hover,
+.tutorial-btn:hover {
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Active/pressed effects */
+.about-btn:active,
+.tutorial-btn:active {
+    background: #E8E8E8;
+    border-color: #C0C0C0;
+    transform: scale(0.98);
+    transition: all 0.1s ease;
+}
+
+/* Focus states - REMOVE BLUE OUTLINE */
+.about-btn:focus,
+.tutorial-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Disabled state (if needed in future) */
+.about-btn:disabled,
+.tutorial-btn:disabled {
+    background: #F5F5F5;
+    border-color: #E6E6E6;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    outline: none !important;
+}
+
+/* Individual button customizations (if needed in future) */
+.about-btn {
+    /* Specific styling for ABOUT button can go here */
+}
+
+.tutorial-btn {
+    /* Specific styling for TUTORIAL button can go here */
+}

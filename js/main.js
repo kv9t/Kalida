@@ -3,6 +3,11 @@
  * Updated to handle cookie consent and initialization
  */
 
+import Game from './core/Game.js';
+import GameUI from './ui/GameUI.js';
+import AIFactory from './ai/AIFactory.js';
+
+
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Kalida game starting...');
@@ -332,3 +337,4 @@ window.addEventListener('unhandledrejection', function(event) {
 });
 
 console.log('Kalida main.js loaded successfully');
+

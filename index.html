@@ -12,7 +12,6 @@
     <link rel="manifest" href="images/site.webmanifest">
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
 
-    <!-- Add this line to check if there's any CSS issue -->
     <style>
         /* Inline CSS as a fallback/test */
         .css-loaded-indicator {
@@ -32,211 +31,573 @@
         }
     </style>
 
-    <link rel="stylesheet" href="css/styles.css?v=1.0.1">
+    <!--<link rel="stylesheet" href="css/styles.css?v=1.0.1"> -->
+    <link rel="stylesheet" href="css/styles.css?v=1.0.2">
 </head>
+
 <body>
-    <div class="css-loaded-indicator">CSS Loaded</div> 
-    <h1 class="visually-hidden">Kalida</h1>
-    <div class="logo-container">
-        <img src="images/Kalida.png" alt="Kalida Game Logo" class="game-banner">
-    </div>
-    <div class="game-info">A game created by Koert Voorhees, brought to digital life by Kristen Voorhees</div>
-    
-    <div class="score-container">
-        <!-- Round scores -->
-        <div class="score-board">
-            <div class="score-header">Round Wins</div>
-            <div class="player-scores">
-                <div class="player-score-container player-x-container">
-                    <div class="player-name">Player X</div>
-                    <span id="score-x" class="player-score-value">0</span>
-                </div>
-                <div class="player-score-container player-o-container">
-                    <div class="player-name">Player O</div>
-                    <span id="score-o" class="player-score-value">0</span>
-                </div>
-            </div>
-            <button id="clear-scores-button">Reset</button>
-        </div>
-        
-        <!-- Match scores -->
-        <div class="score-board match-score-board">
-            <div class="score-header">Matches Won</div>
-            <div class="player-scores">
-                <div class="player-score-container player-x-container">
-                    <div class="player-name">Player X</div>
-                    <span id="match-score-x" class="player-score-value">0</span>
-                </div>
-                <div class="player-score-container player-o-container">
-                    <div class="player-name">Player O</div>
-                    <span id="match-score-o" class="player-score-value">0</span>
+    <div class="main-container">
+       
+        <header class="header">
+            <h1>KALIDA</h1>
+        </header>
+        <!-- <div class="header-divider"></div> -->
+      
+
+        <div class="frame-365">
+            <div class="round-wins-scoreboard">
+                <div class="scoreboard-title">ROUND WINS</div>
+                <div class="player-placards">
+                    <div class="player-placard player-x-placard">
+                        <div class="player-name">PLAYER X</div>
+                        <div class="player-score" id="score-x">0</div>
+                    </div>
+                    <div class="player-placard player-o-placard">
+                        <div class="player-name">PLAYER O</div>
+                        <div class="player-score" id="score-o">0</div>
+                    </div>
                 </div>
             </div>
-            <div class="match-rules">First to 8 (win by 2)</div>
-        </div>
-
-        
-    </div>
-    
-    <!-- New message container -->
-    <div class="message-container">
-        <div class="player-turn-section">
-            <div class="player-turn-indicator">Player X's Turn</div>
-        </div>
-        <div class="game-status-section">
-            <div id="match-status" class="match-status">First to 8 (win by 2)</div>
-            <div id="special-message" class="special-message"></div>
-        </div>
-    </div>
-
-    <!-- Game Board container -->
-    <div class="board" id="game-board"></div>
-    
-    <div class="controls">
-        <!-- Game control buttons -->
-        <div class="game-controls">
-            <button id="reset-button">New Game</button>
-            <button id="declare-draw-button">Declare Draw</button>
-        </div>
-        <div class="board-size-control">
-            <label for="board-size-slider">Board Size: </label>
-            <input type="range" id="board-size-slider" min="50" max="100" value="100" class="slider">
-            <span id="size-value">100%</span>
-        </div>
-        <div class="game-mode">
-            <label for="game-mode-select">Play Against: </label>
-            <select id="game-mode-select">
-                <option value="human" selected>Human vs Human</option>
-                <option value="level1">Level 1: Basic Rules</option>
-                <option value="level2">Level 2: + Bounce Rule</option>
-                <option value="level3">Level 3: + Wrap Rule</option>
-                <option value="level4">Level 4: All Rules</option>
-            </select>
-        </div>
-        
-        <div class="game-rules">
-            <label>Game Rules: </label>
-            <div class="checkbox-container">
-                <input type="checkbox" id="bounce-toggle" checked>
-                <label for="bounce-toggle">Bounce</label>
-                <div class="tooltip">When enabled, diagonals can also "bounce" off edges to form a winning line.</div>
-            </div>
-            <div class="checkbox-container">
-                <input type="checkbox" id="wrap-toggle" checked>
-                <label for="wrap-toggle">Wrap</label>
-                <div class="tooltip">When enabled, the board "wraps around" - left connects to right, top connects to bottom.</div>
-            </div>
-            <div class="checkbox-container">
-                <input type="checkbox" id="missing-teeth-toggle" checked>
-                <label for="missing-teeth-toggle">Missing Teeth</label>
-                <div class="tooltip">When enabled, players can't win with gaps in rows, columns, or main diagonals</div>
-            </div>
-            <div class="checkbox-container">
-                <input type="checkbox" id="knight-move-toggle" checked>
-                <label for="knight-move-toggle">Knight Move</label>
-                <div class="tooltip">When enabled, the first player's second move must follow the movement pattern of a knight in chess.</div>
+            
+            <div class="matches-won-scoreboard">
+                <div class="scoreboard-title">MATCHES WON</div>
+                <div class="player-placards">
+                    <div class="player-placard player-x-placard">
+                        <div class="player-name">PLAYER X</div>
+                        <div class="player-score" id="match-score-x">0</div>
+                    </div>
+                    <div class="player-placard player-o-placard">
+                        <div class="player-name">PLAYER O</div>
+                        <div class="player-score" id="match-score-o">0</div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="frame-367">
+            <div class="turn-indicator" id="turn-indicator">PLAYER X'S TURN</div>
+            <div class="game-status-section">
+                <div id="match-status" class="match-status">First to 8 (win by 2)</div>
+                <div id="special-message" class="special-message"></div>
+            </div>
+        </div>
+    
+        <div class="frame-369">
+            <div class="board" id="game-board"></div>
+        </div>
+
+        <div class="frame-372">
+            <button id="reset-button" class="new-game-btn">New Game</button>
+        </div>
+
+        <div class="frame-354-container">
+            <div class="frame-353 game-mode-selector">
+                
+                    <img id="game-mode-svg" src="images/Kalida_frame366_human-v-human-mode.svg" alt="Game Mode" />
+                
+            </div>
+            
+            <div class="frame-354-rules rules-selector">
+                <img id="rules-mode-svg" src="images/Mode=Basic.svg" alt="Rules Mode" />
+            </div>
+        </div>
+
+
+
+
+        <div class="frame-378">
+            <button class="about-btn" id="about-btn">ABOUT</button>
+            <button class="tutorial-btn" id="tutorial-btn">TUTORIAL</button>
+        </div>
+        
+        <!-- ABOUT Modal -->
+        <div id="about-modal" class="modal-backdrop about-modal">
+            <div class="modal-container about-container">
+                <!-- Close button positioned absolutely within container -->
+                <button class="modal-close-btn about-close-btn" data-modal="about">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                        <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                        <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                    </svg>
+                </button>
+                
+                <div class="modal-content about-content">
+                    <!-- Frame 367: Modal title/header -->
+                    <div class="about-frame-367">
+                        <h2 class="about-modal-title">About Kalida</h2>
+                    </div>
+                    
+                    <!-- Frame 373: Created by section -->
+                    <div class="about-frame-373 created-by-section">
+                        <h3 class="about-section-title">Created by</h3>
+                        
+                        <!-- Frame 373: Koert's card -->
+                        <div class="about-frame-373 creator-card koert-card">
+                            <img src="images/grandfather.svg" alt="Koert" class="creator-icon">
+                            <div class="creator-details">
+                                <h4 class="creator-name">Koert Voorhees</h4>
+                                <p class="creator-description">Game designer and strategist who created Kalida over 30 years ago. In 2025, at the age of 102, he worked with his granddaughter to bring the game online.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Frame 375: Kristen's card -->
+                        <div class="about-frame-375 creator-card kristen-card">
+                            <img src="images/woman-with-ponytail.svg" alt="Kristen" class="creator-icon">
+                            <div class="creator-details">
+                                <h4 class="creator-name">Kristen Voorhees</h4>
+                                <p class="creator-description">Developer and proud granddaughter.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Frame 374: History section -->
+                    <div class="about-frame-374 history-section">
+                        <h3 class="about-section-title">The history of Kalida</h3>
+                        
+                        <!-- Frame 373: History card -->
+                        <div class="about-frame-373 history-card">
+                            <img src="images/basic-board-example.svg" alt="History" class="history-icon">
+                            <div class="history-details">
+                                <h4 class="history-title">It all began with...</h4>
+                                <p class="history-description">Koert imagined the ancient Greeks playing tic-tac-toe on a marble column, and enjoyed the novelty of playing on a board with wrap-around-edges. Thus, Kalida (from the Greek words for "beautiful form(s)") was born. </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TUTORIAL Modal -->
+       <div id="tutorial-modal" class="modal-backdrop tutorial-modal">
+            <div class="modal-container tutorial-container">
+                <!-- Close button positioned absolutely within container -->
+                <button class="modal-close-btn tutorial-close-btn" data-modal="tutorial">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                        <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                        <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                    </svg>
+                </button>
+                
+                <div class="modal-content">
+                    <!-- Slide 1: Cover Page - EXACT Figma Structure -->
+                    <div class="tutorial-slide active cover" data-slide="0">
+                        <!-- Frame 367 - Spacer (19px height) -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373">
+                            <!-- Welcome to Kalida title -->
+                            <div class="tutorial-welcome-title">Welcome to<br/>Kalida</div>
+                            
+                            <!-- Game subtitle -->
+                            <div class="tutorial-game-subtitle">A GAME OF 5-IN-A-ROW STRATEGY</div>
+                            
+                            <!-- Board image container -->
+                            <div class="tutorial-board-image">
+                                <img src="images/tutorial_cover_board-img.svg" alt="Kalida game board" class="tutorial-board-svg">
+                            </div>
+                        </div>
+                        
+                        <!-- Frame 378 - Navigation button -->
+                        <div class="tutorial-nav cover">
+                            <button class="tutorial-nav-btn" data-action="start">Learn to play →</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 2: 5-in-a-row Tutorial - Simplified SVG Structure -->
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="1">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <!-- Title -->
+                            <div class="tutorial-content-title">5-in-a-row</div>
+                            
+                            <!-- Subtitle -->
+                            <div class="tutorial-content-subtitle">the most basic way to win</div>
+                            
+                            <!-- Visual examples container -->
+                            <div class="tutorial-examples">
+                                <!-- Example 1: Row -->
+                                <div class="tutorial-example">
+                                    <img src="images/five-in-a-row_row_img.svg" alt="Row win example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 2: Diagonal -->
+                                <div class="tutorial-example">
+                                    <img src="images/five-in-a-row_diag_img.svg" alt="Diagonal win example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 3: Column -->
+                                <div class="tutorial-example">
+                                    <img src="images/five-in-a-row_col_img.svg" alt="Column win example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                            </div>
+                            
+                            <!-- Explanation text -->
+                            <div class="tutorial-explanation">Place five of your markers in a row, column, or diagonal.</div>
+                        </div>
+                        
+                        <!-- Navigation section -->
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <!-- Next button -->
+                            <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="next">Next →</button>
+                            
+                            <!-- Progress dots -->
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 3: Bounce Tutorial -->
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="2">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <!-- Title -->
+                            <div class="tutorial-content-title">BOUNCE</div>
+                            
+                            <!-- Subtitle -->
+                            <div class="tutorial-content-subtitle">BOUNCING OFF THE WALLS</div>
+                            
+                            <!-- Visual examples container -->
+                            <div class="tutorial-examples">
+                                <!-- Example 1: Single Bounce -->
+                                <div class="tutorial-example">
+                                    <img src="images/bounce_single_img.svg" alt="Single bounce example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 2: Double Bounce Narrow -->
+                                <div class="tutorial-example">
+                                    <img src="images/bounce_double-narrow_img.svg" alt="Double bounce narrow example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 3: Double Bounce Wide -->
+                                <div class="tutorial-example">
+                                    <img src="images/bounce_double-wide_img.svg" alt="Double bounce wide example" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                            </div>
+                            
+                            <!-- Explanation text -->
+                            <div class="tutorial-explanation">Diagonal lines can "bounce" off board edges to form winning patterns. Up to two bounces are allowed per winning line.</div>
+                        </div>
+                        
+                        <!-- Navigation section -->
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <!-- Navigation buttons -->
+                            <div class="tutorial-nav-buttons">
+                                <button class="tutorial-nav-btn tutorial-content-btn" data-action="prev">← Back</button>
+                                <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="next">Next →</button>
+                            </div>
+                            
+                            <!-- Progress dots -->
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 4: Diagonal Wrap -->
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="3">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <!-- Title -->
+                            <div class="tutorial-content-title">DIAGONAL WRAP</div>
+                            
+                            <!-- Subtitle -->
+                            <div class="tutorial-content-subtitle">A real brain twister</div>
+                            
+                            <!-- Visual examples container -->
+                            <div class="tutorial-examples">
+                                <!-- Example 1 -->
+                                <div class="tutorial-example">
+                                    <img src="images/diag-wrap_four-and-two.svg" alt="Example 1" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 2 -->
+                                <div class="tutorial-example">
+                                    <img src="images/diag-wrap_great-diag.svg" alt="Example 2" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                
+                                <!-- Example 3 -->
+                                <div class="tutorial-example">
+                                    <img src="images/diag-wrap_four-and-two_dbl-wrap.svg" alt="Example 3" class="tutorial-board-example">
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                            </div>
+                            
+                            <!-- Explanation text -->
+                            <div class="tutorial-explanation">Diagonal lines can “wrap around” the board - left connects to right, top connects to bottom. Up to two wraps allowed per winning line.</div>
+                        </div>
+                        
+                        <!-- Navigation section -->
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <!-- Navigation buttons -->
+                            <div class="tutorial-nav-buttons">
+                                <button class="tutorial-nav-btn tutorial-content-btn" data-action="prev">← Back</button>
+                                <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="next">Next →</button>
+                            </div>
+                            
+                            <!-- Progress dots -->
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 5: Final Slide -->
+                    <div class="tutorial-slide tutorial-scoring-slide" data-slide="4">
+                        <!-- Frame 367 - Spacer -->
+                        <div class="tutorial-frame-367"></div>
+                        
+                        <!-- Frame 373 - Main content container -->
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <!-- Title -->
+                            <div class="tutorial-content-title">SCORING</div>
+                            
+                            <!-- Subtitle -->
+                            <div class="tutorial-content-subtitle">for the win</div>
+                            
+                            <!-- Scoring sections container -->
+                            <div class="tutorial-scoring-sections">
+                                <!-- Round wins section -->
+                                <div class="tutorial-scoreboard">
+                                    <div class="scoreboard-label">Round wins</div>
+                                    <div class="scoreboard-players">
+                                        <div class="mini-player-card">
+                                            <div class="mini-player-name">Player X</div>
+                                            <div class="mini-player-score">7</div>
+                                        </div>
+                                        <div class="mini-player-card">
+                                            <div class="mini-player-name">Player O</div>
+                                            <div class="mini-player-score">5</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- First explanation -->
+                                <div class="tutorial-explanation">You win a single round by getting 5 in a row.</div>
+                                
+                                <!-- Match wins section -->
+                                <div class="tutorial-scoreboard">
+                                    <div class="scoreboard-label">match wins</div>
+                                    <div class="scoreboard-players">
+                                        <div class="mini-player-card">
+                                            <div class="mini-player-name">Player X</div>
+                                            <div class="mini-player-score">13</div>
+                                        </div>
+                                        <div class="mini-player-card">
+                                            <div class="mini-player-name">Player O</div>
+                                            <div class="mini-player-score">17</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Second explanation -->
+                                <div class="tutorial-explanation">First to reach 8 round wins AND have at least 2 more wins than their opponent wins the match.</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Navigation section -->
+                        <div class="tutorial-nav-section tutorial-scoring-nav">
+                            <!-- Navigation buttons -->
+                            <div class="tutorial-nav-buttons">
+                                <button class="tutorial-nav-btn tutorial-content-btn" data-action="prev">← Back</button>
+                                <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="finish">Let's Play!</button>
+                            </div>
+                            
+                            <!-- Progress dots -->
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot active"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- SCOREBOARD Modal -->   
+        <div id="scoreboard-modal" class="modal-backdrop scoreboard-modal">
+            <div class="modal-container scoreboard-container">
+                <!-- Frame 374: Close button positioned absolutely within container -->
+                <button class="modal-close-btn scoreboard-close-btn" data-modal="scoreboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                        <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                        <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                    </svg>
+                </button>
+                
+                <div class="modal-content scoreboard-content">
+                    <!-- Frame 367: Modal title -->
+                    <div class="scoreboard-frame-367">
+                        <h2 class="scoreboard-modal-title">RESET SCORES?</h2>
+                    </div>
+                    
+                    <!-- Frame 373: Subtitle -->
+                    <div class="scoreboard-frame-373 subtitle-section">
+                        <p class="scoreboard-subtitle">THIS WILL RESET ALL SCORES TO ZERO</p>
+                    </div>
+                    
+                    <!-- Frame 372: NO, CANCEL button -->
+                    <div class="scoreboard-frame-372 cancel-button-section">
+                        <button class="scoreboard-button cancel-button" data-action="cancel">NO, CANCEL</button>
+                    </div>
+                    
+                    <!-- Frame 375: YES, RESET button -->
+                    <div class="scoreboard-frame-375 reset-button-section">
+                        <button class="scoreboard-button reset-button" data-action="reset-all">YES, RESET</button>
+                    </div>
+                    
+                    <!-- Frame 378: ABOUT SCORING section -->
+                    <div class="scoreboard-frame-378 about-scoring-section">
+                        <h3 class="about-scoring-title">ABOUT SCORING</h3>
+                        
+                        <!-- Card 1: Round Wins -->
+                        <div class="scoreboard-frame-373 scoring-card round-wins-card">
+                            <div class="card-icon-area">
+                                <img src="images/five-in-a-row_row_img.svg" alt="Round Wins" class="card-icon">
+                            </div>
+                            <div class="card-content">
+                                <h4 class="card-title">ROUND WINS</h4>
+                                <p class="card-description">Each time you win a single game by getting 5 in a row.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Card 2: Match Victory -->
+                        <div class="scoreboard-frame-373 scoring-card match-victory-card">
+                            <div class="card-icon-area">
+                                <!-- Frame 376: Mini scoreboards container -->
+                                <div class="scoreboard-frame-376 mini-scoreboards">
+                                    <!-- Frame 362: Top scoreboard -->
+                                    <div class="scoreboard-frame-362 mini-scoreboard-container">
+                                        <div class="mini-scoreboard-frame-1 player-x-mini">
+                                            <div class="mini-player-name">Player X</div>
+                                            <div class="mini-player-score">9</div>
+                                        </div>
+                                        
+                                    </div>
+                                    <!-- Frame 363: Bottom scoreboard (same structure) -->
+                                    <div class="scoreboard-frame-363 mini-scoreboard-container">
+                                       
+                                        <div class="mini-scoreboard-frame-1 player-o-mini">
+                                            <div class="mini-player-name">Player O</div>
+                                            <div class="mini-player-score">1</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <h4 class="card-title">MATCH VICTORY</h4>
+                                <p class="card-description">First player to reach 8 round wins AND have at least 2 more wins than their opponent.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Card 3: Matches Won -->
+                        <div class="scoreboard-frame-373 scoring-card matches-won-card">
+                            <div class="card-icon-area">
+                                <!-- Frame 376: Mini scoreboards container -->
+                                <div class="scoreboard-frame-376 mini-scoreboards">
+                                    <!-- Frame 362: Top scoreboard -->
+                                    <div class="scoreboard-frame-362 mini-scoreboard-container">
+                                        <div class="mini-scoreboard-frame-1 player-x-mini">
+                                            <div class="mini-player-name">Player X</div>
+                                            <div class="mini-player-score">12</div>
+                                        </div>
+                                        
+                                    </div>
+                                    <!-- Frame 363: Bottom scoreboard (same structure) -->
+                                    <div class="scoreboard-frame-363 mini-scoreboard-container">
+                                        
+                                        <div class="mini-scoreboard-frame-1 player-o-mini">
+                                            <div class="mini-player-name">Player O</div>
+                                            <div class="mini-player-score">22</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <h4 class="card-title">MATCHES WON</h4>
+                                <p class="card-description">Overall match victories - the ultimate measure of success.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <!--<div class="controls">
+            <div class="game-mode">
+                <label for="game-mode-select">Play Against: </label>
+                <select id="game-mode-select">
+                    <option value="human" selected>Human vs Human</option>
+                    <option value="level1">Level 1: Basic Rules</option>
+                    <option value="level2">Level 2: + Bounce Rule</option>
+                    <option value="level3">Level 3: + Wrap Rule</option>
+                    <option value="level4">Level 4: All Rules</option>
+                </select>
+            </div>
+            
+            <div class="game-rules">
+                <label>Game Rules: </label>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="bounce-toggle" checked>
+                    <label for="bounce-toggle">Bounce</label>
+                    <div class="tooltip">When enabled, diagonals can also "bounce" off edges to form a winning line.</div>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="wrap-toggle" checked>
+                    <label for="wrap-toggle">Wrap</label>
+                    <div class="tooltip">When enabled, the board "wraps around" - left connects to right, top connects to bottom.</div>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="missing-teeth-toggle" checked>
+                    <label for="missing-teeth-toggle">Missing Teeth</label>
+                    <div class="tooltip">When enabled, players can't win with gaps in rows, columns, or main diagonals</div>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="knight-move-toggle" checked>
+                    <label for="knight-move-toggle">Knight Move</label>
+                    <div class="tooltip">When enabled, the first player's second move must follow the movement pattern of a knight in chess.</div>
+                </div>
+            </div>
+        </div>
+    -->
     </div>
     
-    <div class="game-description">
-        <h3>How to Play:</h3>
-        <p>Kalida is a game of strategy, played on a 6x6 grid. Players take turns placing their markers (X or O) on the board.</p>
-        <p><strong>Goal:</strong> Be the first to place five of your markers in a row, column, or diagonal.</p>
-        
-        <p><strong>Game Controls:</strong></p>
-        <ul>
-            <li><strong>New Game:</strong> Start a fresh game, resetting the board</li>
-            <li><strong>Declare Draw:</strong> End the current game as a draw (available during active games)</li>
-            <li><strong>Reset Scores:</strong> Clear all round and match scores (with advanced options if cookies enabled)</li>
-        </ul>
-        
-        <p><strong>Game Modes:</strong></p>
-        <ul>
-            <li><strong>Human vs Human:</strong> Two players take turns with full rule customization</li>
-            <li><strong>Level 1 (Basic Rules):</strong> AI opponent with fundamental rules only</li>
-            <li><strong>Level 2 (+ Bounce Rule):</strong> AI opponent with bounce mechanics enabled</li>
-            <li><strong>Level 3 (+ Wrap Rule):</strong> AI opponent with wrap-around mechanics enabled</li>
-            <li><strong>Level 4 (All Rules):</strong> AI opponent with all advanced rules enabled</li>
-        </ul>
-        
-        <p><strong>Special Rules (Toggleable):</strong></p>
-        <ul>
-            <li><strong>Wrap Rule:</strong> The board "wraps around" at the edges - left connects to right, top connects to bottom. This allows winning lines to continue from one edge to the opposite edge.</li>
-            <li><strong>Bounce Rule:</strong> Diagonal lines can "bounce" off board edges to form winning patterns. A bounced diagonal changes direction but continues the line. Up to two bounces are allowed per winning line.</li>
-            <li><strong>Missing Teeth Rule:</strong> When enabled, winning lines cannot have gaps in straight rows, columns, or main diagonals. Wrap-around lines and "great diagonals" (corner-to-corner) are exempt from this rule.</li>
-            <li><strong>Knight Move Rule:</strong> When enabled, Player X's second move must follow a chess knight's movement pattern (L-shaped: 2 squares in one direction, then 1 square perpendicular). Valid moves are highlighted with ♘.</li>
-        </ul>
-        
-        <p><strong>Scoring System:</strong></p>
-        <ul>
-            <li><strong>Round Wins:</strong> Each time you win a single game by getting 5 in a row</li>
-            <li><strong>Match Victory:</strong> First player to reach 8 round wins AND have at least 2 more wins than their opponent</li>
-            <li><strong>Matches Won:</strong> Overall match victories - the ultimate measure of success</li>
-            <li><strong>Example:</strong> If the score reaches 8-7, play continues until someone achieves a 2-point lead (like 9-7) or the trailing player catches up</li>
-        </ul>
-        
-        <p><strong>Data Persistence:</strong></p>
-        <ul>
-            <li><strong>Cookie Storage:</strong> With your consent, Kalida can remember your game preferences, scores, and progress between sessions</li>
-            <li><strong>What's Saved:</strong> Game mode preferences, scoreboard data, rule settings, and tutorial completion status</li>
-            <li><strong>Privacy:</strong> All data stays on your device and is never sent to any servers</li>
-            <li><strong>Control:</strong> You can clear all saved data anytime using the Reset button's advanced options</li>
-        </ul>
-        
-        <p><strong>Visual Cues:</strong></p>
-        <ul>
-            <li><strong>Last Move:</strong> Highlighted with a colored border</li>
-            <li><strong>Winning Pattern:</strong> Animated golden highlighting shows the winning line</li>
-            <li><strong>Knight Moves:</strong> Valid positions marked with ♘ when required</li>
-            <li><strong>AI Thinking:</strong> Board overlay indicates when computer is planning</li>
-            <li><strong>Bounce Points:</strong> Special highlighting shows where diagonals bounce off edges</li>
-        </ul>
-        
-        <p><strong>Strategy Tips:</strong></p>
-        <ul>
-            <li>Control the center - it offers the most winning opportunities</li>
-            <li>Watch for opponent threats and block them when necessary</li>
-            <li>When wrap is enabled, edge positions become more valuable</li>
-            <li>With bounce enabled, look for complex diagonal patterns</li>
-            <li>Try to create multiple threats simultaneously to force wins</li>
-        </ul>
-        
-        <p>Have fun mastering the unique mechanics of Kalida!</p>
-    </div>
-
-    <!-- Core game files (load first) -->
-    <script src="js/core/Board.js"></script>
-    <script src="js/core/Rules.js"></script>
-    <script src="js/core/Game.js"></script>
-    
-    <!-- Utility files -->
-    <script src="js/utils/BounceUtils.js"></script>
-    <script src="js/utils/CookieManager.js"></script>
-    <script src="js/utils/CookieConsent.js"></script>
-    
-    <!-- AI Base and Components -->
-    <script src="js/ai/AIPlayer.js"></script>
-    <script src="js/ai/utils/WinTrackGenerator.js"></script>
-    <script src="js/ai/utils/ThreatDetector.js"></script>
-    <script src="js/ai/evaluation/BoardEvaluator.js"></script>
-
-    <!-- AI Strategy Modules -->
-    <script src="js/ai/strategies/modules/BouncePatternDetector.js"></script>
-    <script src="js/ai/strategies/modules/MinimaxSearch.js"></script>
-    <script src="js/ai/strategies/modules/OpeningBook.js"></script>
-
-    <!-- AI Strategy (only the one we use) -->
-    <script src="js/ai/strategies/ImpossibleStrategy.js"></script>
-
-    <!-- AI Factory -->
-    <script src="js/ai/AIFactory.js"></script>
-    
-    <!-- UI Components -->
-    <script src="js/ui/BoardUI.js"></script>
-    <script src="js/ui/GameUI.js"></script>
-    
-    <!-- Main entry point -->
-    <script src="js/main.js"></script>
+    <!-- ONLY load the main entry point as a module -->
+    <!-- The ES6 import system will handle loading all dependencies -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

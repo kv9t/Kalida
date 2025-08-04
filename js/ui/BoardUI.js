@@ -6,6 +6,9 @@
  * moves, and showing winning patterns
  * 
  */
+import PlayerMarkerRenderer from './PlayerMarkerRenderer.js';
+
+
 class BoardUI {
     /**
      * Create a new board UI
@@ -21,6 +24,15 @@ class BoardUI {
         this.validKnightMoves = []; // Track valid knight moves
         this.isKnightMoveRequired = false; // Flag to track if knight move is required
         
+        // Initialize the marker renderer
+        this.markerRenderer = new PlayerMarkerRenderer({
+            size: 24,
+            strokeWidth: 1.5,
+            enableHoverEffect: true,
+            enableAppearAnimation: true
+        });
+
+
         if (!this.gameBoard) {
             console.error(`Board element with ID "${boardElementId}" not found`);
             return;
@@ -87,6 +99,7 @@ class BoardUI {
      * Update the board UI based on the current state
      * @param {Array} boardState - 2D array representing the current board state
      */
+
     updateBoard(boardState) {
         // Batch DOM updates for better performance
         const updates = [];
@@ -98,7 +111,10 @@ class BoardUI {
                 const cellValue = boardState[row][col];
                 
                 // Only update if the content has changed
-                if (cell && cell.textContent !== cellValue) {
+                const currentValue = cell.classList.contains('marker-x') ? 'X' : 
+                                   cell.classList.contains('marker-o') ? 'O' : '';
+                
+                if (cell && currentValue !== cellValue) {
                     updates.push({ cell, value: cellValue, row, col });
                 }
             }
@@ -106,13 +122,12 @@ class BoardUI {
         
         // Apply all updates at once
         if (updates.length > 0) {
-            // Use requestAnimationFrame for smoother updates
             requestAnimationFrame(() => {
                 updates.forEach(update => {
-                    // Update text content
-                    update.cell.textContent = update.value;
+                    // NEW: Use the marker renderer instead of manual text/HTML
+                    this.markerRenderer.renderMarker(update.cell, update.value);
                     
-                    // Update classes
+                    // Update player classes (for styling compatibility)
                     update.cell.classList.remove('player-x', 'player-o');
                     if (update.value === 'X') {
                         update.cell.classList.add('player-x');
@@ -120,8 +135,7 @@ class BoardUI {
                         update.cell.classList.add('player-o');
                     }
                     
-                    // IMPORTANT: Remove any invalid-move or valid-knight-move
-                    // classes when a cell becomes occupied
+                    // Remove invalid-move classes when cell becomes occupied
                     if (update.value !== '') {
                         update.cell.classList.remove('invalid-move', 'valid-knight-move');
                     }
@@ -129,17 +143,93 @@ class BoardUI {
                 
                 // Re-apply knight move indicators if active
                 if (this.isKnightMoveRequired) {
-                    // Only highlight the remaining valid knight moves
                     const remainingValidMoves = this.validKnightMoves.filter(move => {
                         const index = move.row * this.boardSize + move.col;
                         const cell = this.cells[index];
-                        return cell && cell.textContent === '';
+                        return cell && !cell.classList.contains('has-marker');
                     });
                     
                     this.highlightValidKnightMoves(remainingValidMoves);
                 }
             });
         }
+
+        // Update hover states after board update
+        this.updateCellHoverStates();
+        
+        // Re-apply knight move indicators if active
+        if (this.isKnightMoveRequired) {
+            const remainingValidMoves = this.validKnightMoves.filter(move => {
+                const index = move.row * this.boardSize + move.col;
+                const cell = this.cells[index];
+                return cell && !cell.classList.contains('has-marker');
+            });
+            
+            this.highlightValidKnightMoves(remainingValidMoves);
+        }
+
+    }
+
+    /**
+     * Update cell hover states based on current game state
+     * Call this whenever the board state changes
+     */
+    updateCellHoverStates() {
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                const index = row * this.boardSize + col;
+                const cell = this.cells[index];
+                
+                if (cell) {
+                    // Remove all hover-related classes first
+                    cell.classList.remove('valid-hover', 'invalid-hover');
+                    
+                    // If cell has a marker, it should not have hover effects
+                    const hasMarker = cell.classList.contains('has-marker') || 
+                                    cell.classList.contains('marker-x') || 
+                                    cell.classList.contains('marker-o');
+                    
+                    if (hasMarker) {
+                        // Cell has marker - no hover effects needed
+                        // The CSS will handle this with .has-marker
+                        continue;
+                    }
+                    
+                    // If cell is marked as invalid move, it should not have normal hover
+                    if (cell.classList.contains('invalid-move')) {
+                        // CSS will handle this with .invalid-move:hover
+                        continue;
+                    }
+                    
+                    // Cell is empty and valid - normal hover will apply via CSS
+                    // No additional classes needed
+                }
+            }
+        }
+    }
+
+
+    // Method to customize marker appearance
+    updateMarkerStyle(options) {
+        this.markerRenderer.updateConfig(options);
+        // Re-render all existing markers with new style
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                const index = row * this.boardSize + col;
+                const cell = this.cells[index];
+                
+                if (cell.classList.contains('marker-x')) {
+                    this.markerRenderer.renderMarker(cell, 'X');
+                } else if (cell.classList.contains('marker-o')) {
+                    this.markerRenderer.renderMarker(cell, 'O');
+                }
+            }
+        }
+    }
+    
+    // NEW: Method to get marker preview for other UI elements
+    getMarkerPreview(player, size = 16) {
+        return this.markerRenderer.createMarkerPreview(player, size);
     }
     
     /**
@@ -202,7 +292,7 @@ class BoardUI {
     setKnightMoveRequired(required, validMoves = []) {
         console.log('Setting knight move required:', required, validMoves);
         
-        // Important: Always clear previous highlighting first
+        // Always clear previous highlighting first
         this.clearKnightMoveHighlight();
         
         // Set the flag
@@ -212,6 +302,10 @@ class BoardUI {
         if (required) {
             this.highlightValidKnightMoves(validMoves);
         }
+
+        // Update hover states to reflect the new knight move requirements
+        this.updateCellHoverStates();    
+
     }
     
     /**
@@ -330,6 +424,9 @@ class BoardUI {
         
         this.isKnightMoveRequired = false;
         this.gameBoard.classList.remove('knight-move-required');
+        
+        // Update hover states after clearing highlights
+        this.updateCellHoverStates();
     }
     
     /**
@@ -385,3 +482,5 @@ class BoardUI {
         this.gameBoard.classList.add(`player-turn-${player.toLowerCase()}`);
     }
 }
+
+export default BoardUI;

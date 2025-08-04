@@ -1,11 +1,19 @@
 /**
  * GameUI.js - UI components and events for Kalida
- * Updated with cookie integration for persistent preferences
+ * Updated with UIAssetManager integration for persistent preferences
  * 
  * Handles all UI components and user interactions, 
  * connecting DOM elements to game functionality
  * 
  */
+
+import UIAssetManager from './UIAssetManager.js';
+import BoardUI from './BoardUI.js';
+import GameSettingsPopup from './GameSettingsPopup.js';
+import AboutModal from './AboutModal.js'; // Import AboutModal
+import TutorialModal from './TutorialModal.js'; // Import TutorialModal
+import ScoreboardModal from './ScoreboardModal.js'; // Import ScoreboardModal
+
 
 class GameUI {
     /**
@@ -16,6 +24,17 @@ class GameUI {
         this.game = game;
         this.boardUI = null;
         
+        // Initialize UI Asset Manager
+        this.assetManager = new UIAssetManager();
+        
+        // Initialize Game Settings Popup
+        this.settingsPopup = new GameSettingsPopup(this.game, this);
+
+        // Initialize modal components
+        this.aboutModal = new AboutModal(this.game, this);
+        this.tutorialModal = new TutorialModal(this.game, this);
+        this.scoreboardModal = new ScoreboardModal(this.game, this); 
+
         // Store references to DOM elements
         this.elements = {
             playerTurn: null,
@@ -31,9 +50,9 @@ class GameUI {
             bounceToggle: null,
             wrapToggle: null,
             missingTeethToggle: null,
-            boardSizeSlider: null,
-            sizeValueDisplay: null,
-            knightMoveToggle: null
+            knightMoveToggle: null,
+            aboutButton: null,
+            tutorialButton: null
         };
         
         // Track rule toggle states when they're disabled for AI mode
@@ -44,7 +63,7 @@ class GameUI {
             knightMove: true
         };
         
-        // NEW: Track if we've applied saved preferences yet
+        // Track if we've applied saved preferences yet
         this.hasAppliedSavedPreferences = false;
         
         // Initialize the UI
@@ -73,7 +92,11 @@ class GameUI {
             this.elements.boardSizeSlider = document.getElementById('board-size-slider');
             this.elements.sizeValueDisplay = document.getElementById('size-value');
             this.elements.knightMoveToggle = document.getElementById('knight-move-toggle');
+            this.elements.aboutButton = document.getElementById('about-btn');
+            this.elements.tutorialButton = document.getElementById('tutorial-btn');
             
+
+
             // Create board UI if not already created
             if (!this.boardUI) {
                 this.boardUI = new BoardUI(
@@ -88,7 +111,15 @@ class GameUI {
             
             // Register game event handlers
             this.registerGameEvents();
-            
+
+            // Initialize the settings popup
+            this.settingsPopup.initialize();
+
+            // Initialize modal components
+            this.aboutModal.initialize();
+            this.tutorialModal.initialize();
+            this.scoreboardModal.initialize();
+
             // Initialize the UI with current game state
             this.updateAll();
             
@@ -98,6 +129,80 @@ class GameUI {
         }
     }
     
+    /**
+     * Show tutorial modal programmatically
+     */
+    showTutorial() {
+        if (this.tutorialModal) {
+            this.tutorialModal.show();
+        }
+    }
+
+     /**
+     * Method to show about modal programmatically
+     */
+    showAbout() {
+        if (this.aboutModal) {
+            this.aboutModal.show();
+        }
+    }
+
+    // ===== SCOREBOARD MODAL =====
+    /**
+     * Show scoreboard modal programmatically
+     * @param {string} scoreboardType - 'round' or 'match'
+     */
+    showScoreboardModal(scoreboardType = 'round') {
+        if (this.scoreboardModal) {
+            this.scoreboardModal.show(scoreboardType);
+        }
+    }
+
+    /**
+     * Method to show scoreboard modal for round wins
+     */
+    showRoundScoreboard() {
+        this.showScoreboardModal('round');
+    }
+
+    /**
+     * Method to show scoreboard modal for match wins  
+     */
+    showMatchScoreboard() {
+        this.showScoreboardModal('match');
+    }
+
+
+    /**
+     * Check if any modal is currently open
+     * Useful for preventing certain game actions when modals are open
+     */
+    isModalOpen() {
+        return (this.aboutModal && this.aboutModal.isOpen) || 
+               (this.tutorialModal && this.tutorialModal.isOpen) ||
+               (this.settingsPopup && this.settingsPopup.isOpen) ||
+               (this.scoreboardModal && this.scoreboardModal.isOpen); // NEW: Include scoreboard modal
+    }
+    
+    /**
+     * Updated cleanup method to include new modals
+     */
+    cleanup() {
+        if (this.aboutModal) {
+            this.aboutModal.cleanup();
+        }
+        
+        if (this.tutorialModal) {
+            this.tutorialModal.cleanup();
+        }
+        
+        if (this.scoreboardModal) { // NEW: Cleanup scoreboard modal
+            this.scoreboardModal.cleanup();
+        }
+        
+        console.log('GameUI cleanup complete (including modals)');
+    }
+
     /**
      * Apply saved preferences from cookies to UI elements
      */
@@ -118,6 +223,9 @@ class GameUI {
                 console.log('Setting UI game mode to:', this.game.gameMode);
                 this.elements.gameModeSelect.value = this.game.gameMode;
                 
+                // NEW: Update game mode SVG
+                this.assetManager.updateGameModeSVG(this.game.gameMode);
+                
                 // Trigger the UI update for rule toggles based on the actual game mode
                 this.handleGameModeChange(this.game.gameMode, this.game.gameMode !== 'human');
             }
@@ -134,6 +242,18 @@ class GameUI {
             }
             if (this.elements.knightMoveToggle) {
                 this.elements.knightMoveToggle.checked = this.game.knightMoveRuleEnabled;
+            }
+            
+            // NEW: Update rules SVG based on current game mode
+            if (this.game.gameMode !== 'human') {
+                this.assetManager.updateRulesForGameMode(this.game.gameMode);
+            } else {
+                // For human mode, determine based on current rules
+                this.assetManager.updateRulesForSettings({
+                    bounceRuleEnabled: this.game.bounceRuleEnabled,
+                    wrapRuleEnabled: this.game.wrapRuleEnabled,
+                    missingTeethRuleEnabled: this.game.missingTeethRuleEnabled
+                });
             }
             
             console.log('Applied current game state to UI:', {
@@ -231,11 +351,15 @@ class GameUI {
             });
         }
         
+        /* COMMENTED OUT - Game mode selected now handled by popup
         // Game mode select
         if (this.elements.gameModeSelect) {
             this.elements.gameModeSelect.addEventListener('change', (e) => {
                 const selectedMode = e.target.value;
                 const isAIMode = selectedMode !== 'human';
+                
+                // NEW: Update game mode SVG
+                this.assetManager.updateGameModeSVG(selectedMode);
                 
                 // Handle rule toggle states based on mode
                 this.handleGameModeChange(selectedMode, isAIMode);
@@ -246,7 +370,8 @@ class GameUI {
                 }
             });
         }
-        
+        */
+
         // Bounce rule toggle
         if (this.elements.bounceToggle) {
             this.elements.bounceToggle.addEventListener('change', () => {
@@ -255,6 +380,13 @@ class GameUI {
                     if (typeof this.game.setBounceRule === 'function') {
                         this.game.setBounceRule(this.elements.bounceToggle.checked);
                         this.game.resetGame();
+                        
+                        // NEW: Update rules SVG for human mode
+                        this.assetManager.updateRulesForSettings({
+                            bounceRuleEnabled: this.elements.bounceToggle.checked,
+                            wrapRuleEnabled: this.elements.wrapToggle.checked,
+                            missingTeethRuleEnabled: this.elements.missingTeethToggle.checked
+                        });
                     }
                 } else {
                     // Save the state even if disabled
@@ -271,6 +403,13 @@ class GameUI {
                     if (typeof this.game.setWrapRule === 'function') {
                         this.game.setWrapRule(this.elements.wrapToggle.checked);
                         this.game.resetGame();
+                        
+                        // NEW: Update rules SVG for human mode
+                        this.assetManager.updateRulesForSettings({
+                            bounceRuleEnabled: this.elements.bounceToggle.checked,
+                            wrapRuleEnabled: this.elements.wrapToggle.checked,
+                            missingTeethRuleEnabled: this.elements.missingTeethToggle.checked
+                        });
                     }
                 } else {
                     // Save the state even if disabled
@@ -287,6 +426,13 @@ class GameUI {
                     if (typeof this.game.setMissingTeethRule === 'function') {
                         this.game.setMissingTeethRule(this.elements.missingTeethToggle.checked);
                         this.game.resetGame();
+                        
+                        // NEW: Update rules SVG for human mode
+                        this.assetManager.updateRulesForSettings({
+                            bounceRuleEnabled: this.elements.bounceToggle.checked,
+                            wrapRuleEnabled: this.elements.wrapToggle.checked,
+                            missingTeethRuleEnabled: this.elements.missingTeethToggle.checked
+                        });
                     }
                 } else {
                     // Save the state even if disabled
@@ -318,6 +464,47 @@ class GameUI {
         }
 
     }
+
+    /**
+     * NEW: Method to refresh the UI after popup changes
+     * This is called by the popup when settings are changed
+     */
+    refreshAfterSettingsChange() {
+        console.log('Refreshing UI after settings change');
+        
+        // Update the asset manager
+        this.assetManager.updateGameModeSVG(this.game.gameMode);
+        
+        // Update rule display based on current mode
+        if (this.game.gameMode !== 'human') {
+            this.assetManager.updateRulesForGameMode(this.game.gameMode);
+        } else {
+            this.assetManager.updateRulesForSettings({
+                bounceRuleEnabled: this.game.bounceRuleEnabled,
+                wrapRuleEnabled: this.game.wrapRuleEnabled,
+                missingTeethRuleEnabled: this.game.missingTeethRuleEnabled
+            });
+        }
+        
+        // Update all UI elements
+        this.updateAll();
+        
+        // Apply current game state to any existing controls
+        this.applySavedPreferences();
+    }
+    
+    /**
+     * Clean up resources when the UI is destroyed
+     */
+    destroy() {
+        // NEW: Clean up the settings popup
+        if (this.settingsPopup) {
+            this.settingsPopup.destroy();
+        }
+        
+        // Clean up other resources...
+        console.log('GameUI destroyed');
+    }
     
     /**
      * Show advanced clear options for users with cookies enabled
@@ -347,6 +534,8 @@ class GameUI {
         }
     }
     
+
+
     /**
      * Handle game mode changes and rule toggle states
      * @param {string} selectedMode - The selected game mode
@@ -372,6 +561,9 @@ class GameUI {
             // Set rule toggles based on difficulty level
             this.setRuleTogglesForLevel(selectedMode);
             
+            // NEW: Update rules SVG for AI mode
+            this.assetManager.updateRulesForGameMode(selectedMode);
+            
             // Add visual indication that these are controlled by level
             this.addLevelControlIndicator();
             
@@ -389,6 +581,13 @@ class GameUI {
                 this.elements.missingTeethToggle.disabled = false;
                 this.elements.missingTeethToggle.checked = this.savedRuleStates.missingTeeth;
             }
+            
+            // NEW: Update rules SVG for human mode
+            this.assetManager.updateRulesForSettings({
+                bounceRuleEnabled: this.savedRuleStates.bounce,
+                wrapRuleEnabled: this.savedRuleStates.wrap,
+                missingTeethRuleEnabled: this.savedRuleStates.missingTeeth
+            });
             
             // Remove level control indicator
             this.removeLevelControlIndicator();
@@ -535,6 +734,11 @@ class GameUI {
             console.log('Game reset event received', data);
             
             if (this.boardUI) {
+                // IMPORTANT: Remove the game-over class to re-enable hover effects
+                if (this.boardUI.gameBoard) {
+                    this.boardUI.gameBoard.classList.remove('game-over');
+                }
+                
                 // Make sure to clear all highlighting on reset
                 if (typeof this.boardUI.clearHighlights === 'function') {
                     this.boardUI.clearHighlights();
@@ -545,6 +749,10 @@ class GameUI {
                 }
             }
             
+            // NEW: Update turn indicator using asset manager
+            this.assetManager.updateTurnIndicator(data.currentPlayer, 'playing');
+            
+            // Keep existing legacy support
             if (this.elements.playerTurn) {
                 this.elements.playerTurn.textContent = `Player ${data.currentPlayer}'s Turn`;
             }
@@ -616,7 +824,14 @@ class GameUI {
                 this.boardUI.gameBoard.classList.add('game-over');
             }
             
-            // Update player turn display to show game result instead of whose turn it is
+            // NEW: Update turn indicator using asset manager
+            if (data.type === 'win') {
+                this.assetManager.updateTurnIndicator(data.winner, 'win');
+            } else if (data.type === 'draw') {
+                this.assetManager.updateTurnIndicator(null, 'draw');
+            }
+            
+            // Keep existing legacy support
             const playerTurnElement = document.querySelector('.player-turn-indicator');
             if (playerTurnElement) {
                 if (data.type === 'win') {
@@ -645,6 +860,10 @@ class GameUI {
         this.game.on('turnChange', (data) => {
             console.log('Turn change event received', data);
             
+            // NEW: Update turn indicator using asset manager
+            this.assetManager.updateTurnIndicator(data.currentPlayer, 'playing');
+            
+            // Keep existing legacy support
             const playerTurnElement = document.querySelector('.player-turn-indicator');
             const specialMessageElement = document.getElementById('special-message');
             
@@ -680,6 +899,9 @@ class GameUI {
         
         // Match won event
         this.game.on('matchWon', (data) => {
+            // NEW: Update turn indicator for match completion
+            this.assetManager.updateTurnIndicator(data.winner, 'match_complete');
+            
             // Show prominent victory message
             this.showMatchVictory(data.winner);
             
@@ -920,6 +1142,11 @@ class GameUI {
                 currentPlayer = this.game.getCurrentPlayer();
             }
             
+            // NEW: Update turn indicator using asset manager if not knight move required
+            if (!isKnightMoveRequired) {
+                this.assetManager.updateTurnIndicator(currentPlayer, gameActive ? 'playing' : 'game_over');
+            }
+            
             // Update player turn display if knight move not required
             if (this.elements.playerTurn && !isKnightMoveRequired) {
                 if (gameActive) {
@@ -989,3 +1216,4 @@ class GameUI {
         }
     }
 }
+export default GameUI;

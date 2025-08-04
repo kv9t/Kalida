@@ -3,7 +3,10 @@
  * 
  * Displays a modal asking for user consent to store cookies
  * for game preferences and progress.
+ * UPDATED: Match Figma design system used in Tutorial Modal
  */
+import CookieManager from './CookieManager.js';
+
 class CookieConsent {
     constructor(cookieManager) {
         this.cookieManager = cookieManager;
@@ -59,7 +62,7 @@ class CookieConsent {
     }
     
     /**
-     * Create the modal HTML structure
+     * Create the modal HTML structure - UPDATED to match Figma design
      */
     createModal() {
         try {
@@ -67,41 +70,66 @@ class CookieConsent {
             
             // Create modal backdrop
             this.modal = document.createElement('div');
-            this.modal.className = 'cookie-consent-modal';
+            this.modal.className = 'modal-backdrop cookie-consent-modal';
             this.modal.innerHTML = `
-                <div class="cookie-consent-backdrop">
-                    <div class="cookie-consent-content">
-                        <div class="cookie-consent-header">
-                            <h3>🍪 Cookie Preferences</h3>
+                <div class="modal-container cookie-consent-container">
+                    <!-- Close button positioned absolutely within container -->
+                    <button class="modal-close-btn cookie-close-btn" data-action="decline">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                            <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                            <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="modal-content cookie-consent-content">
+                        <!-- Header Section -->
+                        <div class="cookie-header-section">
+                            <!-- Frame 367 - Spacer -->
+                            <div class="cookie-frame-367"></div>
+                            
+                            <!-- Frame 373 - Main content container -->
+                            <div class="cookie-frame-373">
+                                <!-- Title -->
+                                <div class="cookie-consent-title">Cookies</div>
+                                
+                                <!-- Subtitle -->
+                                <div class="cookie-consent-subtitle">Help us improve your experience</div>
+                                
+                                <!-- Cookie Icon -->
+                                
+                            </div>
                         </div>
                         
-                        <div class="cookie-consent-body">
-                            <p>
-                                Kalida would like to store small data files (cookies) to remember your preferences and game progress.
-                            </p>
-                            
-                            <div class="cookie-details">
-                                <h4>What we'll remember:</h4>
-                                <ul>
-                                    <li>🎮 Your preferred game mode (Level 1, Level 2, etc.)</li>
-                                    <li>🏆 Your scoreboard (rounds won and matches won)</li>
-                                    <li>📚 Whether you've completed the tutorial</li>
-                                    <li>⚙️ Your rule preferences for Human vs Human games</li>
-                                </ul>
+                        <!-- Content Section -->
+                        <div class="cookie-content-section">
+                            <!-- Main description -->
+                            <div class="cookie-description">
+                                Kalida would like to store small data files to </br> remember your preferences and game progress.
                             </div>
                             
-                            <div class="cookie-privacy">
-                                <p><strong>Privacy Note:</strong> This data stays on your device and is never sent to any servers. You can clear it anytime in your browser settings.</p>
+                            <!-- What we remember section -->
+                            <div class="cookie-details-section">
+                                <div class="cookie-details-title">What we'll remember:</div>
+                                <div class="cookie-details-list">
+                                    <div class="cookie-detail-item">- Your preferred game mode</div>
+                                    <div class="cookie-detail-item">- Your scoreboard progress</div>
+                                    <div class="cookie-detail-item">- Tutorial completion status</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Privacy note -->
+                            <div class="cookie-privacy-note">
+                                <strong>Privacy:</strong> This data stays on your device and is never sent to servers. You can clear it anytime in your browser settings.
                             </div>
                         </div>
                         
-                        <div class="cookie-consent-footer">
-                            <button class="cookie-btn cookie-btn-decline" data-action="decline">
-                                No Thanks
-                            </button>
-                            <button class="cookie-btn cookie-btn-accept" data-action="accept">
-                                Accept & Continue
-                            </button>
+                        <!-- Navigation Section - Fixed at bottom -->
+                        <div class="cookie-nav-section">
+                            <!-- Navigation buttons -->
+                            <div class="cookie-nav-buttons">
+                                <button class="cookie-nav-btn cookie-decline-btn" data-action="decline">No Thanks</button>
+                                <button class="cookie-nav-btn cookie-accept-btn" data-action="accept">Accept & Continue</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -128,7 +156,7 @@ class CookieConsent {
      * Handle clicks within the modal
      */
     handleModalClick(event) {
-        const action = event.target.getAttribute('data-action');
+        const action = event.target.closest('[data-action]')?.getAttribute('data-action');
         
         if (action === 'accept') {
             this.handleConsent(true);
@@ -174,7 +202,11 @@ class CookieConsent {
         
         // Trigger animation after a small delay to ensure CSS is applied
         setTimeout(() => {
-            this.modal.classList.add('cookie-consent-show');
+            this.modal.classList.add('show');
+            const container = this.modal.querySelector('.modal-container');
+            if (container) {
+                container.classList.add('show');
+            }
         }, 10);
         
         // Prevent page scrolling while modal is open
@@ -188,8 +220,11 @@ class CookieConsent {
         if (!this.modal) return;
         
         // Start hide animation
-        this.modal.classList.remove('cookie-consent-show');
-        this.modal.classList.add('cookie-consent-hide');
+        this.modal.classList.remove('show');
+        const container = this.modal.querySelector('.modal-container');
+        if (container) {
+            container.classList.remove('show');
+        }
         
         // Remove from DOM after animation
         setTimeout(() => {
@@ -207,10 +242,10 @@ class CookieConsent {
      * Show a brief message when user declines cookies
      */
     showDeclinedMessage() {
-        // Create a temporary message
+        // Create a temporary message using the same styling as game messages
         const message = document.createElement('div');
         message.className = 'cookie-declined-message';
-        message.textContent = 'No problem! Your preferences won\'t be saved, but you can still enjoy playing Kalida.';
+        message.textContent = 'No problem! Your preferences won\'t be saved, but you can still enjoy Kalida.';
         
         // Add to page
         document.body.appendChild(message);
@@ -230,7 +265,7 @@ class CookieConsent {
     }
     
     /**
-     * Add CSS styles for the modal
+     * Add CSS styles for the modal - UPDATED to match Figma design system
      */
     addModalStyles() {
         // Check if styles already added
@@ -241,148 +276,347 @@ class CookieConsent {
         const style = document.createElement('style');
         style.id = 'cookie-consent-styles';
         style.textContent = `
+            /* ===== COOKIE CONSENT MODAL - FIGMA DESIGN SYSTEM ===== */
+            
+            /* Use existing modal backdrop from modals.css */
             .cookie-consent-modal {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: 10000;
-                display: none;
-                opacity: 0;
-                transition: opacity 0.3s ease;
+                z-index: 10001; /* Higher than tutorial modal */
             }
             
-            .cookie-consent-modal.cookie-consent-show {
-                opacity: 1;
-            }
-            
-            .cookie-consent-modal.cookie-consent-hide {
-                opacity: 0;
-            }
-            
-            .cookie-consent-backdrop {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.6);
+            /* Cookie consent container - COMPACT dimensions */
+            .cookie-consent-container {
+                /* Override default modal container with compact specs */
+                width: 369px !important;
+                height: 480px !important;
+                max-width: 369px !important;
+                max-height: 480px !important;
+                min-width: 369px !important;
+                min-height: 480px !important;
+                
+                /* Figma container styles - match tutorial modal */
+                padding: 24px 0px !important;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                border-radius: 8px;
+                border: 1.4px solid #999;
+                background: #FFF;
+                box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+                
+                /* Layout */
                 display: flex;
-                justify-content: center;
+                box-sizing: border-box;
+                overflow: hidden;
+                position: relative;
+            }
+            
+            /* Cookie consent modal content - remove default padding */
+            .cookie-consent-modal .modal-content {
+                padding: 0 !important;
+                overflow: hidden;
+                height: 100%;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+            }
+            
+            /* ===== HEADER SECTION ===== */
+            
+            .cookie-header-section {
+                justify-content: flex-start;
+                align-items: stretch;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* Frame 367 - Spacer (Figma specs) */
+            .cookie-frame-367 {
+                display: flex;
+                height: 19px;
+                padding: 0px 12px;
+                align-items: flex-start;
+                gap: 12px;
+                flex-shrink: 0;
+                align-self: stretch;
+            }
+            
+            /* Frame 373 - Main content container (Figma specs) - REDUCED TOP PADDING */
+            .cookie-frame-373 {
+                display: flex;
+                padding: 10px 12px 0px 12px;
+                flex-direction: column;
                 align-items: center;
-                padding: 20px;
+                gap: 16px;
+                align-self: stretch;
+                flex: 0 0 auto; /* Don't flex grow for header */
                 box-sizing: border-box;
             }
             
-            .cookie-consent-content {
-                background: white;
-                border-radius: 12px;
-                max-width: 500px;
-                width: 100%;
-                max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-                transform: scale(0.9);
-                transition: transform 0.3s ease;
+            /* Cookie consent title - EXACT Figma typography like tutorial */
+            .cookie-consent-title {
+                color: #000 !important;
+                text-align: center !important;
+                font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+                font-size: 32px !important;
+                font-style: normal !important;
+                font-weight: 1000 !important;
+                line-height: normal !important;
+                text-transform: uppercase !important;
+                word-wrap: break-word;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block;
             }
             
-            .cookie-consent-show .cookie-consent-content {
-                transform: scale(1);
+            /* Cookie consent subtitle - EXACT Figma typography like tutorial */
+            .cookie-consent-subtitle {
+                color: #000 !important;
+                font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+                font-size: 16px !important;
+                font-style: normal !important;
+                font-weight: 510 !important;
+                line-height: normal !important;
+                font-variant: all-small-caps !important;
+                word-wrap: break-word;
+                margin: 0 !important;
+                padding: 0 !important;
+                text-align: center !important;
+                display: block;
             }
             
-            .cookie-consent-header {
-                padding: 20px 20px 10px 20px;
-                border-bottom: 1px solid #eee;
-            }
-            
-            .cookie-consent-header h3 {
-                margin: 0;
-                font-size: 1.3em;
-                color: #333;
-                text-align: left;
-            }
-            
-            .cookie-consent-body {
-                padding: 20px;
-                color: #555;
-                line-height: 1.5;
-                text-align: left;
-            }
-            
-            .cookie-consent-body p {
-                margin: 0 0 15px 0;
-            }
-            
-            .cookie-details {
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 8px;
-                margin: 15px 0;
-            }
-            
-            .cookie-details h4 {
-                margin: 0 0 10px 0;
-                color: #333;
-                font-size: 1em;
-            }
-            
-            .cookie-details ul {
-                margin: 0;
-                padding-left: 20px;
-            }
-            
-            .cookie-details li {
-                margin: 5px 0;
-            }
-            
-            .cookie-privacy {
-                background: #e8f4fd;
-                padding: 10px;
-                border-radius: 6px;
-                border-left: 4px solid #3498db;
-                margin-top: 15px;
-            }
-            
-            .cookie-privacy p {
-                margin: 0;
-                font-size: 0.9em;
-            }
-            
-            .cookie-consent-footer {
-                padding: 15px 20px 20px 20px;
+            /* Cookie icon container - like tutorial board image */
+            .cookie-icon-container {
+                width: 80px;
+                height: 80px;
                 display: flex;
-                gap: 10px;
-                justify-content: flex-end;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                background: #FAFAFA;
+                border-radius: 50%;
+                border: 1px solid #E6E6E6;
             }
             
-            .cookie-btn {
-                padding: 10px 20px;
-                border: none;
-                border-radius: 6px;
-                font-size: 14px;
+            /* Cookie icon */
+            .cookie-icon {
+                font-size: 48px;
+                line-height: 1;
+            }
+            
+            /* ===== CONTENT SECTION ===== */
+            
+            .cookie-content-section {
+                padding: 16px 12px 50px 12px; /* Reduced bottom padding for compact nav */
+                flex: 1;
+                
+                display: flex;
+                flex-direction: column;
+                gap: 12px; /* Reduced gap for more compact layout */
+                align-items: center;
+            }
+            
+            /* Main description - like tutorial explanation */
+            .cookie-description {
+                width: 100%;
+                max-width: 300px;
+                color: #000 !important;
+                text-align: center !important;
+                font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+                font-size: 12px !important;
+                font-style: normal !important;
+                font-weight: 510 !important;
+                line-height: 16px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block;
+            }
+            
+            /* Details section */
+            .cookie-details-section {
+                width: 100%;
+                max-width: 300px;
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid #E6E6E6;
+                background: #FAFAFA;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+            
+            /* Details title */
+            .cookie-details-title {
+                color: #000 !important;
+                font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+                font-size: 12px !important;
+                font-style: normal !important;
+                font-weight: 510 !important;
+                line-height: normal !important;
+                font-variant: all-small-caps !important;
+                margin: 0 !important;
+                text-align: left !important;
+            }
+            
+            /* Details list */
+            .cookie-details-list {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                width: 100%;
+            }
+            
+            /* Individual detail item */
+            .cookie-detail-item {
+                color: #000 !important;
+                font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+                font-size: 11px !important;
+                font-style: normal !important;
+                font-weight: 400 !important;
+                line-height: 1.3 !important;
+                margin: 0 !important;
+                text-align: left !important;
+            }
+            
+            /* Privacy note */
+            .cookie-privacy-note {
+                width: 100%;
+                max-width: 300px;
+                padding: 8px;
+                border-radius: 4px;
+                background: #E8F4FD;
+                border-left: 3px solid #3498DB;
+                color: #000 !important;
+                font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+                font-size: 11px !important;
+                font-style: normal !important;
+                font-weight: 400 !important;
+                line-height: 1.3 !important;
+                margin: 0 !important;
+                text-align: left !important;
+            }
+            
+            /* ===== NAVIGATION SECTION - FIXED AT BOTTOM ===== */
+            
+            .cookie-nav-section {
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                display: flex !important;
+                padding: 12px 12px !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 12px !important;
+                background: #FFF !important;
+                border-top: 1px solid #E6E6E6 !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* Navigation buttons container */
+            .cookie-nav-buttons {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            /* Cookie navigation buttons - EXACT Figma specifications like tutorial */
+            .cookie-nav-btn {
+                display: flex !important;
+                height: 40px !important;
+                padding: 8px !important;
+                justify-content: center !important;
+                align-items: center !important;
+                gap: 10px !important;
+                flex: 1 0 0 !important;
+                border-radius: 26px !important;
+                border: 1px solid #E6E6E6 !important;
+                
+                /* EXACT Figma button typography */
+                color: #000 !important;
+                font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+                font-size: 14px !important;
+                font-style: normal !important;
+                font-weight: 700 !important;
+                line-height: normal !important;
+                text-transform: uppercase !important;
+                
                 cursor: pointer;
-                transition: background-color 0.2s ease;
-                font-weight: 500;
+                outline: none !important;
+                transition: background-color 0.2s ease, border-color 0.2s ease;
+                box-sizing: border-box;
+                white-space: nowrap;
             }
             
-            .cookie-btn-decline {
-                background-color: #95a5a6;
-                color: white;
+            /* Decline button gets white background */
+            .cookie-decline-btn {
+                background: #FFF !important;
             }
             
-            .cookie-btn-decline:hover {
-                background-color: #7f8c8d;
+            /* Accept button gets light gray background */
+            .cookie-accept-btn {
+                background: #FAFAFA !important;
             }
             
-            .cookie-btn-accept {
-                background-color: #3498db;
-                color: white;
+            /* Button hover states */
+            .cookie-nav-btn:hover {
+                background: #F0F0F0 !important;
+                border-color: #D0D0D0 !important;
             }
             
-            .cookie-btn-accept:hover {
-                background-color: #2980b9;
+            /* Remove all focus outlines */
+            .cookie-nav-btn:focus {
+                outline: none !important;
+                box-shadow: none !important;
             }
+            
+            /* Button active state */
+            .cookie-nav-btn:active {
+                background: #E8E8E8 !important;
+                border-color: #C0C0C0 !important;
+            }
+            
+            /* ===== CLOSE BUTTON - FIGMA SPECS ===== */
+            
+            .cookie-close-btn {
+                width: 30px !important;
+                height: 30px !important;
+                padding: 8px !important;
+                border-radius: 26px !important;
+                position: absolute !important;
+                right: 12px !important;
+                top: 18.5px !important;
+                border: none !important;
+                background: none !important;
+                cursor: pointer !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                transition: background-color 0.2s ease !important;
+                z-index: 10 !important;
+                outline: none !important;
+            }
+            
+            .cookie-close-btn:hover {
+                background: #f0f0f0 !important;
+            }
+            
+            .cookie-close-btn:focus {
+                outline: none !important;
+                box-shadow: none !important;
+            }
+            
+            .cookie-close-btn svg {
+                width: 13px !important;
+                height: 13px !important;
+                flex-shrink: 0 !important;
+            }
+            
+            /* ===== DECLINED MESSAGE - MATCH GAME MESSAGE STYLING ===== */
             
             .cookie-declined-message {
                 position: fixed;
@@ -391,14 +625,17 @@ class CookieConsent {
                 transform: translateX(-50%) translateY(100px);
                 background: #2ecc71;
                 color: white;
-                padding: 12px 20px;
-                border-radius: 6px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                padding: 8px 15px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
                 z-index: 9999;
                 opacity: 0;
                 transition: all 0.3s ease;
                 max-width: 90%;
                 text-align: center;
+                font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+                font-size: 14px;
+                font-weight: 500;
             }
             
             .cookie-declined-message.show {
@@ -406,32 +643,71 @@ class CookieConsent {
                 transform: translateX(-50%) translateY(0);
             }
             
-            /* Mobile responsiveness */
-            @media (max-width: 600px) {
-                .cookie-consent-backdrop {
-                    padding: 10px;
+            /* ===== RESPONSIVE DESIGN ===== */
+            
+            @media (max-width: 400px) {
+                .cookie-consent-container {
+                    width: 95% !important;
+                    height: 85vh !important;
+                    min-width: auto !important;
+                    min-height: auto !important;
+                    max-width: 95% !important;
+                    max-height: 85vh !important;
                 }
                 
-                .cookie-consent-content {
-                    max-height: 95vh;
+                .cookie-frame-373 {
+                    padding: 30px 12px 0px 12px;
                 }
                 
-                .cookie-consent-header {
-                    padding: 15px 15px 10px 15px;
+                .cookie-consent-title {
+                    font-size: 28px !important;
                 }
                 
-                .cookie-consent-body {
-                    padding: 15px;
+                .cookie-consent-subtitle {
+                    font-size: 14px !important;
                 }
                 
-                .cookie-consent-footer {
-                    flex-direction: column;
-                    padding: 10px 15px 15px 15px;
+                .cookie-icon-container {
+                    width: 60px;
+                    height: 60px;
                 }
                 
-                .cookie-btn {
-                    width: 100%;
-                    margin: 2px 0;
+                .cookie-icon {
+                    font-size: 36px;
+                }
+            }
+            
+            /* Ensure exact dimensions on larger screens */
+            @media (min-width: 401px) {
+                .cookie-consent-container {
+                    width: 369px !important;
+                    height: 480px !important;
+                    max-width: 369px !important;
+                    max-height: 480px !important;
+                    min-width: 369px !important;
+                    min-height: 480px !important;
+                }
+            }
+            
+            /* ===== ACCESSIBILITY ===== */
+            
+            @media (prefers-reduced-motion: reduce) {
+                .cookie-consent-modal,
+                .cookie-consent-container,
+                .cookie-nav-btn,
+                .cookie-declined-message {
+                    transition: none !important;
+                }
+            }
+            
+            @media (prefers-contrast: high) {
+                .cookie-consent-container {
+                    border: 2px solid #000 !important;
+                }
+                
+                .cookie-nav-btn {
+                    border-color: #000 !important;
+                    border-width: 2px !important;
                 }
             }
         `;
@@ -439,3 +715,5 @@ class CookieConsent {
         document.head.appendChild(style);
     }
 }
+
+export default CookieConsent;

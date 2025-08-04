@@ -1,0 +1,29 @@
+/* ===================================================================
+   GAME BOARD COMPONENT - Extracted from original styles.css Section 4
+   =================================================================== */
+
+/* Frame 369 - Game Board Container */
+.frame-369 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 12px; /* Match other frame padding if needed */
+}
+
+/* Board grid */
+.board {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    grid-gap: 5px !important;
+    max-width: var(--board-max-width) !important;
+    width: 100% !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1 !important;
+    margin: 0; /* Remove any existing margins since Frame 369 handles centering */
+}

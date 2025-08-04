@@ -1,0 +1,87 @@
+/* ===================================================================
+   RESPONSIVE LAYOUT - Media queries and mobile optimizations
+   All responsive breakpoints and mobile-specific adjustments
+   =================================================================== */
+
+/* ===== MOBILE RESPONSIVE STYLES ===== */
+
+@media (max-width: 600px) {
+    
+    /* Container sizing adjustments */
+    .game-description {
+        width: 95%;
+        font-size: 14px;
+    }
+    
+    /* Control layout adjustments */
+    .checkbox-container {
+        margin-bottom: var(--spacing-sm);
+        display: flex;
+        margin-left: 0;
+        justify-content: center;
+    }
+    
+    .game-rules {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Game controls adjustments for mobile */
+    .game-controls {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+    
+    .controls > * {
+        margin-bottom: var(--spacing-sm);
+    }
+}
+
+/* ===== VERY SMALL SCREENS ===== */
+
+@media (max-width: 350px) {
+    /* Additional optimizations for very small screens */
+    .main-container {
+        width: 100%;
+        max-width: 350px;
+    }
+    
+    .header {
+        width: 100%;
+        padding: 20px 15px 15px 15px;
+    }
+    
+    .frame-354-container {
+        padding: 0px 8px 8px 8px;
+    }
+    
+    .frame-367 {
+        padding: 0px 8px;
+    }
+    
+    .frame-372 {
+        padding: 0 8px;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .frame-353,
+    .frame-354-rules,
+    .new-game-btn {
+        border-color: #000;
+        border-width: 2px;
+    }
+}

@@ -2,6 +2,11 @@
  * Game.js - Game flow and state management for Kalida
  * Updated with cookie integration for persistent data
  */
+import Board from './Board.js';
+import Rules from './Rules.js';
+import CookieManager from '../utils/CookieManager.js';
+import CookieConsent from '../utils/CookieConsent.js';
+
 class Game {
     /**
      * Create a new game
@@ -1055,3 +1060,5 @@ class Game {
         }
     }
 }
+
+export default Game;
