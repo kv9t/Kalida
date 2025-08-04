@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
 /**
  * Check if we should show a tutorial for new users
  * @param {Game} game - The game instance
@@ -203,46 +204,53 @@ function checkForTutorial(game) {
         return;
     }
     
-    // For now, we'll just log that we would show a tutorial
-    // In the future, this is where you'd show a tutorial modal
-    console.log('First-time user detected - tutorial would be shown here');
+    // CHANGED: Actually show the tutorial instead of just logging
+    console.log('First-time user detected - showing tutorial');
     
-    // Uncomment the following lines when you add a tutorial modal:
-    /*
+    // Show tutorial after a brief delay to ensure UI is fully loaded
     setTimeout(() => {
-        showTutorialModal(game);
-    }, 1000); // Show tutorial after a brief delay
-    */
+        showTutorialForNewUser(game);
+    }, 1000); // 1 second delay to ensure everything is ready
 }
 
 /**
- * Show tutorial modal for new users (placeholder for future implementation)
+ * Show tutorial modal for new users
  * @param {Game} game - The game instance
  */
-function showTutorialModal(game) {
-    // This is a placeholder for a future tutorial modal
-    // For now, we'll just mark the tutorial as completed
-    
-    const showTutorial = confirm(
-        'Welcome to Kalida!\n\n' +
-        'Would you like a quick tutorial on how to play?\n\n' +
-        '(This is just a placeholder - a proper tutorial modal would go here)'
-    );
-    
-    if (showTutorial) {
-        alert(
-            'Tutorial Placeholder:\n\n' +
-            '1. Get 5 in a row to win\n' +
-            '2. Try different game modes\n' +
-            '3. Experiment with the rules\n' +
-            '4. Have fun!\n\n' +
-            'A proper interactive tutorial will be added in the future.'
-        );
+function showTutorialForNewUser(game) {
+    try {
+        // Get the GameUI instance from the global reference
+        if (window.KalidaGame && window.KalidaGame.ui) {
+            const gameUI = window.KalidaGame.ui;
+            
+            // Show the tutorial modal
+            if (gameUI.tutorialModal && typeof gameUI.tutorialModal.show === 'function') {
+                console.log('Showing tutorial modal for first-time user');
+                gameUI.tutorialModal.show();
+                
+                // OPTIONAL: Mark tutorial as "seen" when they close it
+                // You might want to add an event listener to mark it completed
+                // when they finish or close the tutorial
+            } else if (gameUI.showTutorial && typeof gameUI.showTutorial === 'function') {
+                // Alternative method if showTutorial method exists
+                console.log('Showing tutorial using showTutorial method');
+                gameUI.showTutorial();
+            } else {
+                console.warn('Tutorial modal not available - UI may not be fully initialized');
+                
+                // FALLBACK: Try again after another delay
+                setTimeout(() => {
+                    if (window.KalidaGame && window.KalidaGame.ui && window.KalidaGame.ui.tutorialModal) {
+                        window.KalidaGame.ui.tutorialModal.show();
+                    }
+                }, 2000);
+            }
+        } else {
+            console.warn('GameUI not available in global scope for tutorial');
+        }
+    } catch (error) {
+        console.error('Error showing tutorial for new user:', error);
     }
-    
-    // Mark tutorial as completed so we don't show it again
-    game.markTutorialCompleted();
-    console.log('Tutorial marked as completed');
 }
 
 /**

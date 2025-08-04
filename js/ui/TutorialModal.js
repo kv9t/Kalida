@@ -250,13 +250,21 @@ class TutorialModal {
      * Finish tutorial and close modal
      */
     finishTutorial() {
-        console.log('Tutorial completed');
-        this.hide();
-        
-        // Optional: Trigger any post-tutorial actions here
-        // For example, you might want to show the game board or set a flag
-        // that the tutorial has been completed
+    console.log('Tutorial completed');
+    
+    // Mark tutorial as completed in the game
+    if (this.game && typeof this.game.markTutorialCompleted === 'function') {
+        this.game.markTutorialCompleted();
+        console.log('Tutorial marked as completed');
     }
+    
+    this.hide();
+    
+    // Optional: Show a welcome message
+    if (this.gameUI && typeof this.gameUI.showMessage === 'function') {
+        this.gameUI.showMessage('Welcome to Kalida! Enjoy playing!', 'success');
+    }
+}
     
     /**
      * Handle clicks outside the modal content
