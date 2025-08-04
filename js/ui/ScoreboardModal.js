@@ -28,6 +28,7 @@ class ScoreboardModal {
         this.handleResetRoundScores = this.handleResetRoundScores.bind(this);
         this.handleResetMatchScores = this.handleResetMatchScores.bind(this);
         this.handleResetAllScores = this.handleResetAllScores.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
     }
     
     /**
@@ -107,6 +108,12 @@ class ScoreboardModal {
         if (resetAllBtn) {
             resetAllBtn.addEventListener('click', this.handleResetAllScores);
         }
+
+        const cancelBtn = this.modal.querySelector('[data-action="cancel"]');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', this.handleCancel);
+        }
+
     }
     
     /**
@@ -265,6 +272,11 @@ class ScoreboardModal {
             this.updateModalContent(this.currentScoreboardType); // Refresh displayed scores
             this.hide(); // Close modal after action
         }
+    }
+
+    handleCancel() {
+        console.log('User cancelled score reset');
+        this.hide(); // Simply close the modal without any changes
     }
     
     /**
