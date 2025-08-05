@@ -1134,7 +1134,7 @@
     }
     
     .about-modal-title {
-        font-size: 14px !important;
+        font-size: 16px !important;
     }
     
     .creator-icon,
@@ -1145,12 +1145,12 @@
     
     .creator-name,
     .history-title {
-        font-size: 12px !important;
+        font-size: 15px !important;
     }
     
     .creator-description,
     .history-description {
-        font-size: 11px !important;
+        font-size: 13px !important;
     }
 }
 
