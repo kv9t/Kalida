@@ -275,9 +275,9 @@
 
 .frame-373.game-mode-option {
     display: flex;
-    padding: 12px;
+    padding: 8px; /* REDUCED from 12px to 8px */
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px; /* REDUCED from 10px to 8px */
     align-self: stretch;
     border-radius: 8px;
     border: 1px solid #E6E6E6;
@@ -298,8 +298,8 @@
 }
 
 .mode-icon {
-    width: 50px;
-    height: 50px;
+    width: 40px; /* REDUCED from 50px to 40px */
+    height: 40px; /* REDUCED from 50px to 40px */
     object-fit: contain;
     flex-shrink: 0;
 }
