@@ -473,6 +473,8 @@
     }
 }
 
+/* ===== BUG FIX 4: MOBILE GAME MODE LAYOUT ===== */
+
 @media (max-width: 400px) {
     .popup-container {
         width: 95vw;
@@ -488,15 +490,68 @@
         right: 8px;
     }
     
+    /* FIXED: Keep horizontal layout but make it more compact */
     .frame-373.game-mode-option {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 6px;
+        display: flex;
+        padding: 8px; /* Slightly reduce padding */
+        align-items: flex-start; /* Keep original alignment */
+        gap: 8px; /* Slightly reduce gap */
+        align-self: stretch;
+        border-radius: 8px;
+        border: 1px solid #E6E6E6;
+        background: #FFF;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        flex-direction: row; /* EXPLICIT: Ensure horizontal layout */
     }
     
+    /* Icon sizing for mobile - keep reasonable size */
+    .mode-icon {
+        width: 40px; /* Slightly smaller than desktop 50px */
+        height: 40px;
+        object-fit: contain;
+        flex-shrink: 0; /* Prevent icon from shrinking */
+        min-width: 40px; /* Ensure minimum size */
+    }
+    
+    /* Text content area - ensure it takes remaining space */
     .frame-375.mode-details {
-        align-items: center;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* EXPLICIT: Left-align text */
+        gap: 4px;
+        flex: 1; /* Take remaining space */
+        min-width: 0; /* Allow text to wrap if needed */
+    }
+    
+    /* Mode title - adjust size but keep left alignment */
+    .mode-title {
+        margin: 0;
+        color: #000;
+        font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        font-size: 12px; /* Slightly smaller for mobile */
+        font-style: normal;
+        font-weight: 1000;
+        line-height: normal;
+        text-transform: uppercase;
+        text-align: left; /* EXPLICIT: Ensure left alignment */
+        width: 100%;
+    }
+    
+    /* Mode description - ensure it wraps properly */
+    .mode-description {
+        margin: 0;
+        color: #666;
+        font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        font-size: 11px; /* Slightly smaller for mobile */
+        font-style: normal;
+        font-weight: 400;
+        line-height: 1.3;
+        text-align: left; /* EXPLICIT: Ensure left alignment */
+        width: 100%;
+        word-wrap: break-word; /* Allow text to wrap */
+        overflow-wrap: break-word; /* Additional wrapping support */
     }
     
     .frame-375.save-overlay {
@@ -516,6 +571,27 @@
     .option-icon {
         width: 18px;
         height: 18px;
+    }
+}
+
+/* Also fix the medium mobile screen breakpoint */
+@media (max-width: 600px) and (min-width: 401px) {
+    .frame-373.game-mode-option {
+        padding: 10px; /* Intermediate padding */
+        gap: 8px;
+    }
+    
+    .mode-icon {
+        width: 45px; /* Intermediate size */
+        height: 45px;
+    }
+    
+    .mode-title {
+        font-size: 13px; /* Intermediate size */
+    }
+    
+    .mode-description {
+        font-size: 11px;
     }
 }
 
