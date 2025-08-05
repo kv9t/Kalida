@@ -132,6 +132,7 @@ class TutorialModal {
                 this.modal.style.display = 'none';
             }
             this.isOpen = false;
+            this.scrollToTop();
         }, 300);
         
         // Remove event listeners
@@ -343,6 +344,17 @@ class TutorialModal {
         };
     }
     
+    /**
+     * Scroll to top of page smoothly
+     */
+    scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth'
+        });
+    }
+
     /**
      * Cleanup method (call when destroying the component)
      */
