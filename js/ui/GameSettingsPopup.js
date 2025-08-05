@@ -106,9 +106,12 @@ class GameSettingsPopup {
             if (this.popup && this.popup.parentNode) {
                 this.popup.parentNode.removeChild(this.popup);
             }
-            // ← FIX: Reset the popup reference to null
+            // Reset the popup reference to null
             this.popup = null;
             this.isOpen = false;
+            
+            this.scrollToTop();
+
         }, 300);
         
         // Remove event listeners
@@ -525,6 +528,15 @@ class GameSettingsPopup {
         }
     }
     
+
+    scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth'
+        });
+    }
+
     /**
      * Clean up event listeners
      */
