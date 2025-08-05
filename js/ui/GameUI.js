@@ -829,6 +829,15 @@ class GameUI {
                 this.assetManager.updateTurnIndicator(data.winner, 'win');
             } else if (data.type === 'draw') {
                 this.assetManager.updateTurnIndicator(null, 'draw');
+                // Show browser alert for draw
+                setTimeout(() => {
+                    if (data.declaredDraw) {
+                        alert("Draw declared by player!");
+                    } else {
+                        alert("It's a draw! The board is full.");
+                    }
+                }, 500); 
+            
             }
             
             // Keep existing legacy support
