@@ -6,9 +6,9 @@
 .cell {
     width: 100%;
     aspect-ratio: 1 / 1;
-    background-color: #fff;
-    border: 2px solid var(--border-color);
-    border-radius: 5px;
+    /*background-color: #fff;*/
+    border: 1px solid var(--border-color);
+    /*border-radius: 5px;*/
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -82,8 +82,12 @@
 }
 
 /* Win condition highlighting */
-.winning-cell {
+/*.winning-cell {
     background-color: var(--highlight-color);
+}
+*/
+.cell.winning-cell {
+    background-color: var(--highlight-color) !important;
 }
 
 .winning-move {
@@ -192,6 +196,41 @@
     transform: scale(1);
 }
 
+
+/* 🆕 NEW: Checkered pattern implementation */
+.cell[data-cell-type="light"] {
+    background-color: var(--cell-light);
+}
+
+.cell[data-cell-type="dark"] {
+    background-color: var(--cell-dark);
+}
+
+/* 🆕 NEW: Version indicator styles */
+.version-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.8);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+}
+
+/* Hide version on very small screens */
+@media (max-width: 480px) {
+    .version-indicator {
+        opacity: 0.6;
+        font-size: 9px;
+    }
+}
+
 /* ===== MOBILE OPTIMIZATIONS ===== */
 @media (max-width: 600px) {
     /* More subtle hover effects on mobile */
@@ -212,3 +251,4 @@
         transform: scale(1.05);
     }
 }
+

@@ -35,6 +35,10 @@
     /* Knight move colors */
     --knight-move-color: #9b59b6;
     --invalid-move-color: #f8d7da;
+
+    /* Checkered pattern colors */
+    --cell-light: #ffffff;      /* White squares */
+    --cell-dark: #e0e0e0;       /* Very light gray - subtle difference */
     
     /* Spacing */
     --spacing-xs: 5px;

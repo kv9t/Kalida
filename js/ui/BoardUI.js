@@ -60,6 +60,9 @@ class BoardUI {
                 cell.classList.add('cell');
                 cell.dataset.row = row;
                 cell.dataset.col = col;
+                // Add checkered pattern logic
+                const isLightSquare = (row + col) % 2 === 0;
+                cell.dataset.cellType = isLightSquare ? 'light' : 'dark';
                 
                 // Add click handler
                 cell.addEventListener('click', () => {

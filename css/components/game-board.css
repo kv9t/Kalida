@@ -18,7 +18,8 @@
 .board {
     display: grid !important;
     grid-template-columns: repeat(6, 1fr) !important;
-    grid-gap: 5px !important;
+    /*grid-gap: 5px !important;*/
+    border: 1px solid var(--border-color); /* ADD this line */
     max-width: var(--board-max-width) !important;
     width: 100% !important;
     position: relative !important;
