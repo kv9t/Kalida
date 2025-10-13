@@ -187,6 +187,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         console.log('Loading board state...');
                         const success = game.loadBoardState(state, options);
                         if (success) {
+                            // Force UI update
+                            if (gameUI && gameUI.boardUI) {
+                                gameUI.boardUI.updateBoard(game.getBoardState());
+                            }
+
                             console.log('✓ Board state loaded successfully');
                             console.log('Current player:', game.getCurrentPlayer());
                             console.log('Board:');
@@ -221,8 +226,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     /**
                      * Load a predefined test scenario
                      * @param {string} scenarioName - Name of the scenario
+                     * @param {boolean} enableAI - Whether to enable AI mode (default: true)
                      */
-                    loadScenario: (scenarioName) => {
+                    loadScenario: (scenarioName, enableAI = true) => {
                         const scenario = getScenario(scenarioName);
                         if (!scenario) {
                             return false;
@@ -234,6 +240,38 @@ document.addEventListener('DOMContentLoaded', function() {
                             console.log(`Notes: ${scenario.notes}`);
                         }
 
+                        // Determine the appropriate game mode based on rules
+                        let targetMode = 'human';
+                        if (enableAI) {
+                            // Choose game mode based on scenario rules
+                            if (scenario.rules) {
+                                if (scenario.rules.bounce && scenario.rules.wrap) {
+                                    targetMode = 'level4'; // All rules
+                                } else if (scenario.rules.wrap) {
+                                    targetMode = 'level3'; // Wrap only
+                                } else if (scenario.rules.bounce) {
+                                    targetMode = 'level2'; // Bounce only
+                                } else {
+                                    targetMode = 'level1'; // Basic only
+                                }
+                            } else {
+                                targetMode = 'level4'; // Default to all rules
+                            }
+                        }
+
+                        // Switch game mode if needed (but don't reset the board yet)
+                        if (enableAI && game.gameMode !== targetMode) {
+                            console.log(`Switching to ${targetMode} mode for testing...`);
+                            // Manually set mode without resetting
+                            game.gameMode = targetMode;
+                            game.aiDifficulty = 'impossible';
+
+                            // Create AI if needed
+                            if (!game.ai) {
+                                game.ai = game.createAI(game.aiDifficulty);
+                            }
+                        }
+
                         const options = {
                             currentPlayer: scenario.currentPlayer,
                             rules: scenario.rules
@@ -241,8 +279,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         const success = game.loadBoardState(scenario.board, options);
 
-                        if (success && scenario.expectedMove) {
-                            console.log(`Expected move: [${scenario.expectedMove.row}, ${scenario.expectedMove.col}]`);
+                        if (success) {
+                            // Force UI update
+                            if (gameUI && gameUI.boardUI) {
+                                gameUI.boardUI.updateBoard(game.getBoardState());
+                            }
+
+                            if (scenario.expectedMove) {
+                                console.log(`Expected move: [${scenario.expectedMove.row}, ${scenario.expectedMove.col}]`);
+                            }
                         }
 
                         return success;
@@ -292,17 +337,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     /**
                      * Quick test: Load scenario and get AI response
+                     * @param {string} scenarioName - Name of the scenario
+                     * @param {boolean} autoPlay - If true, AI will automatically make move (default: false)
                      */
-                    testScenario: async (scenarioName) => {
+                    testScenario: async (scenarioName, autoPlay = false) => {
                         console.log('='.repeat(60));
-                        const success = window.KalidaGame.debug.loadScenario(scenarioName);
+                        const success = window.KalidaGame.debug.loadScenario(scenarioName, true);
                         if (!success) return;
 
                         console.log('\nCurrent board:');
                         console.log(game.exportBoardState('text'));
 
-                        console.log('\nGetting AI move...');
-                        await window.KalidaGame.debug.getAIMove();
+                        if (!autoPlay) {
+                            console.log('\nGetting AI move suggestion...');
+                            await window.KalidaGame.debug.getAIMove();
+                        } else {
+                            console.log('\nAI will play automatically...');
+                        }
                         console.log('='.repeat(60));
                     },
 

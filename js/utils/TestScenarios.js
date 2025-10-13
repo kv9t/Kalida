@@ -222,6 +222,22 @@ const TestScenarios = {
         currentPlayer: 'X',
         rules: { bounce: true, wrap: false, missingTeeth: true },
         notes: 'Can create winning pattern with double bounce'
+    },
+
+    'double-bounce-wide': {
+        name: 'Double Bounce Wide',
+        description: 'Complex bounce pattern with two bounces',
+        board: `
+            . . . . . .
+            O . . . . .
+            . X O . . .
+            X . . O . .
+            . X . X . .
+            . . . . . .
+        `,
+        currentPlayer: 'O',
+        rules: { bounce: true, wrap: false, missingTeeth: true },
+        notes: 'Imminent winning pattern with wide double bounce, missing bounce square'
     }
 };
 

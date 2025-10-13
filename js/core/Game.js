@@ -1154,6 +1154,15 @@ class Game {
                 pieceCount: this.stateLoader.countPieces(boardState)
             });
 
+            // If it's the computer's turn after loading, make AI move
+            if (this.gameMode !== 'human' && this.currentPlayer === this.computerPlayer && this.gameActive) {
+                console.log('Computer\'s turn detected, making AI move...');
+                // Use setTimeout to allow UI to update first
+                setTimeout(() => {
+                    this.makeComputerMove();
+                }, 500);
+            }
+
             return true;
 
         } catch (error) {
