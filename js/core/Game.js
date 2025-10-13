@@ -6,6 +6,7 @@ import Board from './Board.js';
 import Rules from './Rules.js';
 import CookieManager from '../utils/CookieManager.js';
 import CookieConsent from '../utils/CookieConsent.js';
+import GameStateLoader from '../utils/GameStateLoader.js';
 
 class Game {
     /**
@@ -48,10 +49,13 @@ class Game {
         
         // Initialize AI based on the difficulty level
         this.ai = null; // Will be initialized when needed
-        
+
         // NEW: Cookie management
         this.cookieManager = new CookieManager();
         this.cookiesEnabled = false; // Will be set after consent
+
+        // NEW: State loader for debugging/testing
+        this.stateLoader = new GameStateLoader(boardSize);
         
         // Event system
         this.eventListeners = {
@@ -1050,13 +1054,195 @@ class Game {
         if (!this.eventListeners[event]) {
             return;
         }
-        
+
         for (const callback of this.eventListeners[event]) {
             try {
                 callback(data);
             } catch (error) {
                 console.error(`Error in ${event} event handler:`, error);
             }
+        }
+    }
+
+    // ====================================================================
+    // STATE LOADING METHODS (for debugging and testing)
+    // ====================================================================
+
+    /**
+     * Load a board state from various formats
+     * @param {string|Array} stateInput - Board state (text, JSON, or compact format)
+     * @param {Object} options - Optional configuration { currentPlayer, moveCount, rules }
+     * @returns {boolean} - Whether the state was loaded successfully
+     */
+    loadBoardState(stateInput, options = {}) {
+        try {
+            console.log('Loading board state...');
+
+            // Parse the state
+            const boardState = this.stateLoader.parseState(stateInput);
+
+            if (!boardState) {
+                console.error('Failed to parse board state');
+                return false;
+            }
+
+            // Validate the state
+            const validation = this.stateLoader.validateBoardState(boardState);
+
+            if (!validation.valid) {
+                console.error('Invalid board state:', validation.errors);
+                return false;
+            }
+
+            if (validation.warnings.length > 0) {
+                console.warn('Board state warnings:', validation.warnings);
+            }
+
+            // Set the board state directly
+            this.board.state = boardState.map(row => [...row]);
+
+            // Set current player (default to inferred from board)
+            this.currentPlayer = options.currentPlayer || this.stateLoader.inferCurrentPlayer(boardState);
+
+            // Set move counts if provided
+            if (options.moveCount) {
+                this.moveCount = { ...options.moveCount };
+            } else {
+                // Infer move counts from piece counts
+                const counts = this.stateLoader.countPieces(boardState);
+                this.moveCount = { X: counts.X, O: counts.O };
+            }
+
+            // Reset other game state
+            this.gameActive = true;
+            this.lastMove = null;
+            this.firstPlayerFirstMove = null;
+            this.matchJustWon = false;
+
+            // Apply rules if specified
+            if (options.rules) {
+                if (options.rules.bounce !== undefined) {
+                    this.bounceRuleEnabled = options.rules.bounce;
+                }
+                if (options.rules.wrap !== undefined) {
+                    this.wrapRuleEnabled = options.rules.wrap;
+                }
+                if (options.rules.missingTeeth !== undefined) {
+                    this.missingTeethRuleEnabled = options.rules.missingTeeth;
+                }
+            }
+
+            // Trigger game reset event to update UI
+            this.triggerEvent('gameReset', {
+                board: this.board.getState(),
+                currentPlayer: this.currentPlayer,
+                scores: { ...this.scores },
+                matchScores: { ...this.matchScores },
+                matchWinner: this.matchWinner
+            });
+
+            this.triggerEvent('turnChange', {
+                currentPlayer: this.currentPlayer,
+                board: this.board.getState(),
+                moveCount: { ...this.moveCount },
+                isKnightMoveRequired: false
+            });
+
+            console.log('Board state loaded successfully:', {
+                currentPlayer: this.currentPlayer,
+                moveCount: this.moveCount,
+                pieceCount: this.stateLoader.countPieces(boardState)
+            });
+
+            return true;
+
+        } catch (error) {
+            console.error('Error loading board state:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Export the current board state in various formats
+     * @param {string} format - Format to export ('text', 'json', 'compact')
+     * @returns {string} - Exported board state
+     */
+    exportBoardState(format = 'text') {
+        const board = this.board.getState();
+
+        switch (format.toLowerCase()) {
+            case 'json':
+                return this.stateLoader.exportToJSON(board);
+            case 'compact':
+                return this.stateLoader.exportToCompact(board);
+            case 'text':
+            default:
+                return this.stateLoader.exportToText(board);
+        }
+    }
+
+    /**
+     * Get complete game state for debugging
+     * @returns {Object} - Complete game state
+     */
+    getCompleteState() {
+        return {
+            board: this.board.getState(),
+            currentPlayer: this.currentPlayer,
+            gameActive: this.gameActive,
+            moveCount: { ...this.moveCount },
+            scores: { ...this.scores },
+            matchScores: { ...this.matchScores },
+            rules: {
+                bounce: this.bounceRuleEnabled,
+                wrap: this.wrapRuleEnabled,
+                missingTeeth: this.missingTeethRuleEnabled,
+                knightMove: this.knightMoveRuleEnabled
+            },
+            gameMode: this.gameMode,
+            lastMove: this.lastMove ? { ...this.lastMove } : null
+        };
+    }
+
+    /**
+     * Export complete game state as a shareable string
+     * @returns {string} - JSON string of complete state
+     */
+    exportCompleteState() {
+        return JSON.stringify(this.getCompleteState(), null, 2);
+    }
+
+    /**
+     * Load complete game state from a JSON string
+     * @param {string} stateJSON - JSON string of complete state
+     * @returns {boolean} - Whether the state was loaded successfully
+     */
+    loadCompleteState(stateJSON) {
+        try {
+            const state = typeof stateJSON === 'string' ? JSON.parse(stateJSON) : stateJSON;
+
+            const options = {
+                currentPlayer: state.currentPlayer,
+                moveCount: state.moveCount,
+                rules: state.rules
+            };
+
+            const success = this.loadBoardState(state.board, options);
+
+            if (success && state.scores) {
+                this.scores = { ...state.scores };
+                this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
+            }
+
+            if (success && state.gameMode) {
+                this.setGameMode(state.gameMode);
+            }
+
+            return success;
+
+        } catch (error) {
+            console.error('Error loading complete state:', error);
+            return false;
         }
     }
 }

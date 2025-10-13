@@ -6,6 +6,7 @@
 import Game from './core/Game.js';
 import GameUI from './ui/GameUI.js';
 import AIFactory from './ai/AIFactory.js';
+import TestScenarios, { getScenario, getScenarioNames } from './utils/TestScenarios.js';
 
 
 // Wait for DOM to be fully loaded
@@ -171,10 +172,159 @@ document.addEventListener('DOMContentLoaded', function() {
                             savedGameMode: game.cookieManager.getSavedGameMode(),
                             savedScores: game.cookieManager.getSavedRoundScores()
                         });
+                    },
+
+                    // ====================================================================
+                    // STATE LOADING UTILITIES (for AI testing and debugging)
+                    // ====================================================================
+
+                    /**
+                     * Load a board state from text, JSON, or compact format
+                     * @param {string|Array} state - Board state to load
+                     * @param {Object} options - Optional configuration
+                     */
+                    loadState: (state, options = {}) => {
+                        console.log('Loading board state...');
+                        const success = game.loadBoardState(state, options);
+                        if (success) {
+                            console.log('✓ Board state loaded successfully');
+                            console.log('Current player:', game.getCurrentPlayer());
+                            console.log('Board:');
+                            console.log(game.exportBoardState('text'));
+                        } else {
+                            console.error('✗ Failed to load board state');
+                        }
+                        return success;
+                    },
+
+                    /**
+                     * Export current board state
+                     * @param {string} format - 'text', 'json', or 'compact'
+                     */
+                    exportState: (format = 'text') => {
+                        const state = game.exportBoardState(format);
+                        console.log('Current board state:');
+                        console.log(state);
+                        return state;
+                    },
+
+                    /**
+                     * Export complete game state (board + settings)
+                     */
+                    exportComplete: () => {
+                        const state = game.exportCompleteState();
+                        console.log('Complete game state:');
+                        console.log(state);
+                        return state;
+                    },
+
+                    /**
+                     * Load a predefined test scenario
+                     * @param {string} scenarioName - Name of the scenario
+                     */
+                    loadScenario: (scenarioName) => {
+                        const scenario = getScenario(scenarioName);
+                        if (!scenario) {
+                            return false;
+                        }
+
+                        console.log(`Loading scenario: ${scenario.name}`);
+                        console.log(`Description: ${scenario.description}`);
+                        if (scenario.notes) {
+                            console.log(`Notes: ${scenario.notes}`);
+                        }
+
+                        const options = {
+                            currentPlayer: scenario.currentPlayer,
+                            rules: scenario.rules
+                        };
+
+                        const success = game.loadBoardState(scenario.board, options);
+
+                        if (success && scenario.expectedMove) {
+                            console.log(`Expected move: [${scenario.expectedMove.row}, ${scenario.expectedMove.col}]`);
+                        }
+
+                        return success;
+                    },
+
+                    /**
+                     * List all available test scenarios
+                     */
+                    listScenarios: () => {
+                        const names = getScenarioNames();
+                        console.log('Available test scenarios:');
+                        names.forEach(name => {
+                            const scenario = TestScenarios[name];
+                            console.log(`  - ${name}: ${scenario.description}`);
+                        });
+                        return names;
+                    },
+
+                    /**
+                     * Get AI's suggested move for current position
+                     */
+                    getAIMove: async () => {
+                        if (!game.ai) {
+                            console.log('Creating AI...');
+                            game.ai = game.createAI('impossible');
+                        }
+
+                        console.log('AI is thinking...');
+                        const move = await game.ai.getMove(
+                            game.getBoardState(),
+                            game.getCurrentPlayer(),
+                            game.bounceRuleEnabled,
+                            game.missingTeethRuleEnabled,
+                            game.wrapRuleEnabled
+                        );
+
+                        console.log(`AI suggests: [${move.row}, ${move.col}]`);
+                        return move;
+                    },
+
+                    /**
+                     * Make AI move automatically
+                     */
+                    makeAIMove: () => {
+                        game.makeComputerMove();
+                    },
+
+                    /**
+                     * Quick test: Load scenario and get AI response
+                     */
+                    testScenario: async (scenarioName) => {
+                        console.log('='.repeat(60));
+                        const success = window.KalidaGame.debug.loadScenario(scenarioName);
+                        if (!success) return;
+
+                        console.log('\nCurrent board:');
+                        console.log(game.exportBoardState('text'));
+
+                        console.log('\nGetting AI move...');
+                        await window.KalidaGame.debug.getAIMove();
+                        console.log('='.repeat(60));
+                    },
+
+                    /**
+                     * Run through all scenarios and test AI
+                     */
+                    testAllScenarios: async () => {
+                        const names = getScenarioNames();
+                        console.log(`Testing ${names.length} scenarios...`);
+
+                        for (const name of names) {
+                            await window.KalidaGame.debug.testScenario(name);
+                            // Small delay between tests
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+
+                        console.log('All scenarios tested!');
                     }
                 }
             };
             console.log('Debug utilities available at window.KalidaGame.debug');
+            console.log('Try: window.KalidaGame.debug.listScenarios()');
         }
         
     } catch (error) {
