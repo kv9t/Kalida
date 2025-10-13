@@ -371,6 +371,75 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
 
                         console.log('All scenarios tested!');
+                    },
+
+                    /**
+                     * Test if a specific move would win the game
+                     * @param {number} row - Row index
+                     * @param {number} col - Column index
+                     * @param {string} player - Player ('X' or 'O', defaults to current player)
+                     */
+                    testMove: (row, col, player = null) => {
+                        player = player || game.getCurrentPlayer();
+                        const board = game.getBoardState();
+
+                        console.log(`Testing move [${row},${col}] for player ${player}`);
+
+                        // Check if position is empty
+                        if (board[row][col] !== '') {
+                            console.error(`Position [${row},${col}] is not empty!`);
+                            return false;
+                        }
+
+                        // Create test board with the move
+                        const testBoard = board.map(r => [...r]);
+                        testBoard[row][col] = player;
+
+                        // Check if this would win
+                        const result = game.rules.checkWin(
+                            testBoard,
+                            row,
+                            col,
+                            game.bounceRuleEnabled,
+                            game.missingTeethRuleEnabled,
+                            game.wrapRuleEnabled
+                        );
+
+                        if (result.winner === player) {
+                            console.log(`✓ YES! [${row},${col}] would WIN for ${player}`);
+                            if (result.winningCells) {
+                                console.log('Winning cells:', result.winningCells);
+                            }
+                            return true;
+                        } else {
+                            console.log(`✗ NO, [${row},${col}] would NOT win for ${player}`);
+                            return false;
+                        }
+                    },
+
+                    /**
+                     * Test multiple positions to see which ones would win
+                     * @param {Array} positions - Array of [row, col] positions
+                     * @param {string} player - Player to test
+                     */
+                    testMoves: (positions, player = null) => {
+                        player = player || game.getCurrentPlayer();
+                        console.log(`Testing ${positions.length} positions for ${player}:`);
+
+                        const winners = [];
+                        positions.forEach(([row, col]) => {
+                            const result = window.KalidaGame.debug.testMove(row, col, player);
+                            if (result) {
+                                winners.push([row, col]);
+                            }
+                        });
+
+                        console.log(`\nSummary: ${winners.length}/${positions.length} positions would win`);
+                        if (winners.length > 0) {
+                            console.log('Winning positions:', winners);
+                        }
+
+                        return winners;
                     }
                 }
             };

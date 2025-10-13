@@ -219,13 +219,43 @@ Edit `js/utils/TestScenarios.js` to add your own scenarios:
 - The AI call is asynchronous - use `await`
 - Make sure you're in the browser console (not Node.js)
 
+## AI Debugging Commands
+
+**Test if a move would win:**
+```javascript
+// Test if position [5,2] would win for O
+window.KalidaGame.debug.testMove(5, 2, 'O')
+```
+
+**Test multiple positions:**
+```javascript
+// Test all empty positions
+window.KalidaGame.debug.testMoves([[0,1], [5,2], [4,4]], 'O')
+```
+
+**Example debugging workflow:**
+```javascript
+// 1. Load a problematic scenario
+window.KalidaGame.debug.loadScenario('double-bounce-wide')
+
+// 2. Test if the expected move would actually win
+window.KalidaGame.debug.testMove(5, 2, 'O')
+
+// 3. See what AI chooses (check console for detailed logs)
+await window.KalidaGame.debug.getAIMove()
+
+// 4. Compare: does AI choose the winning move?
+```
+
 ## Next Steps
 
 Now that you have the state loader working:
 1. Load problematic scenarios
 2. Test what the AI does
-3. Identify the bug in the AI logic
-4. Fix the AI code
-5. Re-test the scenario to verify the fix
+3. Use `testMove()` to verify winning positions
+4. Check AI decision logs in console
+5. Identify the bug in the AI logic
+6. Fix the AI code
+7. Re-test the scenario to verify the fix
 
 Happy debugging!

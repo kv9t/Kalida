@@ -61,50 +61,67 @@ class ImpossibleStrategy {
         try {
             this.moveCount++;
             const opponent = player === 'X' ? 'O' : 'X';
-            
+
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log(`AI Decision for ${player} - Move ${this.moveCount}`);
+            console.log(`Rules: bounce=${bounceRuleEnabled}, wrap=${wrapRuleEnabled}, missingTeeth=${missingTeethRuleEnabled}`);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
             // Clean up expired cache entries
             this.cleanupCache();
-            
+
             // 1. First priority: Find immediate winning move
+            console.log('Step 1: Checking for immediate winning move...');
             const winningMove = this.findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
             if (winningMove) {
-                console.log("Found immediate winning move");
+                console.log(`✓ Found immediate winning move at [${winningMove.row},${winningMove.col}]`);
                 this.updatePlayerHistory(winningMove.row, winningMove.col, player);
                 return winningMove;
             }
+            console.log('✗ No immediate winning move found');
             
             // 2. Second priority: Block opponent's immediate win
+            console.log(`Step 2: Checking if opponent (${opponent}) has immediate win...`);
             const blockingMove = this.findImmediateWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
             if (blockingMove) {
-                console.log("Found blocking move to prevent opponent win");
+                console.log(`✓ Found blocking move at [${blockingMove.row},${blockingMove.col}]`);
                 this.updatePlayerHistory(blockingMove.row, blockingMove.col, player);
                 return blockingMove;
             }
+            console.log('✗ Opponent has no immediate win to block');
             
             // 2.5. Third priority: Check for opponent's forced win threats
+            console.log('Step 2.5: Checking for opponent critical threats...');
             const opponentThreats = this.threatDetector.detectThreats(
                 board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
             );
-            
+
+            console.log(`Found ${opponentThreats.length} opponent threats`);
+            if (opponentThreats.length > 0) {
+                console.log('Top 3 opponent threats:', opponentThreats.slice(0, 3).map(t =>
+                    `[${t.row},${t.col}] priority=${t.priority} type=${t.type}`
+                ));
+            }
+
             // Filter for critical threats - forced wins (3 in a row with open ends) and high priority threats
-            const criticalOpponentThreats = opponentThreats.filter(threat => 
-                threat.priority >= 70 || 
+            const criticalOpponentThreats = opponentThreats.filter(threat =>
+                threat.priority >= 70 ||
                 (threat.type === 'attack' && threat.priority >= 50) ||
                 (threat.type === 'develop' && threat.priority >= 90)
             );
-            
+
             if (criticalOpponentThreats.length > 0) {
                 criticalOpponentThreats.sort((a, b) => b.priority - a.priority);
-                const blockMove = { 
-                    row: criticalOpponentThreats[0].row, 
-                    col: criticalOpponentThreats[0].col 
+                const blockMove = {
+                    row: criticalOpponentThreats[0].row,
+                    col: criticalOpponentThreats[0].col
                 };
-                
-                console.log("Blocking critical opponent threat of priority:", criticalOpponentThreats[0].priority, 
-                            "type:", criticalOpponentThreats[0].type);
+
+                console.log(`✓ Blocking critical opponent threat at [${blockMove.row},${blockMove.col}] priority=${criticalOpponentThreats[0].priority} type=${criticalOpponentThreats[0].type}`);
                 this.updatePlayerHistory(blockMove.row, blockMove.col, player);
                 return blockMove;
             }
+            console.log('✗ No critical opponent threats to block');
             
             // 3. Check opening book for early game (first 3 moves)
             if (this.moveCount <= 3) {
