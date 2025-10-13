@@ -145,17 +145,162 @@ class BounceUtils {
         for (let i = 1; i < path.length; i++) {
             const prev = path[i-1];
             const curr = path[i];
-            
+
             // If there's a gap larger than one step in any direction
             const rowDiff = Math.abs(curr[0] - prev[0]);
             const colDiff = Math.abs(curr[1] - prev[1]);
-            
+
             if (rowDiff > 1 || colDiff > 1) {
                 return true; // Missing teeth found
             }
         }
-        
+
         return false; // No missing teeth
+    }
+
+    /**
+     * Find a bounce pattern with one empty cell (for detecting potential wins)
+     * This is used by AI to detect if an opponent can win in one move
+     * @param {Array} board - 2D board array
+     * @param {number} startRow - Starting row
+     * @param {number} startCol - Starting column
+     * @param {string} player - Player marker ('X' or 'O')
+     * @param {number} boardSize - Size of the board
+     * @param {number} requiredLength - Required length for a win (typically 5)
+     * @returns {Object|null} - { path, bounceIndices, emptyCell } or null
+     */
+    static findPotentialBouncePattern(board, startRow, startCol, player, boardSize, requiredLength) {
+        // Only check diagonal directions for bounces
+        const diagonalDirections = [
+            [1, 1],   // diagonal down-right
+            [1, -1],  // diagonal down-left
+            [-1, 1],  // diagonal up-right
+            [-1, -1]  // diagonal up-left
+        ];
+
+        // Try each diagonal direction
+        for (const [dx, dy] of diagonalDirections) {
+            // Try both ways along the direction
+            for (const multiplier of [-1, 1]) {
+                const result = this.tracePotentialBouncePath(
+                    board,
+                    startRow,
+                    startCol,
+                    dx * multiplier,
+                    dy * multiplier,
+                    player,
+                    boardSize,
+                    requiredLength
+                );
+
+                if (result && result.path.length >= requiredLength - 1) {
+                    // Found a pattern with 4 pieces and 1 empty (potential win)
+                    return result;
+                }
+            }
+        }
+
+        return null; // No potential pattern found
+    }
+
+    /**
+     * Trace a potential bounce path allowing ONE empty cell
+     * @param {Array} board - 2D board array
+     * @param {number} startRow - Starting row
+     * @param {number} startCol - Starting column
+     * @param {number} dx - Row direction
+     * @param {number} dy - Column direction
+     * @param {string} player - Player marker
+     * @param {number} boardSize - Size of the board
+     * @param {number} requiredLength - Required length for a win
+     * @returns {Object|null} - { path, bounceIndices, emptyCell } or null
+     */
+    static tracePotentialBouncePath(board, startRow, startCol, dx, dy, player, boardSize, requiredLength) {
+        const path = [[startRow, startCol]];
+        const visited = new Set([`${startRow},${startCol}`]);
+        const bounceIndices = [];
+        let emptyCell = null;
+        let emptyCount = 0;
+
+        let currentRow = startRow;
+        let currentCol = startCol;
+        let currentDx = dx;
+        let currentDy = dy;
+
+        // Continue until we have enough cells or hit limits
+        while (path.length < requiredLength && bounceIndices.length <= 2 && emptyCount <= 1) {
+            // Calculate next position
+            let nextRow = currentRow + currentDx;
+            let nextCol = currentCol + currentDy;
+
+            // Check if we'll go off the board
+            const offBoard = (
+                nextRow < 0 || nextRow >= boardSize ||
+                nextCol < 0 || nextCol >= boardSize
+            );
+
+            if (offBoard) {
+                // Record current cell as a bounce point
+                bounceIndices.push(path.length - 1);
+
+                // Calculate new direction after bounce
+                if (nextRow < 0 || nextRow >= boardSize) {
+                    currentDx = -currentDx;
+                }
+                if (nextCol < 0 || nextCol >= boardSize) {
+                    currentDy = -currentDy;
+                }
+
+                // Calculate next position with new direction
+                nextRow = currentRow + currentDx;
+                nextCol = currentCol + currentDy;
+
+                // Check if new position is valid
+                if (nextRow < 0 || nextRow >= boardSize ||
+                    nextCol < 0 || nextCol >= boardSize) {
+                    break; // Can't continue
+                }
+            }
+
+            // Check if next position is already visited
+            const posKey = `${nextRow},${nextCol}`;
+            if (visited.has(posKey)) {
+                break; // Avoid loops
+            }
+
+            // Check what's at the next position
+            const cellValue = board[nextRow][nextCol];
+
+            if (cellValue === player) {
+                // Player's piece - add to path
+                path.push([nextRow, nextCol]);
+                visited.add(posKey);
+                currentRow = nextRow;
+                currentCol = nextCol;
+            } else if (cellValue === '' && emptyCount === 0) {
+                // Empty cell - allow ONE empty cell
+                emptyCell = { row: nextRow, col: nextCol };
+                emptyCount++;
+                path.push([nextRow, nextCol]);
+                visited.add(posKey);
+                currentRow = nextRow;
+                currentCol = nextCol;
+            } else {
+                // Either opponent's piece or second empty cell
+                break;
+            }
+        }
+
+        // Return if we found a potential win (4 pieces + 1 empty = 5 total)
+        if (path.length >= requiredLength && emptyCount === 1 && bounceIndices.length > 0) {
+            return {
+                path,
+                bounceIndices,
+                emptyCell
+            };
+        }
+
+        return null;
     }
 }
 

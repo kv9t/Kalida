@@ -226,7 +226,7 @@ const TestScenarios = {
 
     'double-bounce-wide': {
         name: 'Double Bounce Wide',
-        description: 'Complex bounce pattern with two bounces',
+        description: 'X has complex double-bounce winning pattern, O must block',
         board: `
             . . . . . .
             O . . . . .
@@ -237,7 +237,8 @@ const TestScenarios = {
         `,
         currentPlayer: 'O',
         rules: { bounce: true, wrap: false, missingTeeth: true },
-        notes: 'Imminent winning pattern with wide double bounce, missing bounce square'
+        expectedMove: { row: 5, col: 2 }, // O must block X's winning move here
+        notes: 'X would win at [5,2] with double-bounce pattern. O (AI) must block it.'
     }
 };
 

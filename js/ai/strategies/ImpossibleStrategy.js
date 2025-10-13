@@ -12,6 +12,7 @@ import WinTrackGenerator from '../utils/WinTrackGenerator.js';
 import BouncePatternDetector from './modules/BouncePatternDetector.js';
 import MinimaxSearch from './modules/MinimaxSearch.js';
 import OpeningBook from './modules/OpeningBook.js';
+import BounceUtils from '../../utils/BounceUtils.js';
 class ImpossibleStrategy {
     /**
      * Create a new impossible strategy
@@ -402,16 +403,41 @@ class ImpossibleStrategy {
             }
         }
         
+        // NEW: Check for potential bounce patterns with one empty cell
+        if (bounceRuleEnabled) {
+            console.log('Checking for potential bounce patterns...');
+            for (let row = 0; row < this.boardSize; row++) {
+                for (let col = 0; col < this.boardSize; col++) {
+                    // Start from player's pieces
+                    if (board[row][col] === player) {
+                        const potentialPattern = BounceUtils.findPotentialBouncePattern(
+                            board, row, col, player, this.boardSize, 5
+                        );
+
+                        if (potentialPattern && potentialPattern.emptyCell) {
+                            console.log(`Found potential bounce pattern starting at [${row},${col}], winning move at [${potentialPattern.emptyCell.row},${potentialPattern.emptyCell.col}]`);
+
+                            // Verify no missing teeth
+                            if (!missingTeethRuleEnabled || !BounceUtils.hasMissingTeeth(potentialPattern.path)) {
+                                return potentialPattern.emptyCell;
+                            }
+                        }
+                    }
+                }
+            }
+            console.log('No potential bounce patterns found');
+        }
+
         // As a backup, check through threat detector
         const threats = this.threatDetector.detectThreats(
             board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
         );
-        
+
         const winningThreats = threats.filter(t => t.type === 'win');
         if (winningThreats.length > 0) {
             return { row: winningThreats[0].row, col: winningThreats[0].col };
         }
-        
+
         return null;
     }
     

@@ -395,24 +395,34 @@ document.addEventListener('DOMContentLoaded', function() {
                         const testBoard = board.map(r => [...r]);
                         testBoard[row][col] = player;
 
-                        // Check if this would win
-                        const result = game.rules.checkWin(
-                            testBoard,
-                            row,
-                            col,
-                            game.bounceRuleEnabled,
-                            game.missingTeethRuleEnabled,
-                            game.wrapRuleEnabled
-                        );
+                        try {
+                            // Check if this would win (with timeout protection)
+                            console.log('Checking win condition...');
+                            const result = game.rules.checkWin(
+                                testBoard,
+                                row,
+                                col,
+                                game.bounceRuleEnabled,
+                                game.missingTeethRuleEnabled,
+                                game.wrapRuleEnabled
+                            );
 
-                        if (result.winner === player) {
-                            console.log(`✓ YES! [${row},${col}] would WIN for ${player}`);
-                            if (result.winningCells) {
-                                console.log('Winning cells:', result.winningCells);
+                            if (result.winner === player) {
+                                console.log(`✓ YES! [${row},${col}] would WIN for ${player}`);
+                                if (result.winningCells) {
+                                    console.log('Winning cells:', result.winningCells);
+                                }
+                                if (result.bounceCellIndex !== undefined) {
+                                    console.log('Bounce pattern detected at cell index:', result.bounceCellIndex);
+                                }
+                                return true;
+                            } else {
+                                console.log(`✗ NO, [${row},${col}] would NOT win for ${player}`);
+                                return false;
                             }
-                            return true;
-                        } else {
-                            console.log(`✗ NO, [${row},${col}] would NOT win for ${player}`);
+                        } catch (error) {
+                            console.error(`Error checking move [${row},${col}]:`, error);
+                            console.error('This might indicate an infinite loop in bounce detection');
                             return false;
                         }
                     },
