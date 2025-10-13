@@ -104,11 +104,11 @@ class ImpossibleStrategy {
                 ));
             }
 
-            // Filter for critical threats - forced wins (3 in a row with open ends) and high priority threats
+            // Filter for critical threats - ONLY immediate wins and forced wins (not developing threats)
+            // Developing threats (3 in a row with one open end) are not critical - they give us time to find better moves
             const criticalOpponentThreats = opponentThreats.filter(threat =>
-                threat.priority >= 70 ||
-                (threat.type === 'attack' && threat.priority >= 50) ||
-                (threat.type === 'develop' && threat.priority >= 90)
+                threat.priority >= 90 ||  // Forced wins (3 in a row with TWO open ends)
+                (threat.type === 'block' && threat.priority >= 95)  // Opponent's immediate win
             );
 
             if (criticalOpponentThreats.length > 0) {

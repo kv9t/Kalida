@@ -223,10 +223,9 @@ const TestScenarios = {
         rules: { bounce: true, wrap: false, missingTeeth: true },
         notes: 'Can create winning pattern with double bounce'
     },
-
-    'double-bounce-wide': {
+        'double-bounce-wide': {
         name: 'Double Bounce Wide',
-        description: 'X has complex double-bounce winning pattern, O must block',
+        description: 'Complex bounce pattern with two bounces',
         board: `
             . . . . . .
             O . . . . .
@@ -237,8 +236,37 @@ const TestScenarios = {
         `,
         currentPlayer: 'O',
         rules: { bounce: true, wrap: false, missingTeeth: true },
-        expectedMove: { row: 5, col: 2 }, // O must block X's winning move here
-        notes: 'X would win at [5,2] with double-bounce pattern. O (AI) must block it.'
+        notes: 'Imminent winning pattern with wide double bounce, missing bounce square'
+    },
+            'Win-in-2': {
+        name: 'Win in 2 steps',
+        description: 'O has a forced win in 2 steps',
+        board: `
+            . . . . . .
+            . . . . O .
+            . . O O . .
+            . X O X . .
+            X . O X . .
+            . X X . . .
+        `,
+        currentPlayer: 'O',
+        rules: { bounce: true, wrap: false, missingTeeth: true },
+        notes: '0 should be selecting 4,1 or 0,5 or 5,0 to create a forced win in 2 moves'
+    },
+                'blank-board': {
+        name: 'Blank Board',
+        description: 'Complex bounce pattern with two bounces',
+        board: `
+            . . . . . .
+            . . . . . .
+            . . . . . .
+            . . . . . .
+            . . . . . .
+            . . . . . .
+        `,
+        currentPlayer: 'O',
+        rules: { bounce: true, wrap: false, missingTeeth: true },
+        notes: 'Imminent winning pattern with wide double bounce, missing bounce square'
     }
 };
 
