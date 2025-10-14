@@ -91,25 +91,7 @@ class ImpossibleStrategy {
             // Clean up expired cache entries
             this.cleanupCache();
 
-            // 1. Quick check: If we have an immediate win, take it
-            const winningMove = this.findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-            if (winningMove) {
-                console.log(`✓ Found immediate winning move at [${winningMove.row},${winningMove.col}]`);
-                this.updatePlayerHistory(winningMove.row, winningMove.col, player);
-                return winningMove;
-            }
-
-            // 2. For opening moves, use book if available
-            if (this.moveCount <= PATTERN_CONFIG.OPENING_BOOK_MOVES) {
-                const openingMove = this.openingBook.getMove(board, player, opponent);
-                if (openingMove && board[openingMove.row][openingMove.col] === '') {
-                    console.log("Using opening book move");
-                    this.updatePlayerHistory(openingMove.row, openingMove.col, player);
-                    return openingMove;
-                }
-            }
-            
-            // 3. MAIN STRATEGY: Run minimax with proper depth
+            // ALWAYS RUN MINIMAX - No shortcuts, no opening book, just pure search
             // Increase depth to catch 2-move forced wins
             const searchDepth = Math.max(5, this.determineSearchDepth(board)); // Minimum depth 5
             
@@ -118,7 +100,7 @@ class ImpossibleStrategy {
 
             // Run exhaustive minimax search
             let bestMove = null;
-            let currentDepth = 3; // Start at 3 for faster initial response
+            let currentDepth = 5; // Start at 5 to catch 2-move forced wins
 
             while (currentDepth <= searchDepth) {
                 console.log(`Running minimax at depth ${currentDepth}...`);
@@ -129,12 +111,8 @@ class ImpossibleStrategy {
                 if (move && typeof move.row === 'number' && typeof move.col === 'number') {
                     bestMove = move;
                     console.log(`Depth ${currentDepth} found move: (${move.row}, ${move.col}) with score: ${move.score}`);
-
-                    // If we found a winning or losing position, we have the answer
-                    if (Math.abs(move.score) > EVALUATION_WEIGHTS.WIN_THRESHOLD) {
-                        console.log(`Found decisive position at depth ${currentDepth}`);
-                        break;
-                    }
+                    // Don't break early - always search to minimum depth
+                    // The win detection seems unreliable
                 }
 
                 // Check if time limit exceeded
