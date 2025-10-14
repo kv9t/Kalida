@@ -356,7 +356,19 @@ class ImpossibleStrategy {
         );
 
         if (criticalThreats.length > 0) {
-            criticalThreats.sort((a, b) => b.priority - a.priority);
+            // Sort by priority DESC, but prioritize non-edge positions when priorities are equal
+            // This prevents blocking random edge threats when diagonal patterns exist
+            criticalThreats.sort((a, b) => {
+                if (b.priority !== a.priority) {
+                    return b.priority - a.priority;
+                }
+                // If priorities equal, prefer moves that create more threats
+                // (interior positions typically have more win tracks)
+                const aEdge = (a.row === 0 || a.row === 5 || a.col === 0 || a.col === 5) ? 1 : 0;
+                const bEdge = (b.row === 0 || b.row === 5 || b.col === 0 || b.col === 5) ? 1 : 0;
+                return aEdge - bEdge; // Prefer non-edge when equal priority
+            });
+
             const blockMove = {
                 row: criticalThreats[0].row,
                 col: criticalThreats[0].col

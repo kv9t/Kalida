@@ -186,11 +186,12 @@ class ThreatDetector {
                 // Add threats for each empty position
                 for (const [row, col] of emptyPositions) {
                     if (!missingTeethRuleEnabled || !this.wouldCreateMissingTeeth(board, row, col, player, track)) {
-                        // Boost priority for wrap rule edge positions
+                        // Boost priority slightly for wrap rule edge positions
+                        // But don't boost too much - let actual threat patterns determine priority
                         let priority = this.threatLevels.DEVELOPING_THREAT;
                         if (wrapRuleEnabled && this.isNearEdge(row, col)) {
-                            priority = Math.min(priority + 5, this.threatLevels.FORCED_WIN);
-                            console.log(`Boosting threat at [${row},${col}] for wrap edge position: ${priority}`);
+                            priority = Math.min(priority + 2, this.threatLevels.DEVELOPING_THREAT + 2);
+                            // Removed excessive logging
                         }
                         threats.push({
                             row,

@@ -288,12 +288,12 @@ const TestScenarios = {
         name: 'User Win - Critical Move 9',
         description: 'The exact position where AI failed to block forced win (before fix)',
         board: `
-            . O . . . .
+            o O . . . .
             O X X O X .
             X . X X . O
             . O O X . .
             X . X . . X
-            O . . . . .
+            . . . . . .
         `,
         currentPlayer: 'O',
         rules: { bounce: true, wrap: true, missingTeeth: true },
