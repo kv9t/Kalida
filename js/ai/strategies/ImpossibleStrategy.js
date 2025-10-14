@@ -91,19 +91,29 @@ class ImpossibleStrategy {
             // Clean up expired cache entries
             this.cleanupCache();
 
+            // CRITICAL: Check if opponent has immediate win - must block immediately
+            // This saves time and ensures we never miss a forced block
+            const opponent = player === 'X' ? 'O' : 'X';
+            const opponentWin = this.findImmediateWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+            if (opponentWin) {
+                console.log(`CRITICAL: Blocking opponent's immediate win at [${opponentWin.row},${opponentWin.col}]`);
+                this.updatePlayerHistory(opponentWin.row, opponentWin.col, player);
+                return opponentWin;
+            }
+
             // ALWAYS RUN MINIMAX - No shortcuts, no opening book, just pure search
             // Use iterative deepening for better performance
-            const maxDepth = Math.max(6, this.determineSearchDepth(board)); // Maximum depth to search
+            const maxDepth = 5; // Hard limit to prevent excessive computation
 
-            const timeLimit = 3000; // 3 seconds for deeper search
+            const timeLimit = 1500; // 1.5 seconds max
             const startTime = Date.now();
 
             // Iterative deepening: start shallow, go deeper
             let bestMove = null;
             let bestScore = null;
 
-            // Start at depth 1 and increase - this is proper iterative deepening
-            for (let depth = 1; depth <= maxDepth; depth++) {
+            // Start at depth 2 (depth 1 is too shallow to be useful)
+            for (let depth = 2; depth <= maxDepth; depth++) {
                 console.log(`Running minimax at depth ${depth}...`);
                 const move = this.minimaxSearch.findBestMove(
                     board, player, depth, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled

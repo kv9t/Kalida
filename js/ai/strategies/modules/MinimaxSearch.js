@@ -54,13 +54,16 @@ class MinimaxSearch {
         // Get valid moves, sorted by potential
         const validMoves = this.getOrderedMoves(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
 
+        // OPTIMIZATION: At shallow depths, only consider top moves to save time
+        const movesToConsider = depth <= 2 ? validMoves.slice(0, 10) : validMoves;
+
         let bestMove = null;
         let bestScore = -Infinity;
         const alpha = -Infinity;
         const beta = Infinity;
 
         // Try each move and find the best one
-        for (const move of validMoves) {
+        for (const move of movesToConsider) {
             // Apply the move
             const newBoard = this.applyMove(board, move.row, move.col, player);
 
