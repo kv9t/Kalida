@@ -153,25 +153,27 @@ class ImpossibleStrategy {
                 }
             }
             
-            // Check for medium priority opponent threats
+            // Store medium priority opponent threats as candidates
+            // Don't return immediately - let minimax verify this is the best move
+            let mediumThreatCandidate = null;
             if (opponentThreats.length > 0) {
                 const mediumThreats = opponentThreats.filter(threat =>
                     threat.priority >= THREAT_PRIORITIES.MEDIUM_THREAT_THRESHOLD && threat.type !== 'block'
                 );
-                
+
                 if (mediumThreats.length > 0) {
                     mediumThreats.sort((a, b) => b.priority - a.priority);
-                    const blockMove = { 
-                        row: mediumThreats[0].row, 
-                        col: mediumThreats[0].col 
+                    const blockMove = {
+                        row: mediumThreats[0].row,
+                        col: mediumThreats[0].col
                     };
-                    
+
                     // Check if this is likely a multiple-threat position that needs blocking
                     const threatCount = this.countPotentialWinTracks(board, blockMove.row, blockMove.col, opponent);
                     if (threatCount >= PATTERN_CONFIG.MULTIPLE_THREAT_COUNT) {
-                        console.log("Blocking medium opponent threat with multiple win tracks:", threatCount);
-                        this.updatePlayerHistory(blockMove.row, blockMove.col, player);
-                        return blockMove;
+                        console.log("Found medium opponent threat with multiple win tracks:", threatCount, "- storing as candidate");
+                        mediumThreatCandidate = blockMove;
+                        // Don't return yet - continue to minimax to verify
                     }
                 }
             }
@@ -222,12 +224,19 @@ class ImpossibleStrategy {
             }
             
             if (bestMove && typeof bestMove.row === 'number' && typeof bestMove.col === 'number') {
-                console.log(`Using minimax move: (${bestMove.row}, ${bestMove.col})`);
+                console.log(`Using minimax move: (${bestMove.row}, ${bestMove.col}) with score: ${bestMove.score}`);
                 this.updatePlayerHistory(bestMove.row, bestMove.col, player);
                 return bestMove;
             }
-            
-            // 8. Fallback: Use strategic position selection or any valid move
+
+            // 8. If minimax failed but we have a medium threat candidate, use it
+            if (mediumThreatCandidate) {
+                console.log(`Minimax failed - using medium threat candidate at (${mediumThreatCandidate.row}, ${mediumThreatCandidate.col})`);
+                this.updatePlayerHistory(mediumThreatCandidate.row, mediumThreatCandidate.col, player);
+                return mediumThreatCandidate;
+            }
+
+            // 9. Fallback: Use strategic position selection or any valid move
             const fallbackMove = this.getFallbackMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
             if (fallbackMove) {
                 this.updatePlayerHistory(fallbackMove.row, fallbackMove.col, player);

@@ -186,10 +186,16 @@ class ThreatDetector {
                 // Add threats for each empty position
                 for (const [row, col] of emptyPositions) {
                     if (!missingTeethRuleEnabled || !this.wouldCreateMissingTeeth(board, row, col, player, track)) {
+                        // Boost priority for wrap rule edge positions
+                        let priority = this.threatLevels.DEVELOPING_THREAT;
+                        if (wrapRuleEnabled && this.isNearEdge(row, col)) {
+                            priority = Math.min(priority + 5, this.threatLevels.FORCED_WIN);
+                            console.log(`Boosting threat at [${row},${col}] for wrap edge position: ${priority}`);
+                        }
                         threats.push({
                             row,
                             col,
-                            priority: this.threatLevels.DEVELOPING_THREAT,
+                            priority: priority,
                             type: 'develop'
                         });
                     }
@@ -369,6 +375,18 @@ class ThreatDetector {
         // Check if the player positions are consecutive in the track
         // If they're not consecutive, there are missing teeth
         return !this.arePositionsConsecutive(track, playerPositions);
+    }
+
+    /**
+     * Check if a position is near the edge of the board
+     * Used to boost threat priorities for wrap rule scenarios
+     * @param {number} row - Row to check
+     * @param {number} col - Column to check
+     * @returns {boolean} - Whether position is on or near an edge
+     */
+    isNearEdge(row, col) {
+        return row === 0 || row === this.boardSize - 1 ||
+               col === 0 || col === this.boardSize - 1;
     }
 }
 

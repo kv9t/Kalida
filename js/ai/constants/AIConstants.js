@@ -18,15 +18,16 @@ export const THREAT_PRIORITIES = {
     FORCED_WIN: 90,
 
     // Critical opponent threat threshold
-    // Only threats >= 90 are considered critical enough to interrupt our own strategy
-    // This allows the AI to find forced wins instead of immediately blocking developing threats
-    CRITICAL_THREAT_THRESHOLD: 90,
+    // Only threats >= 85 are considered critical enough to interrupt our own strategy
+    // Lowered from 90 to 85 to catch bounce pattern setups and near-wins
+    CRITICAL_THREAT_THRESHOLD: 85,
 
     // Critical block threshold - opponent's immediate wins
     CRITICAL_BLOCK_THRESHOLD: 95,
 
-    // Developing threat - significant but not critical (3 in a row with one open end)
-    DEVELOPING_THREAT: 70,
+    // Developing threat - significant (3 in a row with one open end)
+    // Increased from 70 to 85 to better detect bounce pattern setups and 2-move forced wins
+    DEVELOPING_THREAT: 85,
 
     // Medium priority threshold for opponent threats
     MEDIUM_THREAT_THRESHOLD: 40,
@@ -99,7 +100,8 @@ export const PATTERN_CONFIG = {
     MIN_BOUNCE_PATTERN: 3,      // Minimum pieces for bounce pattern consideration
 
     // Minimum priority for bounce pattern threats
-    MIN_BOUNCE_PRIORITY: 70,
+    // Increased from 70 to 80 to better respect bounce pattern importance
+    MIN_BOUNCE_PRIORITY: 80,
 
     // Opening book settings
     OPENING_BOOK_MOVES: 3,      // Use opening book for first N moves
