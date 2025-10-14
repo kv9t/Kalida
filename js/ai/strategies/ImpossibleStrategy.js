@@ -91,27 +91,15 @@ class ImpossibleStrategy {
             // Clean up expired cache entries
             this.cleanupCache();
 
-            // 1. First priority: Find immediate winning move or block opponent's win
-            const immediateMove = this.checkImmediateWinOrBlock(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-            if (immediateMove) {
-                this.updatePlayerHistory(immediateMove.row, immediateMove.col, player);
-                return immediateMove;
+            // 1. Quick check: If we have an immediate win, take it
+            const winningMove = this.findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+            if (winningMove) {
+                console.log(`✓ Found immediate winning move at [${winningMove.row},${winningMove.col}]`);
+                this.updatePlayerHistory(winningMove.row, winningMove.col, player);
+                return winningMove;
             }
 
-            // 2. Detect all threats once (for both players) to avoid duplication
-            console.log('Detecting threats for both players...');
-            const opponentThreats = this.threatDetector.detectThreats(
-                board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
-            );
-
-            // 3. Check for critical opponent threats
-            const criticalThreatMove = this.checkCriticalThreats(opponentThreats, player);
-            if (criticalThreatMove) {
-                this.updatePlayerHistory(criticalThreatMove.row, criticalThreatMove.col, player);
-                return criticalThreatMove;
-            }
-            
-            // 3. Check opening book for early game
+            // 2. For opening moves, use book if available
             if (this.moveCount <= PATTERN_CONFIG.OPENING_BOOK_MOVES) {
                 const openingMove = this.openingBook.getMove(board, player, opponent);
                 if (openingMove && board[openingMove.row][openingMove.col] === '') {
@@ -121,119 +109,48 @@ class ImpossibleStrategy {
                 }
             }
             
-            // 4. Special pattern detection using win tracks for 4-in-a-row and double bounces
-            const specialPatternMove = this.findSpecialPatternMove(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled);
-            if (specialPatternMove) {
-                console.log("Found special pattern move");
-                this.updatePlayerHistory(specialPatternMove.row, specialPatternMove.col, player);
-                return specialPatternMove;
-            }
+            // 3. MAIN STRATEGY: Run minimax with proper depth
+            // Increase depth to catch 2-move forced wins
+            const searchDepth = Math.max(5, this.determineSearchDepth(board)); // Minimum depth 5
             
-            // 5. For bounce-enabled games, use pattern detector to find advanced bounce threats
-            if (bounceRuleEnabled) {
-                const bounceThreats = this.patternDetector.detectThreats(
-                    board, player, opponent, missingTeethRuleEnabled
-                );
-                
-                // Take the highest priority bounce threat if available
-                if (bounceThreats.length > 0) {
-                    bounceThreats.sort((a, b) => b.priority - a.priority);
-                    if (bounceThreats[0].priority >= PATTERN_CONFIG.MIN_BOUNCE_PRIORITY) {
-                        const move = { 
-                            row: bounceThreats[0].blockingMove?.row || bounceThreats[0].createMove?.row, 
-                            col: bounceThreats[0].blockingMove?.col || bounceThreats[0].createMove?.col 
-                        };
-                        
-                        if (typeof move.row === 'number' && typeof move.col === 'number') {
-                            console.log("Using bounce pattern threat move");
-                            this.updatePlayerHistory(move.row, move.col, player);
-                            return move;
-                        }
-                    }
-                }
-            }
-            
-            // Store medium priority opponent threats as candidates
-            // Don't return immediately - let minimax verify this is the best move
-            let mediumThreatCandidate = null;
-            if (opponentThreats.length > 0) {
-                const mediumThreats = opponentThreats.filter(threat =>
-                    threat.priority >= THREAT_PRIORITIES.MEDIUM_THREAT_THRESHOLD && threat.type !== 'block'
-                );
-
-                if (mediumThreats.length > 0) {
-                    mediumThreats.sort((a, b) => b.priority - a.priority);
-                    const blockMove = {
-                        row: mediumThreats[0].row,
-                        col: mediumThreats[0].col
-                    };
-
-                    // Check if this is likely a multiple-threat position that needs blocking
-                    const threatCount = this.countPotentialWinTracks(board, blockMove.row, blockMove.col, opponent);
-                    if (threatCount >= PATTERN_CONFIG.MULTIPLE_THREAT_COUNT) {
-                        console.log("Found medium opponent threat with multiple win tracks:", threatCount, "- storing as candidate");
-                        mediumThreatCandidate = blockMove;
-                        // Don't return yet - continue to minimax to verify
-                    }
-                }
-            }
-            
-            // 6. Determine appropriate search depth based on game phase
-            const searchDepth = this.determineSearchDepth(board);
-            
-            // 7. Run optimized minimax search with iterative deepening
-            const timeLimit = SEARCH_CONFIG.TIME_LIMIT_MS;
+            const timeLimit = 2000; // Increase to 2 seconds for deeper search
             const startTime = Date.now();
 
-            // Try iterative deepening to find the best move within time constraints
+            // Run exhaustive minimax search
             let bestMove = null;
-            let currentDepth = SEARCH_CONFIG.ITERATIVE_DEEPENING_START;
-            
+            let currentDepth = 3; // Start at 3 for faster initial response
+
             while (currentDepth <= searchDepth) {
                 console.log(`Running minimax at depth ${currentDepth}...`);
-                // FIXED: Pass wrapRuleEnabled parameter
                 const move = this.minimaxSearch.findBestMove(
                     board, player, currentDepth, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
                 );
-                
+
                 if (move && typeof move.row === 'number' && typeof move.col === 'number') {
                     bestMove = move;
                     console.log(`Depth ${currentDepth} found move: (${move.row}, ${move.col}) with score: ${move.score}`);
-                    
-                    // Cache this position evaluation
-                    const boardKey = this.getBoardKey(board);
-                    this.positionCache.set(boardKey, {
-                        move: bestMove,
-                        depth: currentDepth,
-                        expireAt: this.moveCount + this.cacheTTL
-                    });
-                    
-                    // If we found a winning move, no need to search deeper
+
+                    // If we found a winning or losing position, we have the answer
                     if (Math.abs(move.score) > EVALUATION_WEIGHTS.WIN_THRESHOLD) {
+                        console.log(`Found decisive position at depth ${currentDepth}`);
                         break;
                     }
                 }
-                
+
                 // Check if time limit exceeded
                 if (Date.now() - startTime > timeLimit) {
                     console.log(`Time limit reached after depth ${currentDepth}`);
                     break;
                 }
-                
+
                 currentDepth++;
             }
-            
+
+            // Minimax should ALWAYS find a move
             if (bestMove && typeof bestMove.row === 'number' && typeof bestMove.col === 'number') {
                 console.log(`Using minimax move: (${bestMove.row}, ${bestMove.col}) with score: ${bestMove.score}`);
                 this.updatePlayerHistory(bestMove.row, bestMove.col, player);
                 return bestMove;
-            }
-
-            // 8. If minimax failed but we have a medium threat candidate, use it
-            if (mediumThreatCandidate) {
-                console.log(`Minimax failed - using medium threat candidate at (${mediumThreatCandidate.row}, ${mediumThreatCandidate.col})`);
-                this.updatePlayerHistory(mediumThreatCandidate.row, mediumThreatCandidate.col, player);
-                return mediumThreatCandidate;
             }
 
             // 9. Fallback: Use strategic position selection or any valid move

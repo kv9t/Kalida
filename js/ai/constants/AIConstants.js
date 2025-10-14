@@ -76,9 +76,9 @@ export const SEARCH_CONFIG = {
     BASE_DEPTH: 4,
 
     // Search depths for different game phases
-    EARLY_GAME_DEPTH: 3,        // Game progress < 20%
-    MID_GAME_DEPTH: 3,          // Game progress 20-70%
-    LATE_GAME_DEPTH: 4,         // Game progress > 70%
+    EARLY_GAME_DEPTH: 5,        // Game progress < 20% (increased from 3)
+    MID_GAME_DEPTH: 5,          // Game progress 20-70% (increased from 3)
+    LATE_GAME_DEPTH: 6,         // Game progress > 70% (increased from 4)
 
     // Game phase thresholds
     EARLY_GAME_THRESHOLD: 0.2,  // Board filled < 20%
