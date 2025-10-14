@@ -251,7 +251,22 @@ const TestScenarios = {
         `,
         currentPlayer: 'O',
         rules: { bounce: true, wrap: false, missingTeeth: true },
-        notes: '0 should be selecting 4,1 or 0,5 or 5,0 to create a forced win in 2 moves'
+        notes: '0 should be selecting 1,4 or 0,5 or 5,0 to create a forced win in 2 moves'
+    },
+                    'fork-play': {
+        name: 'Stop Fork',
+        description: 'o must place in 3,2 to stop x creating a fork',
+        board: `
+            o . o . . .
+            o x x . x .
+            . . o . . .
+            . . o o . x
+            . x . . x .
+            . . . x . .
+        `,
+        currentPlayer: 'O',
+        rules: { bounce: true, wrap: true, missingTeeth: true },
+        notes: 'Imminent winning pattern with wide double bounce, missing bounce square'
     },
                 'blank-board': {
         name: 'Blank Board',
@@ -267,6 +282,68 @@ const TestScenarios = {
         currentPlayer: 'O',
         rules: { bounce: true, wrap: false, missingTeeth: true },
         notes: 'Imminent winning pattern with wide double bounce, missing bounce square'
+    },
+
+    'user-win-game-move9': {
+        name: 'User Win - Critical Move 9',
+        description: 'The exact position where AI failed to block forced win (before fix)',
+        board: `
+            . O . . . .
+            O X X O X .
+            X . X X . O
+            . O O X . .
+            X . X . . X
+            O . . . . .
+        `,
+        currentPlayer: 'O',
+        rules: { bounce: true, wrap: true, missingTeeth: true },
+        expectedMove: { row: 4, col: 5 }, // Should block X's setup at [4,5]
+        notes: `Critical test case from actual game loss.
+                Move 9: X has [0,4], [1,2], [2,3], [3,3] creating diagonal
+                X can play [4,5] then [5,4] for bounce win
+                AI MUST block [4,5] or [5,0] (both lead to forced wins)
+                Before fix: AI played [0,1] (wrong - only priority 70)
+                After fix: AI should recognize [4,5] and [5,0] as priority 85+ threats`
+    },
+
+    'user-win-game-move10': {
+        name: 'User Win - After Wrong Block',
+        description: 'Position after AI made wrong move at [0,1] instead of blocking threat',
+        board: `
+            . O . . . .
+            O X X O X .
+            X . X X . O
+            . O O X . .
+            X . X . . X
+            O . . . . .
+        `,
+        currentPlayer: 'X',
+        rules: { bounce: true, wrap: true, missingTeeth: true },
+        expectedMove: { row: 4, col: 5 }, // X plays the winning setup
+        notes: `This is the position after AI blocked at [0,1] (wrong).
+                X should now play [4,5] to set up the forced win.
+                Next move X plays [5,4] with bounce for the win.
+                This scenario proves AI's mistake was not blocking [4,5]`
+    },
+
+    'forced-bounce-win-setup': {
+        name: 'Forced Bounce Win Setup',
+        description: 'Generic 2-move forced win with bounce pattern',
+        board: `
+            . . . . X .
+            . . . X . .
+            . . X . . .
+            O X . . . .
+            . . . . . .
+            . . . . . .
+        `,
+        currentPlayer: 'O',
+        rules: { bounce: true, wrap: false, missingTeeth: true },
+        expectedMove: { row: 4, col: 0 }, // Block the bounce completion
+        notes: `X has diagonal [0,4] [1,3] [2,2] [3,1]
+                X can play [4,0] then bounce to [5,0] for win
+                AI must recognize this as priority 85+ threat and block it
+                Tests the increased DEVELOPING_THREAT priority fix`
     }
 };
 
