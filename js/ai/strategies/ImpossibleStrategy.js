@@ -93,7 +93,6 @@ class ImpossibleStrategy {
 
             // CRITICAL: Check if opponent has immediate win - must block immediately
             // This saves time and ensures we never miss a forced block
-            const opponent = player === 'X' ? 'O' : 'X';
             const opponentWin = this.findImmediateWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
             if (opponentWin) {
                 console.log(`CRITICAL: Blocking opponent's immediate win at [${opponentWin.row},${opponentWin.col}]`);
