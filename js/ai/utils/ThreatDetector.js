@@ -1,6 +1,6 @@
 /**
  * ThreatDetector.js - Enhanced threat detection for Kalida
- * 
+ *
  * Detects various threats on the board:
  * - Immediate wins (4 in a row with an open end)
  * - Forced wins (3 in a row with two open ends)
@@ -9,6 +9,7 @@
  */
 
 import WinTrackGenerator from './WinTrackGenerator.js';
+import { THREAT_PRIORITIES } from '../constants/AIConstants.js';
 
 class ThreatDetector {
     /**
@@ -20,15 +21,9 @@ class ThreatDetector {
         this.boardSize = boardSize;
         this.rules = rules;
         this.winTrackGenerator = new WinTrackGenerator(boardSize, rules);
-        
-        // Threat levels and their priorities
-        this.threatLevels = {
-            IMMEDIATE_WIN: 100,      // 4 in a row with open end
-            FORCED_WIN: 90,          // 3 in a row with two open ends
-            DEVELOPING_THREAT: 70,   // 3 in a row with one open end
-            POTENTIAL_THREAT: 50,    // 2 in a row with two open ends
-            EARLY_THREAT: 30         // 2 in a row with one open end
-        };
+
+        // Use centralized threat priorities
+        this.threatLevels = THREAT_PRIORITIES;
     }
     
     /**

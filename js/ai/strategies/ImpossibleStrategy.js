@@ -1,10 +1,9 @@
 /**
  * ImpossibleStrategy.js - Advanced AI strategy for Kalida
- * 
+ *
  * This strategy combines minimax, pattern recognition, and advanced
  * heuristics to create an extremely challenging AI opponent.
  */
-
 
 import BoardEvaluator from '../evaluation/BoardEvaluator.js';
 import ThreatDetector from '../utils/ThreatDetector.js';
@@ -13,6 +12,13 @@ import BouncePatternDetector from './modules/BouncePatternDetector.js';
 import MinimaxSearch from './modules/MinimaxSearch.js';
 import OpeningBook from './modules/OpeningBook.js';
 import BounceUtils from '../../utils/BounceUtils.js';
+import {
+    THREAT_PRIORITIES,
+    EVALUATION_WEIGHTS,
+    SEARCH_CONFIG,
+    PATTERN_CONFIG,
+    STRATEGIC_VALUES
+} from '../constants/AIConstants.js';
 class ImpossibleStrategy {
     /**
      * Create a new impossible strategy
@@ -31,22 +37,36 @@ class ImpossibleStrategy {
         this.winTrackGenerator = new WinTrackGenerator(boardSize, rules);
         
         // Maximum search depth (will be adjusted dynamically)
-        this.baseSearchDepth = 4; // Reduced from 5 for better performance
-        
+        this.baseSearchDepth = SEARCH_CONFIG.BASE_DEPTH;
+
         // Initialize opening book
         this.openingBook = new OpeningBook(boardSize);
-        
+
         // Track game state
         this.moveCount = 0;
         this.lastMove = null;
         this.playerHistory = { X: [], O: [] };
-        
+
         // Pattern recognition cache
         this.patternCache = new Map();
-        
+
         // Position evaluation cache (for faster re-evaluation)
         this.positionCache = new Map();
-        this.cacheTTL = 10; // Cache entries expire after 10 moves
+        this.cacheTTL = SEARCH_CONFIG.CACHE_TTL;
+    }
+
+    /**
+     * Reset the strategy for a new game
+     * Clears position cache and resets minimax transposition table
+     */
+    resetForNewGame() {
+        this.moveCount = 0;
+        this.lastMove = null;
+        this.playerHistory = { X: [], O: [] };
+        this.positionCache.clear();
+        this.patternCache.clear();
+        this.minimaxSearch.resetForNewGame();
+        console.log('ImpossibleStrategy: Reset for new game');
     }
     
     /**
@@ -71,61 +91,28 @@ class ImpossibleStrategy {
             // Clean up expired cache entries
             this.cleanupCache();
 
-            // 1. First priority: Find immediate winning move
-            console.log('Step 1: Checking for immediate winning move...');
-            const winningMove = this.findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-            if (winningMove) {
-                console.log(`✓ Found immediate winning move at [${winningMove.row},${winningMove.col}]`);
-                this.updatePlayerHistory(winningMove.row, winningMove.col, player);
-                return winningMove;
+            // 1. First priority: Find immediate winning move or block opponent's win
+            const immediateMove = this.checkImmediateWinOrBlock(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+            if (immediateMove) {
+                this.updatePlayerHistory(immediateMove.row, immediateMove.col, player);
+                return immediateMove;
             }
-            console.log('✗ No immediate winning move found');
-            
-            // 2. Second priority: Block opponent's immediate win
-            console.log(`Step 2: Checking if opponent (${opponent}) has immediate win...`);
-            const blockingMove = this.findImmediateWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-            if (blockingMove) {
-                console.log(`✓ Found blocking move at [${blockingMove.row},${blockingMove.col}]`);
-                this.updatePlayerHistory(blockingMove.row, blockingMove.col, player);
-                return blockingMove;
-            }
-            console.log('✗ Opponent has no immediate win to block');
-            
-            // 2.5. Third priority: Check for opponent's forced win threats
-            console.log('Step 2.5: Checking for opponent critical threats...');
+
+            // 2. Detect all threats once (for both players) to avoid duplication
+            console.log('Detecting threats for both players...');
             const opponentThreats = this.threatDetector.detectThreats(
                 board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
             );
 
-            console.log(`Found ${opponentThreats.length} opponent threats`);
-            if (opponentThreats.length > 0) {
-                console.log('Top 3 opponent threats:', opponentThreats.slice(0, 3).map(t =>
-                    `[${t.row},${t.col}] priority=${t.priority} type=${t.type}`
-                ));
+            // 3. Check for critical opponent threats
+            const criticalThreatMove = this.checkCriticalThreats(opponentThreats, player);
+            if (criticalThreatMove) {
+                this.updatePlayerHistory(criticalThreatMove.row, criticalThreatMove.col, player);
+                return criticalThreatMove;
             }
-
-            // Filter for critical threats - ONLY immediate wins and forced wins (not developing threats)
-            // Developing threats (3 in a row with one open end) are not critical - they give us time to find better moves
-            const criticalOpponentThreats = opponentThreats.filter(threat =>
-                threat.priority >= 90 ||  // Forced wins (3 in a row with TWO open ends)
-                (threat.type === 'block' && threat.priority >= 95)  // Opponent's immediate win
-            );
-
-            if (criticalOpponentThreats.length > 0) {
-                criticalOpponentThreats.sort((a, b) => b.priority - a.priority);
-                const blockMove = {
-                    row: criticalOpponentThreats[0].row,
-                    col: criticalOpponentThreats[0].col
-                };
-
-                console.log(`✓ Blocking critical opponent threat at [${blockMove.row},${blockMove.col}] priority=${criticalOpponentThreats[0].priority} type=${criticalOpponentThreats[0].type}`);
-                this.updatePlayerHistory(blockMove.row, blockMove.col, player);
-                return blockMove;
-            }
-            console.log('✗ No critical opponent threats to block');
             
-            // 3. Check opening book for early game (first 3 moves)
-            if (this.moveCount <= 3) {
+            // 3. Check opening book for early game
+            if (this.moveCount <= PATTERN_CONFIG.OPENING_BOOK_MOVES) {
                 const openingMove = this.openingBook.getMove(board, player, opponent);
                 if (openingMove && board[openingMove.row][openingMove.col] === '') {
                     console.log("Using opening book move");
@@ -151,7 +138,7 @@ class ImpossibleStrategy {
                 // Take the highest priority bounce threat if available
                 if (bounceThreats.length > 0) {
                     bounceThreats.sort((a, b) => b.priority - a.priority);
-                    if (bounceThreats[0].priority >= 70) { // Only use high-priority threats
+                    if (bounceThreats[0].priority >= PATTERN_CONFIG.MIN_BOUNCE_PRIORITY) {
                         const move = { 
                             row: bounceThreats[0].blockingMove?.row || bounceThreats[0].createMove?.row, 
                             col: bounceThreats[0].blockingMove?.col || bounceThreats[0].createMove?.col 
@@ -168,8 +155,8 @@ class ImpossibleStrategy {
             
             // Check for medium priority opponent threats
             if (opponentThreats.length > 0) {
-                const mediumThreats = opponentThreats.filter(threat => 
-                    threat.priority >= 40 && threat.type !== 'block'
+                const mediumThreats = opponentThreats.filter(threat =>
+                    threat.priority >= THREAT_PRIORITIES.MEDIUM_THREAT_THRESHOLD && threat.type !== 'block'
                 );
                 
                 if (mediumThreats.length > 0) {
@@ -181,7 +168,7 @@ class ImpossibleStrategy {
                     
                     // Check if this is likely a multiple-threat position that needs blocking
                     const threatCount = this.countPotentialWinTracks(board, blockMove.row, blockMove.col, opponent);
-                    if (threatCount >= 2) {
+                    if (threatCount >= PATTERN_CONFIG.MULTIPLE_THREAT_COUNT) {
                         console.log("Blocking medium opponent threat with multiple win tracks:", threatCount);
                         this.updatePlayerHistory(blockMove.row, blockMove.col, player);
                         return blockMove;
@@ -193,12 +180,12 @@ class ImpossibleStrategy {
             const searchDepth = this.determineSearchDepth(board);
             
             // 7. Run optimized minimax search with iterative deepening
-            const timeLimit = 1000; // 1 second max for thinking
+            const timeLimit = SEARCH_CONFIG.TIME_LIMIT_MS;
             const startTime = Date.now();
-            
+
             // Try iterative deepening to find the best move within time constraints
             let bestMove = null;
-            let currentDepth = 2;
+            let currentDepth = SEARCH_CONFIG.ITERATIVE_DEEPENING_START;
             
             while (currentDepth <= searchDepth) {
                 console.log(`Running minimax at depth ${currentDepth}...`);
@@ -220,7 +207,7 @@ class ImpossibleStrategy {
                     });
                     
                     // If we found a winning move, no need to search deeper
-                    if (move.score > 9000 || move.score < -9000) {
+                    if (Math.abs(move.score) > EVALUATION_WEIGHTS.WIN_THRESHOLD) {
                         break;
                     }
                 }
@@ -240,63 +227,172 @@ class ImpossibleStrategy {
                 return bestMove;
             }
             
-            // 8. Fallback: Get all threat-based moves for AI player
-            const threats = this.threatDetector.detectThreats(
-                board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
-            );
-            
-            if (threats.length > 0) {
-                threats.sort((a, b) => b.priority - a.priority);
-                const move = { row: threats[0].row, col: threats[0].col };
-                if (typeof move.row === 'number' && typeof move.col === 'number') {
-                    console.log("Using threat-based fallback move");
-                    this.updatePlayerHistory(move.row, move.col, player);
-                    return move;
-                }
+            // 8. Fallback: Use strategic position selection or any valid move
+            const fallbackMove = this.getFallbackMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+            if (fallbackMove) {
+                this.updatePlayerHistory(fallbackMove.row, fallbackMove.col, player);
+                return fallbackMove;
             }
-            
-            // 9. Last resort: strategic position selection
-            console.log("Using strategic position selection");
-            const strategicMove = this.selectStrategicPosition(board, player);
 
-            // Safety check for undefined coordinates
-            if (!strategicMove || typeof strategicMove.row === 'undefined' || typeof strategicMove.col === 'undefined') {
-                console.log("AI RANDOM MOVE: ImpossibleStrategy - Strategic move selection failed, using fallback random move");
-                // Use a simple fallback to find a valid move
-                for (let row = 0; row < this.boardSize; row++) {
-                    for (let col = 0; col < this.boardSize; col++) {
-                        if (board[row][col] === '') {
-                            console.log(`AI RANDOM MOVE: ImpossibleStrategy fallback at position (${row}, ${col})`);
-                            return { row, col }; // First empty cell
-                        }
-                    }
-                }
-            }
-            
-            this.updatePlayerHistory(strategicMove.row, strategicMove.col, player);
-            return strategicMove;
+            // Should never reach here if board has empty cells
+            throw new Error('No valid moves available');
         } catch (error) {
             console.error("Error in ImpossibleStrategy:", error);
-            // Fallback to center or random move
-            const center = Math.floor(this.boardSize / 2);
-            if (board[center][center] === '') {
-                console.log(`AI RANDOM MOVE: ImpossibleStrategy error recovery - using center position (${center}, ${center})`);
-                return { row: center, col: center };
-            }
-            // Find any empty cell
-            for (let row = 0; row < this.boardSize; row++) {
-                for (let col = 0; col < this.boardSize; col++) {
-                    if (board[row][col] === '') {
-                        console.log(`AI RANDOM MOVE: ImpossibleStrategy error recovery - using random position (${row}, ${col})`);
-                        return { row, col };
-                    }
-                }
+            // Emergency fallback: find any valid move
+            const emergencyMove = this.findAnyValidMove(board);
+            if (emergencyMove) {
+                console.log(`AI ERROR RECOVERY: Using emergency move at (${emergencyMove.row}, ${emergencyMove.col})`);
+                return emergencyMove;
             }
             // This should never happen (board full)
-            return { row: 0, col: 0 };
+            throw new Error('No valid moves available - board may be full');
         }
     }
+
+    /**
+     * Get a fallback move when minimax and other strategies fail
+     * @param {Array} board - Current board state
+     * @param {string} player - Current player
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
+     * @returns {Object|null} - Fallback move or null
+     */
+    getFallbackMove(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
+        console.log("Using fallback move selection...");
+
+        // Try threat-based moves
+        const threats = this.threatDetector.detectThreats(
+            board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
+        );
+
+        if (threats.length > 0) {
+            threats.sort((a, b) => b.priority - a.priority);
+            const move = { row: threats[0].row, col: threats[0].col };
+            if (this.isValidMove(board, move.row, move.col)) {
+                console.log("Using threat-based fallback move");
+                return move;
+            }
+        }
+
+        // Try strategic position selection
+        const strategicMove = this.selectStrategicPosition(board, player);
+        if (strategicMove && this.isValidMove(board, strategicMove.row, strategicMove.col)) {
+            console.log("Using strategic position fallback move");
+            return strategicMove;
+        }
+
+        // Last resort: any valid move
+        return this.findAnyValidMove(board);
+    }
+
+    /**
+     * Find any valid move on the board
+     * @param {Array} board - Current board state
+     * @returns {Object|null} - Any valid move or null
+     */
+    findAnyValidMove(board) {
+        // Prefer center if available
+        const center = Math.floor(this.boardSize / 2);
+        if (board[center][center] === '') {
+            return { row: center, col: center };
+        }
+
+        // Otherwise find any empty cell
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                if (board[row][col] === '') {
+                    return { row, col };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if a move is valid
+     * @param {Array} board - Current board state
+     * @param {number} row - Row of the move
+     * @param {number} col - Column of the move
+     * @returns {boolean} - Whether the move is valid
+     */
+    isValidMove(board, row, col) {
+        return typeof row === 'number' &&
+               typeof col === 'number' &&
+               row >= 0 && row < this.boardSize &&
+               col >= 0 && col < this.boardSize &&
+               board[row][col] === '';
+    }
     
+    /**
+     * Check for critical opponent threats that must be blocked
+     * @param {Array} opponentThreats - Array of opponent threats
+     * @param {string} player - Current player
+     * @returns {Object|null} - Move to block critical threat or null
+     */
+    checkCriticalThreats(opponentThreats, player) {
+        console.log(`Found ${opponentThreats.length} opponent threats`);
+        if (opponentThreats.length > 0) {
+            console.log('Top 3 opponent threats:', opponentThreats.slice(0, 3).map(t =>
+                `[${t.row},${t.col}] priority=${t.priority} type=${t.type}`
+            ));
+        }
+
+        // Filter for critical threats - ONLY immediate wins and forced wins (not developing threats)
+        // Developing threats (3 in a row with one open end) are not critical - they give us time to find better moves
+        const criticalThreats = opponentThreats.filter(threat =>
+            threat.priority >= THREAT_PRIORITIES.CRITICAL_THREAT_THRESHOLD ||
+            (threat.type === 'block' && threat.priority >= THREAT_PRIORITIES.CRITICAL_BLOCK_THRESHOLD)
+        );
+
+        if (criticalThreats.length > 0) {
+            criticalThreats.sort((a, b) => b.priority - a.priority);
+            const blockMove = {
+                row: criticalThreats[0].row,
+                col: criticalThreats[0].col
+            };
+
+            console.log(`✓ Blocking critical opponent threat at [${blockMove.row},${blockMove.col}] priority=${criticalThreats[0].priority} type=${criticalThreats[0].type}`);
+            return blockMove;
+        }
+        console.log('✗ No critical opponent threats to block');
+        return null;
+    }
+
+    /**
+     * Check for immediate win or need to block opponent's win
+     * This consolidates the duplicate win checking logic
+     * @param {Array} board - Current board state
+     * @param {string} player - Current player
+     * @param {string} opponent - Opponent player
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
+     * @returns {Object|null} - Move to make or null if none found
+     */
+    checkImmediateWinOrBlock(board, player, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
+        // 1. First priority: Find immediate winning move
+        console.log('Step 1: Checking for immediate winning move...');
+        const winningMove = this.findImmediateWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+        if (winningMove) {
+            console.log(`✓ Found immediate winning move at [${winningMove.row},${winningMove.col}]`);
+            return winningMove;
+        }
+        console.log('✗ No immediate winning move found');
+
+        // 2. Second priority: Block opponent's immediate win
+        console.log(`Step 2: Checking if opponent (${opponent}) has immediate win...`);
+        const blockingMove = this.findImmediateWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+        if (blockingMove) {
+            console.log(`✓ Found blocking move at [${blockingMove.row},${blockingMove.col}]`);
+            return blockingMove;
+        }
+        console.log('✗ Opponent has no immediate win to block');
+
+        return null;
+    }
+
     /**
      * Count potential win tracks for a position (helper method for threat analysis)
      * @param {Array} board - Current board state
@@ -574,15 +670,15 @@ class ImpossibleStrategy {
         const gameProgress = filledCells / totalCells;
         
         // Adjust depth based on game phase - OPTIMIZED for speed
-        if (gameProgress < 0.2) {
+        if (gameProgress < SEARCH_CONFIG.EARLY_GAME_THRESHOLD) {
             // Early game: lower depth for speed
-            return 3;
-        } else if (gameProgress > 0.7) {
+            return SEARCH_CONFIG.EARLY_GAME_DEPTH;
+        } else if (gameProgress > SEARCH_CONFIG.LATE_GAME_THRESHOLD) {
             // Late game: higher depth but not too high
-            return 4;
+            return SEARCH_CONFIG.LATE_GAME_DEPTH;
         } else {
             // Mid game: standard depth
-            return 3;
+            return SEARCH_CONFIG.MID_GAME_DEPTH;
         }
     }
     
@@ -609,7 +705,7 @@ class ImpossibleStrategy {
                     
                     // Check if in center region
                     if (centerRegion.some(([r, c]) => r === row && c === col)) {
-                        score += 10;
+                        score += STRATEGIC_VALUES.CENTER_REGION_BONUS;
                     }
                     
                     // Check connectivity to friendly pieces
@@ -654,9 +750,9 @@ class ImpossibleStrategy {
             const newCol = (col + dy + this.boardSize) % this.boardSize;
             
             if (board[newRow][newCol] === player) {
-                score += 3; // Adjacent to our piece
+                score += STRATEGIC_VALUES.ADJACENT_FRIENDLY;
             } else if (board[newRow][newCol] === '') {
-                score += 1; // Adjacent to empty space (mobility)
+                score += STRATEGIC_VALUES.ADJACENT_EMPTY;
             }
         }
         
@@ -692,7 +788,7 @@ class ImpossibleStrategy {
             }
         }
         
-        return viableTracks * 2;
+        return viableTracks * STRATEGIC_VALUES.VIABLE_TRACK_MULTIPLIER;
     }
     
     /**
