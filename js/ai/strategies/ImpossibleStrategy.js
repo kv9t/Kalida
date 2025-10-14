@@ -101,8 +101,10 @@ class ImpossibleStrategy {
             }
 
             // CRITICAL: Check for 2-move forced wins (opponent plays, AI responds, opponent wins)
-            // This is a pragmatic fix for the performance issue preventing deep search
+            // Find ALL threats and block the most dangerous one
             console.log('Checking for 2-move forced win setups...');
+            const twoMoveThreats = [];
+
             for (let row = 0; row < this.boardSize; row++) {
                 for (let col = 0; col < this.boardSize; col++) {
                     if (board[row][col] === '') {
@@ -113,12 +115,21 @@ class ImpossibleStrategy {
                         // Check if opponent now has an immediate win available
                         const opponentNextWin = this.findImmediateWin(testBoard, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
                         if (opponentNextWin) {
-                            console.log(`CRITICAL: Blocking 2-move forced win setup at [${row},${col}]`);
-                            this.updatePlayerHistory(row, col, player);
-                            return { row, col };
+                            // Priority: positions closer to edges are more likely to be bounce patterns (more dangerous)
+                            const distanceFromEdge = Math.min(row, col, this.boardSize - 1 - row, this.boardSize - 1 - col);
+                            twoMoveThreats.push({ row, col, distanceFromEdge });
                         }
                     }
                 }
+            }
+
+            if (twoMoveThreats.length > 0) {
+                // Sort by closest to edge (bounce threats are most dangerous)
+                twoMoveThreats.sort((a, b) => a.distanceFromEdge - b.distanceFromEdge);
+                const threat = twoMoveThreats[0];
+                console.log(`CRITICAL: Blocking 2-move forced win setup at [${threat.row},${threat.col}] (found ${twoMoveThreats.length} threats, priority: edge distance=${threat.distanceFromEdge})`);
+                this.updatePlayerHistory(threat.row, threat.col, player);
+                return { row: threat.row, col: threat.col };
             }
             console.log('No 2-move forced win setups found');
 
