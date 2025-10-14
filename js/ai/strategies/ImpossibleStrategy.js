@@ -100,6 +100,28 @@ class ImpossibleStrategy {
                 return opponentWin;
             }
 
+            // CRITICAL: Check for 2-move forced wins (opponent plays, AI responds, opponent wins)
+            // This is a pragmatic fix for the performance issue preventing deep search
+            console.log('Checking for 2-move forced win setups...');
+            for (let row = 0; row < this.boardSize; row++) {
+                for (let col = 0; col < this.boardSize; col++) {
+                    if (board[row][col] === '') {
+                        // Simulate opponent playing here
+                        const testBoard = this.copyBoard(board);
+                        testBoard[row][col] = opponent;
+
+                        // Check if opponent now has an immediate win available
+                        const opponentNextWin = this.findImmediateWin(testBoard, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+                        if (opponentNextWin) {
+                            console.log(`CRITICAL: Blocking 2-move forced win setup at [${row},${col}]`);
+                            this.updatePlayerHistory(row, col, player);
+                            return { row, col };
+                        }
+                    }
+                }
+            }
+            console.log('No 2-move forced win setups found');
+
             // ALWAYS RUN MINIMAX - No shortcuts, no opening book, just pure search
             // Use iterative deepening for better performance
             const maxDepth = 4; // Reduced to 4 for better performance
