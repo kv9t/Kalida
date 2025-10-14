@@ -92,36 +92,49 @@ class ImpossibleStrategy {
             this.cleanupCache();
 
             // ALWAYS RUN MINIMAX - No shortcuts, no opening book, just pure search
-            // Increase depth to catch 2-move forced wins
-            const searchDepth = Math.max(5, this.determineSearchDepth(board)); // Minimum depth 5
-            
-            const timeLimit = 2000; // Increase to 2 seconds for deeper search
+            // Use iterative deepening for better performance
+            const maxDepth = Math.max(6, this.determineSearchDepth(board)); // Maximum depth to search
+
+            const timeLimit = 3000; // 3 seconds for deeper search
             const startTime = Date.now();
 
-            // Run exhaustive minimax search
+            // Iterative deepening: start shallow, go deeper
             let bestMove = null;
-            let currentDepth = 5; // Start at 5 to catch 2-move forced wins
+            let bestScore = null;
 
-            while (currentDepth <= searchDepth) {
-                console.log(`Running minimax at depth ${currentDepth}...`);
+            // Start at depth 1 and increase - this is proper iterative deepening
+            for (let depth = 1; depth <= maxDepth; depth++) {
+                console.log(`Running minimax at depth ${depth}...`);
                 const move = this.minimaxSearch.findBestMove(
-                    board, player, currentDepth, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
+                    board, player, depth, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
                 );
 
                 if (move && typeof move.row === 'number' && typeof move.col === 'number') {
                     bestMove = move;
-                    console.log(`Depth ${currentDepth} found move: (${move.row}, ${move.col}) with score: ${move.score}`);
-                    // Don't break early - always search to minimum depth
-                    // The win detection seems unreliable
+                    bestScore = move.score;
+                    console.log(`Depth ${depth} found move: (${move.row}, ${move.col}) with score: ${move.score}`);
+
+                    // If we found a guaranteed win or loss, we can stop
+                    // But only trust very extreme scores
+                    if (Math.abs(move.score) > 50000) {
+                        console.log(`Found decisive position at depth ${depth}`);
+                        break;
+                    }
                 }
 
                 // Check if time limit exceeded
-                if (Date.now() - startTime > timeLimit) {
-                    console.log(`Time limit reached after depth ${currentDepth}`);
+                const elapsed = Date.now() - startTime;
+                if (elapsed > timeLimit) {
+                    console.log(`Time limit reached after depth ${depth} (${elapsed}ms)`);
                     break;
                 }
 
-                currentDepth++;
+                // Estimate if we have time for next depth (exponential growth)
+                // If last depth took more than 1/3 of remaining time, stop
+                if (depth > 1 && elapsed > timeLimit / 3) {
+                    console.log(`Stopping at depth ${depth} - next depth likely too slow`);
+                    break;
+                }
             }
 
             // Minimax should ALWAYS find a move

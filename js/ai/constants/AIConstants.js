@@ -75,10 +75,10 @@ export const SEARCH_CONFIG = {
     // Base search depth for minimax
     BASE_DEPTH: 4,
 
-    // Search depths for different game phases
-    EARLY_GAME_DEPTH: 5,        // Game progress < 20% (increased from 3)
-    MID_GAME_DEPTH: 5,          // Game progress 20-70% (increased from 3)
-    LATE_GAME_DEPTH: 6,         // Game progress > 70% (increased from 4)
+    // Search depths for different game phases (maximum depths for iterative deepening)
+    EARLY_GAME_DEPTH: 6,        // Game progress < 20%
+    MID_GAME_DEPTH: 7,          // Game progress 20-70%
+    LATE_GAME_DEPTH: 8,         // Game progress > 70% (fewer pieces, can go deeper)
 
     // Game phase thresholds
     EARLY_GAME_THRESHOLD: 0.2,  // Board filled < 20%
