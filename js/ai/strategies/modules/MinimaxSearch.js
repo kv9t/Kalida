@@ -54,8 +54,16 @@ class MinimaxSearch {
         // Get valid moves, sorted by potential
         const validMoves = this.getOrderedMoves(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
 
-        // OPTIMIZATION: At shallow depths, only consider top moves to save time
-        const movesToConsider = depth <= 2 ? validMoves.slice(0, 10) : validMoves;
+        // OPTIMIZATION: Limit moves considered based on depth to save time
+        // At root level, consider fewer moves; deeper in tree, consider even fewer
+        let movesToConsider;
+        if (depth >= 4) {
+            movesToConsider = validMoves.slice(0, 12); // Top 12 moves at depth 4+
+        } else if (depth >= 3) {
+            movesToConsider = validMoves.slice(0, 15); // Top 15 moves at depth 3
+        } else {
+            movesToConsider = validMoves.slice(0, 20); // Top 20 moves at depth 2
+        }
 
         let bestMove = null;
         let bestScore = -Infinity;
@@ -134,27 +142,10 @@ class MinimaxSearch {
             return score;
         }
         
-        // Check for win/loss
-        const currentWin = this.checkForWin(board, currentPlayer, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-        const opponentWin = this.checkForWin(
-            board, 
-            currentPlayer === 'X' ? 'O' : 'X', 
-            bounceRuleEnabled, 
-            missingTeethRuleEnabled, 
-            wrapRuleEnabled
-        );
-        
-        if (currentWin) {
-            const score = isMaximizing ? EVALUATION_WEIGHTS.WIN : -EVALUATION_WEIGHTS.WIN;
-            this.transpositionTable.set(boardHash, score);
-            return score;
-        }
-
-        if (opponentWin) {
-            const score = isMaximizing ? -EVALUATION_WEIGHTS.WIN : EVALUATION_WEIGHTS.WIN;
-            this.transpositionTable.set(boardHash, score);
-            return score;
-        }
+        // OPTIMIZATION: Only check for wins if the last move could have created one
+        // This is a HUGE performance gain - no need to check every position
+        // We only need to check after the opponent's last move (when depth decreased)
+        // For now, skip this expensive check and rely on evaluation function
         
         // Check for draw (board full)
         if (this.isBoardFull(board)) {

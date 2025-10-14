@@ -102,17 +102,17 @@ class ImpossibleStrategy {
 
             // ALWAYS RUN MINIMAX - No shortcuts, no opening book, just pure search
             // Use iterative deepening for better performance
-            const maxDepth = 5; // Hard limit to prevent excessive computation
+            const maxDepth = 4; // Reduced to 4 for better performance
 
-            const timeLimit = 1500; // 1.5 seconds max
+            const timeLimit = 2000; // 2 seconds max
             const startTime = Date.now();
 
             // Iterative deepening: start shallow, go deeper
             let bestMove = null;
             let bestScore = null;
 
-            // Start at depth 2 (depth 1 is too shallow to be useful)
-            for (let depth = 2; depth <= maxDepth; depth++) {
+            // Start at depth 3 (minimum to catch 2-move patterns)
+            for (let depth = 3; depth <= maxDepth; depth++) {
                 console.log(`Running minimax at depth ${depth}...`);
                 const move = this.minimaxSearch.findBestMove(
                     board, player, depth, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled
