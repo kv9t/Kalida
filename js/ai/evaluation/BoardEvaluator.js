@@ -57,14 +57,11 @@ class BoardEvaluator {
      */
     evaluateBoard(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         const opponent = player === 'X' ? 'O' : 'X';
-        
-        // Check for win/loss first
-        const playerWin = this.checkForWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-        const opponentWin = this.checkForWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-        
-        if (playerWin) return this.weights.WIN;
-        if (opponentWin) return -this.weights.WIN;
-        
+
+        // REMOVED: Win checks here were causing false positives with buggy bounce detection
+        // We rely on immediate win detection at the root level instead
+        // Evaluation should only score position strength, not declare wins
+
         // Initialize score
         let score = 0;
         
