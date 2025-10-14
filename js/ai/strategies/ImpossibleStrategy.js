@@ -411,6 +411,47 @@ class ImpossibleStrategy {
         }
         console.log('✗ Opponent has no immediate win to block');
 
+        // 2.5. Check for 2-move forced wins (setup moves that guarantee next move wins)
+        console.log(`Step 2.5: Checking for opponent 2-move forced wins...`);
+        const forcedWinBlock = this.findTwoMoveWinSetup(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+        if (forcedWinBlock) {
+            console.log(`✓ Found 2-move forced win setup to block at [${forcedWinBlock.row},${forcedWinBlock.col}]`);
+            return forcedWinBlock;
+        }
+        console.log('✗ No 2-move forced win setups to block');
+
+        return null;
+    }
+
+    /**
+     * Find moves that set up a guaranteed win on the next turn
+     * This detects patterns like: if I play here, ANY of my next 2-3 moves will win
+     * @param {Array} board - Current board state
+     * @param {string} player - Player to check for
+     * @param {boolean} bounceRuleEnabled - Whether bounce rule is enabled
+     * @param {boolean} missingTeethRuleEnabled - Whether missing teeth rule is enabled
+     * @param {boolean} wrapRuleEnabled - Whether wrap rule is enabled
+     * @returns {Object|null} - Setup move to block, or null
+     */
+    findTwoMoveWinSetup(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
+        // For each empty cell, simulate placing player's piece there
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                if (board[row][col] === '') {
+                    // Simulate the move
+                    const testBoard = this.copyBoard(board);
+                    testBoard[row][col] = player;
+
+                    // Check if this creates an immediate win for the next move
+                    const nextWin = this.findImmediateWin(testBoard, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
+                    if (nextWin) {
+                        console.log(`Found 2-move setup: [${row},${col}] → [${nextWin.row},${nextWin.col}] wins`);
+                        // Block the setup move, not the winning move
+                        return { row, col };
+                    }
+                }
+            }
+        }
         return null;
     }
 
