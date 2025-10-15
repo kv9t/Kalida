@@ -64,7 +64,7 @@ class GameUI {
         };
         
         // Track if we've applied saved preferences yet
-        this.hasAppliedSavedPreferences = false;
+        //this.hasAppliedSavedPreferences = false;
         
         // Initialize the UI
         this.initialize();
@@ -205,32 +205,48 @@ class GameUI {
 
     /**
      * Apply saved preferences from cookies to UI elements
+     * FIXED: SVG updates moved OUTSIDE of gameModeSelect check
      */
     applySavedPreferences() {
-        if (this.hasAppliedSavedPreferences) {
-            console.log('Saved preferences already applied, skipping');
-            return;
-        }
-        
         console.log('Applying current game state to UI elements');
         
         try {
             // ALWAYS sync UI with actual game state (whether from cookies or defaults)
             const gameStatus = this.game.getGameStatus();
             
-            // Apply current game mode (this will be from cookies if enabled, defaults if not)
+            // ============================================================
+            // CRITICAL FIX: Always update the game mode SVG
+            // The SVG is part of the current UI and should ALWAYS update
+            // ============================================================
+            console.log('Setting UI game mode to:', this.game.gameMode);
+            this.assetManager.updateGameModeSVG(this.game.gameMode);
+            
+            // ============================================================
+            // CRITICAL FIX: Always update rules SVG
+            // This is also part of the current UI
+            // ============================================================
+            if (this.game.gameMode !== 'human') {
+                this.assetManager.updateRulesForGameMode(this.game.gameMode);
+            } else {
+                // For human mode, determine based on current rules
+                this.assetManager.updateRulesForSettings({
+                    bounceRuleEnabled: this.game.bounceRuleEnabled,
+                    wrapRuleEnabled: this.game.wrapRuleEnabled,
+                    missingTeethRuleEnabled: this.game.missingTeethRuleEnabled
+                });
+            }
+            
+            // ============================================================
+            // Legacy support: Update old UI elements only if they exist
+            // These were from the old dropdown-based system
+            // ============================================================
             if (this.elements.gameModeSelect) {
-                console.log('Setting UI game mode to:', this.game.gameMode);
                 this.elements.gameModeSelect.value = this.game.gameMode;
-                
-                // NEW: Update game mode SVG
-                this.assetManager.updateGameModeSVG(this.game.gameMode);
-                
                 // Trigger the UI update for rule toggles based on the actual game mode
                 this.handleGameModeChange(this.game.gameMode, this.game.gameMode !== 'human');
             }
             
-            // Apply current rule preferences (from game state, not necessarily cookies)
+            // Apply current rule preferences to toggles if they exist
             if (this.elements.bounceToggle) {
                 this.elements.bounceToggle.checked = this.game.bounceRuleEnabled;
             }
@@ -244,18 +260,6 @@ class GameUI {
                 this.elements.knightMoveToggle.checked = this.game.knightMoveRuleEnabled;
             }
             
-            // NEW: Update rules SVG based on current game mode
-            if (this.game.gameMode !== 'human') {
-                this.assetManager.updateRulesForGameMode(this.game.gameMode);
-            } else {
-                // For human mode, determine based on current rules
-                this.assetManager.updateRulesForSettings({
-                    bounceRuleEnabled: this.game.bounceRuleEnabled,
-                    wrapRuleEnabled: this.game.wrapRuleEnabled,
-                    missingTeethRuleEnabled: this.game.missingTeethRuleEnabled
-                });
-            }
-            
             console.log('Applied current game state to UI:', {
                 gameMode: this.game.gameMode,
                 bounce: this.game.bounceRuleEnabled,
@@ -264,8 +268,6 @@ class GameUI {
                 knightMove: this.game.knightMoveRuleEnabled,
                 cookiesEnabled: this.game.cookiesEnabled
             });
-            
-            this.hasAppliedSavedPreferences = true;
             
         } catch (error) {
             console.error('Error applying current game state to UI:', error);

@@ -13,11 +13,29 @@
     --border-color: #333;
     
     /* Player colors */
-    --player-x-color:  #00C7BE; /*mint*/
-    --player-o-color: #5834db; /*indigo*/
+    --player-o-color:  #00C7BE; /*mint*/
+    --player-x-color: #5834db; /*indigo*/
 
     /*--player-x-color: #e74c3c; /*red*/
     /*--player-o-color: #3498db; /*blue*/
+
+
+    /* Option A: Classic Bold (Recommended) */
+   /* --player-x-color: #d32f2f;  /* Bold red */
+   /* --player-o-color: #1976d2;  /* Bold blue */
+
+    /* Option B: Maximum Contrast */
+ /*   --player-x-color: #000000;  /* Black */
+ /*   --player-o-color: #ff6600;  /* Bold orange */
+
+    /* Option C: Professional High-Contrast */
+ /*   --player-x-color: #8b0000;  /* Dark red */
+ /*   --player-o-color: #000080;  /* Navy blue */
+
+    /* Option D: Modern Bold */
+ /*   --player-x-color: #e53e3e;  /* Bright red */
+ /*   --player-o-color: #3182ce;  /* Strong blue */
+
 
     --highlight-color: #FFD580;
     /*--hover-color: #89f88b; */

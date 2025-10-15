@@ -26,8 +26,8 @@ class BoardUI {
         
         // Initialize the marker renderer
         this.markerRenderer = new PlayerMarkerRenderer({
-            size: 24,
-            strokeWidth: 1.5,
+            size: 28,
+            strokeWidth: 2,
             enableHoverEffect: true,
             enableAppearAnimation: true
         });

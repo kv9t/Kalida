@@ -78,23 +78,22 @@ class PlayerMarkerRenderer {
     createStarMarker(options = {}) {
         const config = { ...this.config, ...options };
         const size = config.size;
+        const center = size / 2;
         
-        // Create SVG element
+        // Scaled caltrop coordinates (scales with size)
+        const starPoints = `${center},0 ${center + size/12},${center - size/12} ${size},${center} ${center + size/12},${center + size/12} ${center},${size} ${center - size/12},${center + size/12} 0,${center} ${center - size/12},${center - size/12}`;
+        
         const svg = this.createBaseSVG(size, config);
         
-        // Star shape coordinates (5-pointed star)
-        const starPoints = "12,2 15,9 22,9 17,14 19,22 12,18 5,22 7,14 2,9 9,9";
-        
-        // Create star polygon
         const star = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         star.setAttribute('points', starPoints);
         star.setAttribute('fill', 'currentColor');
         star.setAttribute('stroke', 'currentColor');
-        star.setAttribute('stroke-width', config.strokeWidth);
-        star.setAttribute('stroke-linejoin', 'round'); // Smoother corners
+        star.setAttribute('stroke-width', size/6); // ← Scale stroke too
+        star.setAttribute('stroke-linejoin', 'round');
+        star.setAttribute('transform', `rotate(45 ${center} ${center})`);
         
         svg.appendChild(star);
-        
         return svg;
     }
     
@@ -138,12 +137,11 @@ class PlayerMarkerRenderer {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('width', size);
         svg.setAttribute('height', size);
-        svg.setAttribute('viewBox', `0 0 24 24`); // Fixed viewBox for consistent scaling
+        svg.setAttribute('viewBox', `0 0 ${size} ${size}`); // ← Dynamic viewBox
         svg.setAttribute('class', config.className);
         
-        // Add accessibility
         svg.setAttribute('role', 'img');
-        svg.setAttribute('aria-hidden', 'true'); // Decorative, screen readers will use game state
+        svg.setAttribute('aria-hidden', 'true');
         
         return svg;
     }
