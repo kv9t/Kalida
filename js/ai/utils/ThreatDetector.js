@@ -1,6 +1,6 @@
 /**
  * ThreatDetector.js - Enhanced threat detection for Kalida
- * 
+ *
  * Detects various threats on the board:
  * - Immediate wins (4 in a row with an open end)
  * - Forced wins (3 in a row with two open ends)
@@ -9,6 +9,7 @@
  */
 
 import WinTrackGenerator from './WinTrackGenerator.js';
+import { THREAT_PRIORITIES } from '../constants/AIConstants.js';
 
 class ThreatDetector {
     /**
@@ -20,15 +21,9 @@ class ThreatDetector {
         this.boardSize = boardSize;
         this.rules = rules;
         this.winTrackGenerator = new WinTrackGenerator(boardSize, rules);
-        
-        // Threat levels and their priorities
-        this.threatLevels = {
-            IMMEDIATE_WIN: 100,      // 4 in a row with open end
-            FORCED_WIN: 90,          // 3 in a row with two open ends
-            DEVELOPING_THREAT: 70,   // 3 in a row with one open end
-            POTENTIAL_THREAT: 50,    // 2 in a row with two open ends
-            EARLY_THREAT: 30         // 2 in a row with one open end
-        };
+
+        // Use centralized threat priorities
+        this.threatLevels = THREAT_PRIORITIES;
     }
     
     /**
@@ -191,10 +186,17 @@ class ThreatDetector {
                 // Add threats for each empty position
                 for (const [row, col] of emptyPositions) {
                     if (!missingTeethRuleEnabled || !this.wouldCreateMissingTeeth(board, row, col, player, track)) {
+                        // Boost priority slightly for wrap rule edge positions
+                        // But don't boost too much - let actual threat patterns determine priority
+                        let priority = this.threatLevels.DEVELOPING_THREAT;
+                        if (wrapRuleEnabled && this.isNearEdge(row, col)) {
+                            priority = Math.min(priority + 2, this.threatLevels.DEVELOPING_THREAT + 2);
+                            // Removed excessive logging
+                        }
                         threats.push({
                             row,
                             col,
-                            priority: this.threatLevels.DEVELOPING_THREAT,
+                            priority: priority,
                             type: 'develop'
                         });
                     }
@@ -374,6 +376,18 @@ class ThreatDetector {
         // Check if the player positions are consecutive in the track
         // If they're not consecutive, there are missing teeth
         return !this.arePositionsConsecutive(track, playerPositions);
+    }
+
+    /**
+     * Check if a position is near the edge of the board
+     * Used to boost threat priorities for wrap rule scenarios
+     * @param {number} row - Row to check
+     * @param {number} col - Column to check
+     * @returns {boolean} - Whether position is on or near an edge
+     */
+    isNearEdge(row, col) {
+        return row === 0 || row === this.boardSize - 1 ||
+               col === 0 || col === this.boardSize - 1;
     }
 }
 

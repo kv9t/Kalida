@@ -311,14 +311,21 @@ class Rules {
         
         // If a valid pattern was found
         if (result && result.path.length >= 5) {
+            // CRITICAL FIX: Validate the pattern actually includes the current position
+            // This prevents false positives where bounce detection finds unrelated patterns
+            const includesCurrentPos = result.path.some(([r, c]) => r === row && c === col);
+            if (!includesCurrentPos) {
+                return { winner: null, winningCells: [], bounceCellIndex: -1, secondBounceCellIndex: -1 };
+            }
+
             // Check for missing teeth if required
             if (missingTeethRuleEnabled && BounceUtils.hasMissingTeeth(result.path)) {
                 return { winner: null, winningCells: [], bounceCellIndex: -1, secondBounceCellIndex: -1 };
             }
             
-            // Log bounce data for debugging
-            console.log("Bounce pattern found:", result.path);
-            console.log("Bounce indices:", result.bounceIndices);
+            // Log bounce data for debugging (only in non-minimax contexts)
+            // console.log("Bounce pattern found:", result.path);
+            // console.log("Bounce indices:", result.bounceIndices);
             
             // Extract bounce indices, ensuring we pass exactly what the UI expects
             const bounceCellIndex = result.bounceIndices && result.bounceIndices.length > 0 ? 
@@ -327,7 +334,7 @@ class Rules {
             const secondBounceCellIndex = result.bounceIndices && result.bounceIndices.length > 1 ? 
                                     result.bounceIndices[1] : -1;
             
-            console.log("Extracted bounce indices:", bounceCellIndex, secondBounceCellIndex);
+            // console.log("Extracted bounce indices:", bounceCellIndex, secondBounceCellIndex);
             
             // Return the win information with explicit bounce cell indices
             return {

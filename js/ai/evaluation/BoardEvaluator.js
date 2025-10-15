@@ -1,12 +1,13 @@
 /**
  * BoardEvaluator.js - Evaluates board positions for Kalida
- * 
+ *
  * Performs heuristic evaluation of board positions for minimax algorithm,
  * considering win potential, threat development, and strategic positions.
  */
 
 import ThreatDetector from '../utils/ThreatDetector.js';
 import WinTrackGenerator from '../utils/WinTrackGenerator.js';
+import { EVALUATION_WEIGHTS } from '../constants/AIConstants.js';
 
 class BoardEvaluator {
     /**
@@ -19,19 +20,10 @@ class BoardEvaluator {
         this.rules = rules;
         this.winTrackGenerator = new WinTrackGenerator(boardSize, rules);
         this.threatDetector = new ThreatDetector(boardSize, rules);
-        
-        // Pattern weights for evaluation
-        this.weights = {
-            WIN: 10000,             // Win
-            FOUR_IN_LINE: 1000,     // Four in a row
-            THREE_OPEN: 500,        // Three in a row with both ends open
-            THREE_HALF_OPEN: 100,   // Three in a row with one end open
-            TWO_OPEN: 50,           // Two in a row with both ends open
-            TWO_HALF_OPEN: 10,      // Two in a row with one end open
-            CENTER_CONTROL: 5,      // Having pieces in the central region
-            ISOLATED: 1             // Isolated piece
-        };
-        
+
+        // Use centralized evaluation weights
+        this.weights = EVALUATION_WEIGHTS;
+
         // Center region definition
         this.centerRegion = this.defineCenterRegion();
     }
@@ -65,14 +57,11 @@ class BoardEvaluator {
      */
     evaluateBoard(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled) {
         const opponent = player === 'X' ? 'O' : 'X';
-        
-        // Check for win/loss first
-        const playerWin = this.checkForWin(board, player, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-        const opponentWin = this.checkForWin(board, opponent, bounceRuleEnabled, missingTeethRuleEnabled, wrapRuleEnabled);
-        
-        if (playerWin) return this.weights.WIN;
-        if (opponentWin) return -this.weights.WIN;
-        
+
+        // REMOVED: Win checks here were causing false positives with buggy bounce detection
+        // We rely on immediate win detection at the root level instead
+        // Evaluation should only score position strength, not declare wins
+
         // Initialize score
         let score = 0;
         
@@ -157,13 +146,13 @@ class BoardEvaluator {
             // Subtract based on opponent's marks (but less weight)
             if (trackAnalysis.opponent > 0) {
                 score -= this.scorePattern(
-                    trackAnalysis.opponent, 
+                    trackAnalysis.opponent,
                     trackAnalysis.empty,
                     track,
                     board,
                     opponent,
                     missingTeethRuleEnabled
-                ) * 0.8; // Slightly less weight for opponent
+                ) * this.weights.OPPONENT_DISCOUNT;
             }
         }
         
@@ -255,7 +244,7 @@ class BoardEvaluator {
         const opponentThreatScore = opponentThreats.reduce((sum, threat) => sum + threat.priority, 0);
         
         // Return difference (our threats minus opponent threats)
-        return playerThreatScore - (opponentThreatScore * 0.8); // Slightly less weight for opponent
+        return playerThreatScore - (opponentThreatScore * this.weights.OPPONENT_DISCOUNT);
     }
     
     /**

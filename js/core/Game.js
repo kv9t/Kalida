@@ -137,24 +137,13 @@ class Game {
             return;
         }
         
-        // Need to ask for consent
-        const cookieConsent = new CookieConsent(this.cookieManager);
-        cookieConsent.show((consented) => {
-            this.cookiesEnabled = consented;
-            console.log(`User ${consented ? 'accepted' : 'declined'} cookies`);
-            
-            // If user accepted cookies, load saved data immediately
-            if (consented) {
-                console.log('Cookies accepted, loading saved data...');
-                this.loadSavedData();
-            } else {
-                console.log('Cookies declined, using defaults');
-            }
-            
-            this.triggerEvent('cookieConsentChanged', { enabled: this.cookiesEnabled });
-            
-            if (callback) callback();
-        });
+        // Automatically accept cookies without showing popup
+        this.cookiesEnabled = true;
+        this.cookieManager.setConsent(true);
+        console.log('Cookies automatically accepted');
+        this.loadSavedData();
+        this.triggerEvent('cookieConsentChanged', { enabled: this.cookiesEnabled });
+        if (callback) callback();
     }
     
     /**
