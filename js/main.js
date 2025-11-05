@@ -17,6 +17,10 @@ const { app: firebaseApp, auth: firebaseAuth, db: firebaseDb } = firebaseService
 import AuthManager from './auth/AuthManager.js';
 import AuthUI from './ui/AuthUI.js';
 
+// Room management imports
+import RoomManager from './multiplayer/RoomManager.js';
+import RoomUI from './ui/RoomUI.js';
+
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -44,14 +48,25 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Creating GameUI...');
         const gameUI = new GameUI(game);
 
+        // Initialize room management
+        console.log('Initializing room management...');
+        const roomManager = new RoomManager(firebaseDb, authManager, game.cookieManager);
+        const roomUI = new RoomUI(roomManager);
+
         // Set up authentication state listener
-        authManager.onAuthStateChange((user) => {
+        authManager.onAuthStateChange(async (user) => {
             console.log('Auth state change in main.js:', user ? 'Logged in' : 'Logged out');
 
             if (user) {
                 // User is logged in - hide welcome modal, show game
                 authUI.hideWelcomeModal();
                 console.log('User authenticated:', user.email || 'Guest');
+
+                // Initialize rooms
+                await roomManager.initialize();
+
+                // Show room selector
+                roomUI.showRoomSelector();
 
                 // Check if we should show tutorial (only for authenticated users)
                 try {
@@ -60,8 +75,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Error in tutorial check:', tutorialError);
                 }
             } else {
-                // User is logged out - show welcome modal
+                // User is logged out - show welcome modal, hide room selector
                 authUI.showWelcomeModal();
+                roomUI.hideRoomSelector();
                 console.log('User not authenticated, showing welcome screen');
             }
         });
@@ -165,6 +181,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Authentication managers
                 authManager: authManager,
                 authUI: authUI,
+                // Room management
+                roomManager: roomManager,
+                roomUI: roomUI,
                 // Utility functions for debugging/testing
                 debug: {
                     clearAllCookies: () => {
@@ -499,6 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Firebase services available at window.KalidaGame.firebase');
             console.log('Try: window.KalidaGame.firebase.auth, window.KalidaGame.firebase.db');
             console.log('Authentication: window.KalidaGame.authManager, window.KalidaGame.authUI');
+            console.log('Room management: window.KalidaGame.roomManager, window.KalidaGame.roomUI');
         }
         
     } catch (error) {

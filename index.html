@@ -41,6 +41,15 @@
         <header class="header">
             <h1>KALIDA</h1>
         </header>
+
+        <!-- ROOM SELECTOR -->
+        <div id="room-selector" class="room-selector" style="display: none;">
+            <div class="room-selector-content">
+                <span class="room-icon">🖥️</span>
+                <span class="room-name" id="current-room-name">COMPUTER</span>
+                <span class="room-chevron">▼</span>
+            </div>
+        </div>
         <!-- <div class="header-divider"></div> -->
       
 
@@ -689,6 +698,99 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- SWITCH ROOMS Modal -->
+    <div id="switch-rooms-modal" class="modal-backdrop rooms-modal" style="display: none;">
+        <div class="modal-container rooms-container">
+            <button class="modal-close-btn" id="close-switch-rooms">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                    <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                    <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                </svg>
+            </button>
+
+            <div class="modal-content rooms-content">
+                <h2 class="rooms-modal-title">SWITCH ROOMS</h2>
+
+                <!-- Top buttons -->
+                <div class="rooms-top-buttons">
+                    <button id="add-room-btn" class="rooms-button add-room-button">+ ADD ROOM</button>
+                    <button id="edit-rooms-btn" class="rooms-button edit-rooms-button">✏️</button>
+                </div>
+
+                <!-- Room list -->
+                <div id="room-list" class="room-list">
+                    <!-- Rooms will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW ROOM Modal -->
+    <div id="new-room-modal" class="modal-backdrop new-room-modal" style="display: none;">
+        <div class="modal-container new-room-container">
+            <button class="modal-close-btn" id="close-new-room">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                    <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                    <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                </svg>
+            </button>
+
+            <div class="modal-content new-room-content">
+                <h2 class="new-room-modal-title">NEW ROOM</h2>
+
+                <!-- Room type selection -->
+                <div class="room-type-selection">
+                    <label class="room-type-option">
+                        <input type="radio" name="room-type" value="computer" checked>
+                        <span class="room-type-label">
+                            <span class="room-type-icon">🖥️</span>
+                            <span class="room-type-text">COMPUTER</span>
+                        </span>
+                    </label>
+                    <label class="room-type-option">
+                        <input type="radio" name="room-type" value="local">
+                        <span class="room-type-label">
+                            <span class="room-type-icon">👥</span>
+                            <span class="room-type-text">LOCAL</span>
+                        </span>
+                    </label>
+                    <label class="room-type-option">
+                        <input type="radio" name="room-type" value="remote">
+                        <span class="room-type-label">
+                            <span class="room-type-icon">🌐</span>
+                            <span class="room-type-text">REMOTE</span>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Opponent name input -->
+                <div class="opponent-name-section">
+                    <label for="opponent-name" class="opponent-name-label">NAME OF YOUR OPPONENT</label>
+                    <input type="text" id="opponent-name" class="opponent-name-input" placeholder="Enter opponent name">
+                </div>
+
+                <!-- Create room button -->
+                <button id="create-room-btn" class="rooms-button create-room-button">CREATE ROOM</button>
+                <div class="room-message" id="room-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVITE LINK Overlay -->
+    <div id="invite-link-overlay" class="invite-link-overlay" style="display: none;">
+        <div class="invite-link-container">
+            <button class="invite-link-close" id="close-invite-link">✕</button>
+
+            <h3 class="invite-link-title">SHARE THIS INVITE LINK WITH YOUR OPPONENT</h3>
+
+            <div class="invite-link-url" id="invite-link-url">
+                https://playkalida.com/?invite=abc123
+            </div>
+
+            <button id="copy-invite-link-btn" class="rooms-button copy-invite-button">COPY INVITE LINK</button>
         </div>
     </div>
 
