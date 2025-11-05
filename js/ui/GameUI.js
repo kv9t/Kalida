@@ -282,28 +282,41 @@ class GameUI {
      * @returns {string} Personalized turn text
      */
     getPersonalizedTurnText(player) {
+        console.log('getPersonalizedTurnText called for player:', player);
+
         if (!this.roomManager) {
+            console.log('No roomManager available');
             return `Player ${player}'s Turn`;
         }
 
         const currentRoom = this.roomManager.getCurrentRoom();
+        console.log('Current room:', currentRoom?.name, 'type:', currentRoom?.type, 'has players:', !!currentRoom?.players);
+
         if (!currentRoom || currentRoom.type !== 'remote' || !currentRoom.players) {
+            console.log('Not a remote room with players - returning default');
             return `Player ${player}'s Turn`;
         }
 
         // Get the player info for the current turn
         const playerInfo = currentRoom.players[player];
+        console.log('Player info for', player, ':', playerInfo);
+
         if (!playerInfo) {
+            console.log('No player info found for', player);
             return `Player ${player}'s Turn`;
         }
 
         // Check if it's the current user's turn
         const mySymbol = this.roomManager.getMyPlayerSymbol(currentRoom);
+        console.log('My symbol:', mySymbol, 'Current player:', player);
+
         if (mySymbol === player) {
+            console.log('Returning YOUR TURN');
             return 'YOUR TURN';
         }
 
         // It's the opponent's turn - show their display name
+        console.log('Returning opponent turn:', playerInfo.displayName);
         return `${playerInfo.displayName}'s TURN`;
     }
 

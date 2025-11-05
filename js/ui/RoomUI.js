@@ -243,8 +243,8 @@ export class RoomUI {
         const status = this.getRoomStatus(room);
         const displayName = this.getPersonalizedRoomName(room);
 
-        // Add share button for remote rooms waiting for opponent
-        const showShareBtn = room.type === 'remote' && room.status === 'waiting' && !this.editMode;
+        // Add share button for all remote rooms (not just waiting)
+        const showShareBtn = room.type === 'remote' && room.inviteLink && !this.editMode;
 
         item.innerHTML = `
             ${this.editMode ? `<button class="room-delete-btn" data-room-id="${room.id}">🗑️</button>` : ''}
