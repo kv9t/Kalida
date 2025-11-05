@@ -1002,18 +1002,7 @@ class GameUI {
             }
         }
     }
-    
-    /**
-     * Handle cell click
-     * @param {number} row - Row index
-     * @param {number} col - Column index
-     */
-    handleCellClick(row, col) {
-        if (typeof this.game.makeMove === 'function') {
-            this.game.makeMove(row, col);
-        }
-    }
-    
+
     /**
      * Update scores display
      * @param {Object} scores - Scores object { X: number, O: number }
