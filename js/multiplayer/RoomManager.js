@@ -309,25 +309,48 @@ export class RoomManager {
 
     /**
      * Load rooms from Firestore (for logged-in users)
+     * Loads rooms created by user OR where user is a player
      */
     async loadRoomsFromFirestore(userId) {
         try {
-            const roomsQuery = query(
+            // Query 1: Rooms created by this user
+            const createdByQuery = query(
                 collection(this.db, 'rooms'),
                 where('createdBy', '==', userId)
             );
 
-            const snapshot = await getDocs(roomsQuery);
+            // Query 2: Rooms where user is Player X
+            const playerXQuery = query(
+                collection(this.db, 'rooms'),
+                where('players.X.userId', '==', userId)
+            );
 
-            // For logged-in users, ONLY load from Firestore (not cookies)
-            // Since we now save all room types to Firestore for logged-in users
-            this.rooms = [];
+            // Query 3: Rooms where user is Player O
+            const playerOQuery = query(
+                collection(this.db, 'rooms'),
+                where('players.O.userId', '==', userId)
+            );
 
-            snapshot.forEach(doc => {
-                this.rooms.push({ ...doc.data(), id: doc.id });
+            // Execute all queries in parallel
+            const [createdSnapshot, playerXSnapshot, playerOSnapshot] = await Promise.all([
+                getDocs(createdByQuery),
+                getDocs(playerXQuery),
+                getDocs(playerOQuery)
+            ]);
+
+            // Collect all rooms, using a Map to deduplicate by ID
+            const roomsMap = new Map();
+
+            [createdSnapshot, playerXSnapshot, playerOSnapshot].forEach(snapshot => {
+                snapshot.forEach(doc => {
+                    roomsMap.set(doc.id, { ...doc.data(), id: doc.id });
+                });
             });
 
-            console.log('Rooms loaded from Firestore:', this.rooms);
+            // Convert Map to array
+            this.rooms = Array.from(roomsMap.values());
+
+            console.log('Rooms loaded from Firestore:', this.rooms.length, 'rooms');
         } catch (error) {
             console.error('Error loading rooms from Firestore:', error);
             this.rooms = [];

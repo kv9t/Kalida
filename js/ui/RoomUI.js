@@ -105,13 +105,58 @@ export class RoomUI {
     }
 
     /**
+     * Get personalized room name for display
+     * @param {Object} room - Room object
+     * @returns {string} Personalized room name
+     */
+    getPersonalizedRoomName(room) {
+        // For non-remote rooms, just return the name
+        if (room.type !== 'remote' || !room.players) {
+            return room.name;
+        }
+
+        // Get current user ID
+        const currentUser = this.roomManager.authManager?.getCurrentUser();
+        if (!currentUser) {
+            return room.name;
+        }
+
+        // Get player info
+        const playerX = room.players.X;
+        const playerO = room.players.O;
+
+        // If no opponent yet, return original name
+        if (!playerO) {
+            return room.name;
+        }
+
+        // Determine which player is "you" and which is opponent
+        let yourName = 'YOU';
+        let opponentName = null;
+
+        if (playerX.userId === currentUser.uid) {
+            opponentName = playerO.displayName;
+        } else if (playerO.userId === currentUser.uid) {
+            opponentName = playerX.displayName;
+        }
+
+        // If we determined the names, create personalized format
+        if (opponentName) {
+            return `${yourName} vs ${opponentName.toUpperCase()}`;
+        }
+
+        // Fallback to original name
+        return room.name;
+    }
+
+    /**
      * Update room selector display
      */
     updateRoomSelector(room) {
         if (!room || !this.currentRoomName) return;
 
         const icon = this.getRoomIcon(room.type);
-        const name = room.name.toUpperCase();
+        const name = this.getPersonalizedRoomName(room).toUpperCase();
 
         // Update room selector content
         const selectorContent = this.roomSelector.querySelector('.room-selector-content');
@@ -196,22 +241,41 @@ export class RoomUI {
 
         const icon = this.getRoomIcon(room.type);
         const status = this.getRoomStatus(room);
+        const displayName = this.getPersonalizedRoomName(room);
+
+        // Add share button for remote rooms waiting for opponent
+        const showShareBtn = room.type === 'remote' && room.status === 'waiting' && !this.editMode;
 
         item.innerHTML = `
             ${this.editMode ? `<button class="room-delete-btn" data-room-id="${room.id}">🗑️</button>` : ''}
             <span class="room-item-icon">${icon}</span>
             <div class="room-item-info">
-                <div class="room-item-name">${room.name}</div>
+                <div class="room-item-name">${displayName}</div>
                 <div class="room-item-status ${status.className}">${status.text}</div>
             </div>
+            ${showShareBtn ? `<button class="room-share-btn" data-room-id="${room.id}" title="Share invite link">🔗</button>` : ''}
         `;
 
         // Click to switch rooms (only if not in edit mode)
         if (!this.editMode) {
-            item.addEventListener('click', () => {
-                this.roomManager.switchToRoom(room.id);
-                this.hideSwitchRoomsModal();
+            item.addEventListener('click', (e) => {
+                // Don't switch rooms if clicking the share button
+                if (!e.target.classList.contains('room-share-btn')) {
+                    this.roomManager.switchToRoom(room.id);
+                    this.hideSwitchRoomsModal();
+                }
             });
+        }
+
+        // Share button click
+        if (showShareBtn) {
+            const shareBtn = item.querySelector('.room-share-btn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.showInviteLinkOverlay(room.inviteLink);
+                });
+            }
         }
 
         // Delete button click

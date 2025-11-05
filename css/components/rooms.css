@@ -57,6 +57,34 @@
 }
 
 /* ====================
+   LOGOUT BUTTON
+   ==================== */
+
+.logout-btn {
+    padding: 10px 16px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-headers);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.logout-btn:active {
+    transform: translateY(0);
+}
+
+/* ====================
    SWITCH ROOMS MODAL
    ==================== */
 
@@ -217,6 +245,24 @@
 
 .room-item.edit-mode .room-delete-btn {
     display: block;
+}
+
+.room-share-btn {
+    width: 36px;
+    height: 36px;
+    background-color: var(--player-x-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.room-share-btn:hover {
+    background-color: #2980b9;
+    transform: scale(1.1);
 }
 
 /* ====================

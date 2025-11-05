@@ -277,6 +277,37 @@ class GameUI {
     }
 
     /**
+     * Get personalized turn text for display
+     * @param {string} player - 'X' or 'O'
+     * @returns {string} Personalized turn text
+     */
+    getPersonalizedTurnText(player) {
+        if (!this.roomManager) {
+            return `Player ${player}'s Turn`;
+        }
+
+        const currentRoom = this.roomManager.getCurrentRoom();
+        if (!currentRoom || currentRoom.type !== 'remote' || !currentRoom.players) {
+            return `Player ${player}'s Turn`;
+        }
+
+        // Get the player info for the current turn
+        const playerInfo = currentRoom.players[player];
+        if (!playerInfo) {
+            return `Player ${player}'s Turn`;
+        }
+
+        // Check if it's the current user's turn
+        const mySymbol = this.roomManager.getMyPlayerSymbol(currentRoom);
+        if (mySymbol === player) {
+            return 'YOUR TURN';
+        }
+
+        // It's the opponent's turn - show their display name
+        return `${playerInfo.displayName}'s TURN`;
+    }
+
+    /**
      * Handle cell click - with turn checking for remote rooms
      * @param {number} row - Row index
      * @param {number} col - Column index
@@ -833,7 +864,7 @@ class GameUI {
                 // Update player turn display to indicate knight move is required
                 const playerTurnElement = document.querySelector('.player-turn-indicator');
                 if (playerTurnElement) {
-                    playerTurnElement.textContent = 'Player X\'s Turn';
+                    playerTurnElement.textContent = this.getPersonalizedTurnText('X');
                 }
                 
                 // Add the knight move message to the special message area
@@ -912,7 +943,7 @@ class GameUI {
             
             if (playerTurnElement) {
                 // Update player turn text
-                playerTurnElement.textContent = `Player ${data.currentPlayer}'s Turn`;
+                playerTurnElement.textContent = this.getPersonalizedTurnText(data.currentPlayer);
             }
             
             // Clear any knight move indicators if not required
@@ -1161,8 +1192,8 @@ class GameUI {
                     
                     // Update player turn text
                     if (this.elements.playerTurn) {
-                        this.elements.playerTurn.innerHTML = 
-                            `Player X's Turn <span class="knight-move-indicator">♘ Knight Move Required</span>`;
+                        this.elements.playerTurn.innerHTML =
+                            `${this.getPersonalizedTurnText('X')} <span class="knight-move-indicator">♘ Knight Move Required</span>`;
                     }
                 } else {
                     // Ensure knight move requirements are cleared if not needed
@@ -1182,7 +1213,7 @@ class GameUI {
             // Update player turn display if knight move not required
             if (this.elements.playerTurn && !isKnightMoveRequired) {
                 if (gameActive) {
-                    this.elements.playerTurn.textContent = `Player ${currentPlayer}'s Turn`;
+                    this.elements.playerTurn.textContent = this.getPersonalizedTurnText(currentPlayer);
                 }
             }
             

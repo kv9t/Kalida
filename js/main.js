@@ -83,8 +83,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     gameUI.updateAll();
                 }
 
-                // Show room selector
+                // Show room selector and logout button
                 roomUI.showRoomSelector();
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.style.display = 'block';
+                }
 
                 // Check for pending invite link
                 if (pendingInviteRoomId) {
@@ -129,9 +133,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     authUI.showWelcomeModal();
                 }
                 roomUI.hideRoomSelector();
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.style.display = 'none';
+                }
                 console.log('User not authenticated, showing welcome screen');
             }
         });
+
+        // Set up logout button
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    const result = await authManager.signOut();
+                    if (result.success) {
+                        console.log('User logged out successfully');
+                        // The onAuthStateChange callback will handle UI updates
+                    } else {
+                        alert('Logout failed: ' + result.error);
+                    }
+                }
+            });
+        }
 
         // Listen to room changes and load game state
         roomManager.onRoomChange(async (currentRoom, allRooms) => {

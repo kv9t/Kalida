@@ -42,13 +42,18 @@
             <h1>KALIDA</h1>
         </header>
 
-        <!-- ROOM SELECTOR -->
-        <div id="room-selector" class="room-selector" style="display: none;">
-            <div class="room-selector-content">
-                <span class="room-icon">🖥️</span>
-                <span class="room-name" id="current-room-name">COMPUTER</span>
-                <span class="room-chevron">▼</span>
+        <!-- ROOM SELECTOR AND USER MENU -->
+        <div style="display: flex; gap: 10px; align-items: center; justify-content: center;">
+            <div id="room-selector" class="room-selector" style="display: none;">
+                <div class="room-selector-content">
+                    <span class="room-icon">🖥️</span>
+                    <span class="room-name" id="current-room-name">COMPUTER</span>
+                    <span class="room-chevron">▼</span>
+                </div>
             </div>
+            <button id="logout-btn" class="logout-btn" style="display: none;" title="Logout">
+                👤 Logout
+            </button>
         </div>
         <!-- <div class="header-divider"></div> -->
       
