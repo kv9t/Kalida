@@ -65,6 +65,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Initialize rooms
                 await roomManager.initialize();
 
+                // Load game state from current room
+                const currentRoom = roomManager.getCurrentRoom();
+                if (currentRoom) {
+                    await roomManager.loadGameStateFromRoom(currentRoom.id, game);
+                    gameUI.updateAll();
+                }
+
                 // Show room selector
                 roomUI.showRoomSelector();
 
@@ -81,8 +88,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('User not authenticated, showing welcome screen');
             }
         });
-        
-        
+
+        // Listen to room changes and load game state
+        roomManager.onRoomChange(async (currentRoom, allRooms) => {
+            if (currentRoom) {
+                console.log('Room changed, loading game state for:', currentRoom.name);
+                await roomManager.loadGameStateFromRoom(currentRoom.id, game);
+                gameUI.updateAll();
+            }
+        });
+
+        // Auto-save game state to room on game events
+        game.on('move', async () => {
+            await roomManager.saveGameStateToRoom(game);
+        });
+
+        game.on('gameEnd', async () => {
+            await roomManager.saveGameStateToRoom(game);
+        });
+
+        game.on('scoreUpdate', async () => {
+            await roomManager.saveGameStateToRoom(game);
+        });
+
+        game.on('matchScoreUpdate', async () => {
+            await roomManager.saveGameStateToRoom(game);
+        });
+
+        game.on('gameReset', async () => {
+            await roomManager.saveGameStateToRoom(game);
+        });
+
+
 
         // Initialize the game with cookie consent handling
         console.log('Initializing game with cookie consent...');

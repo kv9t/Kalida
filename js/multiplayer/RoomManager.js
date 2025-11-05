@@ -91,7 +91,14 @@ export class RoomManager {
             matchScores: { X: 0, O: 0 },
             status: type === 'remote' ? 'waiting' : 'active',
             lastMoveAt: null,
-            lastMoveBy: null
+            lastMoveBy: null,
+            // Game state
+            gameMode: type === 'computer' ? 'level4' : 'human',
+            boardState: this.createEmptyBoard(),
+            currentPlayer: 'X',
+            gameActive: true,
+            moveCount: { X: 0, O: 0 },
+            lastMove: null
         };
 
         // For remote rooms, add invite link
@@ -394,6 +401,129 @@ export class RoomManager {
                 console.error('Error in room change callback:', error);
             }
         });
+    }
+
+    /**
+     * Create empty 6x6 board
+     */
+    createEmptyBoard() {
+        return Array(6).fill(null).map(() => Array(6).fill(''));
+    }
+
+    /**
+     * Save current game state to the active room
+     * @param {object} game - Game instance
+     */
+    async saveGameStateToRoom(game) {
+        const currentRoom = this.getCurrentRoom();
+        if (!currentRoom) {
+            console.warn('No current room to save game state');
+            return;
+        }
+
+        const gameState = {
+            boardState: game.getBoardState(),
+            currentPlayer: game.getCurrentPlayer(),
+            gameActive: game.gameActive,
+            scores: { ...game.scores },
+            matchScores: { ...game.matchScores },
+            moveCount: { ...game.moveCount },
+            lastMove: game.lastMove,
+            gameMode: game.gameMode,
+            rules: {
+                bounce: game.bounceRuleEnabled,
+                wrap: game.wrapRuleEnabled,
+                missingTeeth: game.missingTeethRuleEnabled,
+                knightMove: game.knightMoveRuleEnabled
+            },
+            lastMoveAt: new Date().toISOString()
+        };
+
+        await this.updateRoom(currentRoom.id, gameState);
+        console.log('Game state saved to room:', currentRoom.id);
+    }
+
+    /**
+     * Load game state from room to game
+     * @param {string} roomId - Room ID to load from
+     * @param {object} game - Game instance
+     */
+    async loadGameStateFromRoom(roomId, game) {
+        const room = this.rooms.find(r => r.id === roomId);
+        if (!room) {
+            console.error('Room not found:', roomId);
+            return false;
+        }
+
+        console.log('Loading game state from room:', room);
+
+        // Set game mode based on room type
+        let targetGameMode = room.gameMode || 'human';
+        if (room.type === 'computer' && !room.gameMode) {
+            targetGameMode = 'level4'; // Default AI level
+        } else if (room.type === 'local' || room.type === 'remote') {
+            targetGameMode = 'human';
+        }
+
+        // Set game mode
+        if (game.gameMode !== targetGameMode) {
+            game.setGameMode(targetGameMode);
+        }
+
+        // Set rules
+        if (room.rules) {
+            game.bounceRuleEnabled = room.rules.bounce || false;
+            game.wrapRuleEnabled = room.rules.wrap || false;
+            game.missingTeethRuleEnabled = room.rules.missingTeeth || false;
+            game.knightMoveRuleEnabled = room.rules.knightMove || false;
+        }
+
+        // Load board state if it exists
+        if (room.boardState && Array.isArray(room.boardState)) {
+            game.board.setState(room.boardState);
+            game.currentPlayer = room.currentPlayer || 'X';
+            game.gameActive = room.gameActive !== undefined ? room.gameActive : true;
+            game.moveCount = room.moveCount || { X: 0, O: 0 };
+            game.lastMove = room.lastMove || null;
+        } else {
+            // Reset to empty board
+            game.resetGame();
+        }
+
+        // Load scores
+        game.scores = room.scores || { X: 0, O: 0 };
+        game.matchScores = room.matchScores || { X: 0, O: 0 };
+
+        // Trigger game events to update UI
+        game.trigger('boardSync', { room });
+        game.trigger('scoreUpdate', game.scores);
+        game.trigger('matchScoreUpdate', game.matchScores);
+
+        console.log('Game state loaded from room');
+        return true;
+    }
+
+    /**
+     * Compress board state to string for efficient storage
+     * @param {Array} board - 2D board array
+     * @returns {string} Compressed board state
+     */
+    compressBoard(board) {
+        return board.flat().map(cell => cell || '0').join('');
+    }
+
+    /**
+     * Decompress board state from string
+     * @param {string} compressed - Compressed board string
+     * @returns {Array} 2D board array
+     */
+    decompressBoard(compressed) {
+        const flat = compressed.split('').map(c => c === '0' ? '' : c);
+        const board = [];
+        for (let i = 0; i < 6; i++) {
+            board.push(flat.slice(i * 6, (i + 1) * 6));
+        }
+        return board;
     }
 }
 
