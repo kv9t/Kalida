@@ -282,15 +282,23 @@ class GameUI {
      * @param {number} col - Column index
      */
     handleCellClick(row, col) {
+        console.log('handleCellClick called:', { row, col, hasRoomManager: !!this.roomManager });
+
         // Check if it's player's turn in remote rooms
         if (this.roomManager) {
             const currentRoom = this.roomManager.getCurrentRoom();
+            console.log('Current room:', currentRoom?.name, 'type:', currentRoom?.type);
+
             if (currentRoom && currentRoom.type === 'remote') {
-                if (!this.roomManager.isMyTurn(currentRoom)) {
-                    console.log('Not your turn! Waiting for opponent...');
-                    // TODO: Show visual feedback (e.g., shake animation, message)
+                const isMyTurn = this.roomManager.isMyTurn(currentRoom);
+                console.log('Is my turn?', isMyTurn);
+
+                if (!isMyTurn) {
+                    console.warn('❌ Not your turn! Waiting for opponent...');
+                    alert('Not your turn! Wait for your opponent to move.');
                     return;
                 }
+                console.log('✅ Your turn - allowing move');
             }
         }
 

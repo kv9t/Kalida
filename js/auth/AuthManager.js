@@ -256,6 +256,43 @@ export class AuthManager {
     }
 
     /**
+     * Check if user has seen the tutorial
+     * @returns {Promise<boolean>} True if user has seen tutorial
+     */
+    async hasSeenTutorial() {
+        if (!this.currentUser) return false;
+
+        try {
+            const userRef = doc(this.db, 'users', this.currentUser.uid);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists()) {
+                return userDoc.data().hasSeenTutorial === true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error checking tutorial status:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Mark tutorial as seen for current user
+     * @returns {Promise<void>}
+     */
+    async markTutorialAsSeen() {
+        if (!this.currentUser) return;
+
+        try {
+            const userRef = doc(this.db, 'users', this.currentUser.uid);
+            await setDoc(userRef, { hasSeenTutorial: true }, { merge: true });
+            console.log('Tutorial marked as seen for user:', this.currentUser.uid);
+        } catch (error) {
+            console.error('Error marking tutorial as seen:', error);
+        }
+    }
+
+    /**
      * Get user-friendly error message
      * @param {Error} error - Firebase error
      * @returns {string} User-friendly error message

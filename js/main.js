@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Check if we should show tutorial (only for authenticated users)
                 try {
-                    checkForTutorial(game);
+                    checkForTutorial(game, authManager);
                 } catch (tutorialError) {
                     console.error('Error in tutorial check:', tutorialError);
                 }
@@ -632,47 +632,68 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * Check if we should show a tutorial for new users
  * @param {Game} game - The game instance
+ * @param {AuthManager} authManager - The auth manager instance
  */
-function checkForTutorial(game) {
-    // Only proceed if cookies are enabled
-    if (!game.cookiesEnabled) {
-        console.log('Cookies disabled, skipping tutorial check');
+async function checkForTutorial(game, authManager) {
+    const user = authManager.getCurrentUser();
+    if (!user) {
+        console.log('No user logged in, skipping tutorial check');
         return;
     }
-    
-    // Check if tutorial was already completed
-    if (game.wasTutorialCompleted()) {
-        console.log('Tutorial already completed');
-        return;
+
+    // Check user's Firestore profile for hasSeenTutorial
+    try {
+        const hasSeenTutorial = await authManager.hasSeenTutorial();
+
+        if (hasSeenTutorial) {
+            console.log('User has already seen tutorial');
+            return;
+        }
+
+        // First time user - show tutorial
+        console.log('First-time user detected - showing tutorial');
+
+        // Show tutorial after a brief delay to ensure UI is fully loaded
+        setTimeout(() => {
+            showTutorialForNewUser(game, authManager);
+        }, 1000); // 1 second delay to ensure everything is ready
+    } catch (error) {
+        console.error('Error checking tutorial status:', error);
+        // Fallback to cookie check if Firestore fails
+        if (!game.wasTutorialCompleted()) {
+            setTimeout(() => {
+                showTutorialForNewUser(game, authManager);
+            }, 1000);
+        }
     }
-    
-    // CHANGED: Actually show the tutorial instead of just logging
-    console.log('First-time user detected - showing tutorial');
-    
-    // Show tutorial after a brief delay to ensure UI is fully loaded
-    setTimeout(() => {
-        showTutorialForNewUser(game);
-    }, 1000); // 1 second delay to ensure everything is ready
 }
 
 /**
  * Show tutorial modal for new users
  * @param {Game} game - The game instance
+ * @param {AuthManager} authManager - The auth manager instance
  */
-function showTutorialForNewUser(game) {
+function showTutorialForNewUser(game, authManager) {
     try {
         // Get the GameUI instance from the global reference
         if (window.KalidaGame && window.KalidaGame.ui) {
             const gameUI = window.KalidaGame.ui;
-            
+
             // Show the tutorial modal
             if (gameUI.tutorialModal && typeof gameUI.tutorialModal.show === 'function') {
                 console.log('Showing tutorial modal for first-time user');
                 gameUI.tutorialModal.show();
-                
-                // OPTIONAL: Mark tutorial as "seen" when they close it
-                // You might want to add an event listener to mark it completed
-                // when they finish or close the tutorial
+
+                // Mark tutorial as seen when user closes it
+                const tutorialCloseHandler = async () => {
+                    await authManager.markTutorialAsSeen();
+                    console.log('Tutorial marked as seen in user profile');
+                };
+
+                // Listen for tutorial close - do it once
+                if (gameUI.tutorialModal.onClose) {
+                    gameUI.tutorialModal.onClose(tutorialCloseHandler);
+                }
             } else if (gameUI.showTutorial && typeof gameUI.showTutorial === 'function') {
                 // Alternative method if showTutorial method exists
                 console.log('Showing tutorial using showTutorial method');
