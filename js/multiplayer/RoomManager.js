@@ -562,6 +562,45 @@ export class RoomManager {
     }
 
     /**
+     * Get which player (X or O) the current user is in a remote room
+     * @param {object} room - Room object
+     * @returns {string|null} 'X', 'O', or null if not a player
+     */
+    getMyPlayerSymbol(room) {
+        if (!room || room.type !== 'remote' || !room.players) {
+            return null;
+        }
+
+        const user = this.authManager.getCurrentUser();
+        if (!user) return null;
+
+        if (room.players.X && room.players.X.userId === user.uid) {
+            return 'X';
+        }
+        if (room.players.O && room.players.O.userId === user.uid) {
+            return 'O';
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if it's the current user's turn in a remote room
+     * @param {object} room - Room object
+     * @returns {boolean} True if it's the user's turn
+     */
+    isMyTurn(room) {
+        if (!room || room.type !== 'remote') {
+            return true; // Always allow moves in non-remote rooms
+        }
+
+        const mySymbol = this.getMyPlayerSymbol(room);
+        if (!mySymbol) return false; // Not a player in this room
+
+        return room.currentPlayer === mySymbol;
+    }
+
+    /**
      * Subscribe to real-time updates for a room
      * @param {string} roomId - Room ID to subscribe to
      * @returns {Function} Unsubscribe function

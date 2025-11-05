@@ -44,14 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const aiFactory = new AIFactory(BOARD_SIZE, game.rules);
         game.setAIFactory(aiFactory);
 
-        // Create game UI
-        console.log('Creating GameUI...');
-        const gameUI = new GameUI(game);
-
-        // Initialize room management
+        // Initialize room management first (needed by GameUI)
         console.log('Initializing room management...');
         const roomManager = new RoomManager(firebaseDb, authManager, game.cookieManager);
         const roomUI = new RoomUI(roomManager);
+
+        // Create game UI (with roomManager for turn checking)
+        console.log('Creating GameUI...');
+        const gameUI = new GameUI(game, roomManager);
 
         // Set up authentication state listener
         authManager.onAuthStateChange(async (user) => {

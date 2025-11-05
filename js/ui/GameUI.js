@@ -19,9 +19,11 @@ class GameUI {
     /**
      * Create a new game UI
      * @param {Game} game - The game instance to connect with
+     * @param {RoomManager} roomManager - The room manager for turn checking (optional)
      */
-    constructor(game) {
+    constructor(game, roomManager = null) {
         this.game = game;
+        this.roomManager = roomManager;
         this.boardUI = null;
         
         // Initialize UI Asset Manager
@@ -273,7 +275,29 @@ class GameUI {
             console.error('Error applying current game state to UI:', error);
         }
     }
-    
+
+    /**
+     * Handle cell click - with turn checking for remote rooms
+     * @param {number} row - Row index
+     * @param {number} col - Column index
+     */
+    handleCellClick(row, col) {
+        // Check if it's player's turn in remote rooms
+        if (this.roomManager) {
+            const currentRoom = this.roomManager.getCurrentRoom();
+            if (currentRoom && currentRoom.type === 'remote') {
+                if (!this.roomManager.isMyTurn(currentRoom)) {
+                    console.log('Not your turn! Waiting for opponent...');
+                    // TODO: Show visual feedback (e.g., shake animation, message)
+                    return;
+                }
+            }
+        }
+
+        // Allow the move
+        this.game.makeMove(row, col);
+    }
+
     /**
      * Set up UI event listeners
      */
