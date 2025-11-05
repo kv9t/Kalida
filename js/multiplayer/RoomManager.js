@@ -29,6 +29,7 @@ export class RoomManager {
         this.rooms = [];
         this.currentRoomId = null;
         this.roomChangeCallbacks = [];
+        this.isLoadingGameState = false; // Prevent recursion during load
 
         console.log('RoomManager initialized');
     }
@@ -415,6 +416,11 @@ export class RoomManager {
      * @param {object} game - Game instance
      */
     async saveGameStateToRoom(game) {
+        // Prevent saving during loading to avoid infinite recursion
+        if (this.isLoadingGameState) {
+            return;
+        }
+
         const currentRoom = this.getCurrentRoom();
         if (!currentRoom) {
             console.warn('No current room to save game state');
@@ -457,55 +463,66 @@ export class RoomManager {
 
         console.log('Loading game state from room:', room);
 
-        // Set game mode based on room type
-        let targetGameMode = room.gameMode || 'human';
-        if (room.type === 'computer' && !room.gameMode) {
-            targetGameMode = 'level4'; // Default AI level
-        } else if (room.type === 'local' || room.type === 'remote') {
-            targetGameMode = 'human';
+        // Set loading flag to prevent infinite recursion
+        this.isLoadingGameState = true;
+
+        try {
+            // Set game mode based on room type
+            let targetGameMode = room.gameMode || 'human';
+            if (room.type === 'computer' && !room.gameMode) {
+                targetGameMode = 'level4'; // Default AI level
+            } else if (room.type === 'local' || room.type === 'remote') {
+                targetGameMode = 'human';
+            }
+
+            // Set game mode
+            if (game.gameMode !== targetGameMode) {
+                game.setGameMode(targetGameMode);
+            }
+
+            // Set rules
+            if (room.rules) {
+                game.bounceRuleEnabled = room.rules.bounce || false;
+                game.wrapRuleEnabled = room.rules.wrap || false;
+                game.missingTeethRuleEnabled = room.rules.missingTeeth || false;
+                game.knightMoveRuleEnabled = room.rules.knightMove || false;
+            }
+
+            // Load board state if it exists
+            if (room.boardState) {
+                // Decompress if it's a string (new format) or use directly if array (legacy)
+                const boardState = typeof room.boardState === 'string'
+                    ? this.decompressBoard(room.boardState)
+                    : room.boardState;
+
+                game.board.setState(boardState);
+                game.currentPlayer = room.currentPlayer || 'X';
+                game.gameActive = room.gameActive !== undefined ? room.gameActive : true;
+                game.moveCount = room.moveCount || { X: 0, O: 0 };
+                game.lastMove = room.lastMove || null;
+            } else {
+                // Reset to empty board
+                game.resetGame();
+            }
+
+            // Load scores
+            game.scores = room.scores || { X: 0, O: 0 };
+            game.matchScores = room.matchScores || { X: 0, O: 0 };
+
+            // Trigger game events to update UI (using correct event data format)
+            game.triggerEvent('boardSync', { room });
+            game.triggerEvent('scoreUpdate', { scores: { ...game.scores } });
+            game.triggerEvent('matchScoreUpdate', {
+                matchScores: { ...game.matchScores },
+                roundScores: { ...game.scores }
+            });
+
+            console.log('Game state loaded from room');
+            return true;
+        } finally {
+            // Always clear loading flag, even if there's an error
+            this.isLoadingGameState = false;
         }
-
-        // Set game mode
-        if (game.gameMode !== targetGameMode) {
-            game.setGameMode(targetGameMode);
-        }
-
-        // Set rules
-        if (room.rules) {
-            game.bounceRuleEnabled = room.rules.bounce || false;
-            game.wrapRuleEnabled = room.rules.wrap || false;
-            game.missingTeethRuleEnabled = room.rules.missingTeeth || false;
-            game.knightMoveRuleEnabled = room.rules.knightMove || false;
-        }
-
-        // Load board state if it exists
-        if (room.boardState) {
-            // Decompress if it's a string (new format) or use directly if array (legacy)
-            const boardState = typeof room.boardState === 'string'
-                ? this.decompressBoard(room.boardState)
-                : room.boardState;
-
-            game.board.setState(boardState);
-            game.currentPlayer = room.currentPlayer || 'X';
-            game.gameActive = room.gameActive !== undefined ? room.gameActive : true;
-            game.moveCount = room.moveCount || { X: 0, O: 0 };
-            game.lastMove = room.lastMove || null;
-        } else {
-            // Reset to empty board
-            game.resetGame();
-        }
-
-        // Load scores
-        game.scores = room.scores || { X: 0, O: 0 };
-        game.matchScores = room.matchScores || { X: 0, O: 0 };
-
-        // Trigger game events to update UI (using correct method name)
-        game.triggerEvent('boardSync', { room });
-        game.triggerEvent('scoreUpdate', game.scores);
-        game.triggerEvent('matchScoreUpdate', game.matchScores);
-
-        console.log('Game state loaded from room');
-        return true;
     }
 
     /**
