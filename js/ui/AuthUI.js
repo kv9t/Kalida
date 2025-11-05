@@ -158,6 +158,11 @@ export class AuthUI {
             setTimeout(() => {
                 if (this.welcomeModal) {
                     this.welcomeModal.classList.add('show');
+                    // Also add 'show' to the container inside
+                    const container = this.welcomeModal.querySelector('.modal-container');
+                    if (container) {
+                        container.classList.add('show');
+                    }
                 }
             }, 10);
             this.showLoginForm();
@@ -170,6 +175,11 @@ export class AuthUI {
     hideWelcomeModal() {
         if (this.welcomeModal) {
             this.welcomeModal.classList.remove('show');
+            // Also remove 'show' from container
+            const container = this.welcomeModal.querySelector('.modal-container');
+            if (container) {
+                container.classList.remove('show');
+            }
             // Wait for fade-out transition before hiding
             setTimeout(() => {
                 if (this.welcomeModal) {
@@ -403,6 +413,11 @@ export class AuthUI {
         setTimeout(() => {
             if (this.inviteModal) {
                 this.inviteModal.classList.add('show');
+                // Also add 'show' to the container inside
+                const container = this.inviteModal.querySelector('.modal-container');
+                if (container) {
+                    container.classList.add('show');
+                }
             }
         }, 10);
     }
@@ -413,6 +428,11 @@ export class AuthUI {
     hideInviteModal() {
         if (this.inviteModal) {
             this.inviteModal.classList.remove('show');
+            // Also remove 'show' from container
+            const container = this.inviteModal.querySelector('.modal-container');
+            if (container) {
+                container.classList.remove('show');
+            }
             // Wait for fade-out transition before hiding
             setTimeout(() => {
                 if (this.inviteModal) {
