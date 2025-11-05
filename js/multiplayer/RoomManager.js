@@ -315,26 +315,19 @@ export class RoomManager {
             );
 
             const snapshot = await getDocs(roomsQuery);
-            const firestoreRooms = [];
+
+            // For logged-in users, ONLY load from Firestore (not cookies)
+            // Since we now save all room types to Firestore for logged-in users
+            this.rooms = [];
 
             snapshot.forEach(doc => {
-                firestoreRooms.push({ ...doc.data(), id: doc.id });
+                this.rooms.push({ ...doc.data(), id: doc.id });
             });
 
-            // Also load local/computer rooms from cookies
-            this.loadRoomsFromCookies();
-
-            // Merge Firestore rooms with local rooms (avoid duplicates)
-            firestoreRooms.forEach(firestoreRoom => {
-                const exists = this.rooms.find(r => r.id === firestoreRoom.id);
-                if (!exists) {
-                    this.rooms.push(firestoreRoom);
-                }
-            });
-
-            console.log('Rooms loaded from Firestore:', firestoreRooms);
+            console.log('Rooms loaded from Firestore:', this.rooms);
         } catch (error) {
             console.error('Error loading rooms from Firestore:', error);
+            this.rooms = [];
         }
     }
 

@@ -68,6 +68,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Load game state from current room
                 const currentRoom = roomManager.getCurrentRoom();
                 if (currentRoom) {
+                    // Clear all visual highlights before loading new room state
+                    gameUI.boardUI.clearHighlights();
                     await roomManager.loadGameStateFromRoom(currentRoom.id, game);
                     gameUI.updateAll();
                 }
@@ -93,28 +95,25 @@ document.addEventListener('DOMContentLoaded', function() {
         roomManager.onRoomChange(async (currentRoom, allRooms) => {
             if (currentRoom) {
                 console.log('Room changed, loading game state for:', currentRoom.name);
+                // Clear all visual highlights before loading new room state
+                gameUI.boardUI.clearHighlights();
                 await roomManager.loadGameStateFromRoom(currentRoom.id, game);
                 gameUI.updateAll();
             }
         });
 
         // Auto-save game state to room on game events
-        game.on('move', async () => {
+        // Save on turnChange (after move completes and win check happens)
+        game.on('turnChange', async () => {
             await roomManager.saveGameStateToRoom(game);
         });
 
+        // Save on gameEnd (captures final game state with winner)
         game.on('gameEnd', async () => {
             await roomManager.saveGameStateToRoom(game);
         });
 
-        game.on('scoreUpdate', async () => {
-            await roomManager.saveGameStateToRoom(game);
-        });
-
-        game.on('matchScoreUpdate', async () => {
-            await roomManager.saveGameStateToRoom(game);
-        });
-
+        // Save on gameReset (when starting new round)
         game.on('gameReset', async () => {
             await roomManager.saveGameStateToRoom(game);
         });
