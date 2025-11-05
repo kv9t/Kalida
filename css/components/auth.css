@@ -7,6 +7,13 @@
    WELCOME MODAL
    ==================== */
 
+/* Welcome modal backdrop - use flex for centering */
+.welcome-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .welcome-modal .modal-container {
     max-width: 400px;
     width: 90%;
@@ -279,6 +286,13 @@
 /* ====================
    INVITE MODAL
    ==================== */
+
+/* Invite modal backdrop - use flex for centering */
+.invite-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .invite-modal .modal-container {
     max-width: 420px;

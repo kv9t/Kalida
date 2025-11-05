@@ -154,6 +154,12 @@ export class AuthUI {
     showWelcomeModal() {
         if (this.welcomeModal) {
             this.welcomeModal.style.display = 'flex';
+            // Add 'show' class for CSS transition/opacity
+            setTimeout(() => {
+                if (this.welcomeModal) {
+                    this.welcomeModal.classList.add('show');
+                }
+            }, 10);
             this.showLoginForm();
         }
     }
@@ -163,7 +169,13 @@ export class AuthUI {
      */
     hideWelcomeModal() {
         if (this.welcomeModal) {
-            this.welcomeModal.style.display = 'none';
+            this.welcomeModal.classList.remove('show');
+            // Wait for fade-out transition before hiding
+            setTimeout(() => {
+                if (this.welcomeModal) {
+                    this.welcomeModal.style.display = 'none';
+                }
+            }, 300);
         }
     }
 
@@ -387,6 +399,12 @@ export class AuthUI {
         }
 
         this.inviteModal.style.display = 'flex';
+        // Add 'show' class for CSS transition/opacity
+        setTimeout(() => {
+            if (this.inviteModal) {
+                this.inviteModal.classList.add('show');
+            }
+        }, 10);
     }
 
     /**
@@ -394,7 +412,13 @@ export class AuthUI {
      */
     hideInviteModal() {
         if (this.inviteModal) {
-            this.inviteModal.style.display = 'none';
+            this.inviteModal.classList.remove('show');
+            // Wait for fade-out transition before hiding
+            setTimeout(() => {
+                if (this.inviteModal) {
+                    this.inviteModal.style.display = 'none';
+                }
+            }, 300);
         }
     }
 
