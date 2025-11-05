@@ -99,6 +99,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 gameUI.boardUI.clearHighlights();
                 await roomManager.loadGameStateFromRoom(currentRoom.id, game);
                 gameUI.updateAll();
+
+                // Subscribe to real-time updates for remote rooms
+                if (currentRoom.type === 'remote') {
+                    roomManager.subscribeToRoom(currentRoom.id);
+                } else {
+                    roomManager.unsubscribeFromRoom();
+                }
+            }
+        });
+
+        // Listen to real-time room sync events
+        roomManager.onRoomSync(async (updatedRoom) => {
+            const currentRoom = roomManager.getCurrentRoom();
+
+            // Only sync if this is the current room
+            if (currentRoom && currentRoom.id === updatedRoom.id) {
+                console.log('Real-time sync: Loading updated game state');
+                gameUI.boardUI.clearHighlights();
+                await roomManager.loadGameStateFromRoom(updatedRoom.id, game);
+                gameUI.updateAll();
             }
         });
 

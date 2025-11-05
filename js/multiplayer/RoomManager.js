@@ -18,7 +18,8 @@ import {
     deleteDoc,
     query,
     where,
-    serverTimestamp
+    serverTimestamp,
+    onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 export class RoomManager {
@@ -30,6 +31,8 @@ export class RoomManager {
         this.currentRoomId = null;
         this.roomChangeCallbacks = [];
         this.isLoadingGameState = false; // Prevent recursion during load
+        this.roomSubscription = null; // Track current room listener
+        this.roomSyncCallbacks = []; // Callbacks for real-time room updates
 
         console.log('RoomManager initialized');
     }
@@ -556,6 +559,72 @@ export class RoomManager {
             board.push(flat.slice(i * 6, (i + 1) * 6));
         }
         return board;
+    }
+
+    /**
+     * Subscribe to real-time updates for a room
+     * @param {string} roomId - Room ID to subscribe to
+     * @returns {Function} Unsubscribe function
+     */
+    subscribeToRoom(roomId) {
+        // Unsubscribe from previous room if any
+        this.unsubscribeFromRoom();
+
+        const room = this.rooms.find(r => r.id === roomId);
+        if (!room || room.type !== 'remote') {
+            console.log('Not subscribing - room is not remote:', roomId);
+            return null;
+        }
+
+        console.log('Subscribing to room:', roomId);
+        const roomRef = doc(this.db, 'rooms', roomId);
+
+        this.roomSubscription = onSnapshot(roomRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const updatedRoom = { ...docSnapshot.data(), id: docSnapshot.id };
+
+                // Update local room data
+                const roomIndex = this.rooms.findIndex(r => r.id === roomId);
+                if (roomIndex !== -1) {
+                    this.rooms[roomIndex] = updatedRoom;
+                }
+
+                // Notify listeners of room sync
+                console.log('Room synced from Firestore:', updatedRoom);
+                this.notifyRoomSync(updatedRoom);
+            }
+        }, (error) => {
+            console.error('Error in room subscription:', error);
+        });
+
+        return this.roomSubscription;
+    }
+
+    /**
+     * Unsubscribe from current room
+     */
+    unsubscribeFromRoom() {
+        if (this.roomSubscription) {
+            console.log('Unsubscribing from room');
+            this.roomSubscription();
+            this.roomSubscription = null;
+        }
+    }
+
+    /**
+     * Register callback for real-time room sync
+     * @param {Function} callback - Called when room updates from Firestore
+     */
+    onRoomSync(callback) {
+        this.roomSyncCallbacks.push(callback);
+    }
+
+    /**
+     * Notify all room sync callbacks
+     * @param {object} room - Updated room data
+     */
+    notifyRoomSync(room) {
+        this.roomSyncCallbacks.forEach(callback => callback(room));
     }
 }
 
