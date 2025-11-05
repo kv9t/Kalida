@@ -1,12 +1,17 @@
 /**
  * main.js - Entry point for Kalida game
  * Updated to handle cookie consent and initialization
+ * Firebase integration for multiplayer support
  */
 
 import Game from './core/Game.js';
 import GameUI from './ui/GameUI.js';
 import AIFactory from './ai/AIFactory.js';
 import TestScenarios, { getScenario, getScenarioNames } from './utils/TestScenarios.js';
+
+// Firebase imports for multiplayer functionality
+import firebaseServices from './config/firebase-config.js';
+const { app: firebaseApp, auth: firebaseAuth, db: firebaseDb } = firebaseServices;
 
 
 // Wait for DOM to be fully loaded
@@ -124,6 +129,12 @@ document.addEventListener('DOMContentLoaded', function() {
             window.KalidaGame = {
                 game: game,
                 ui: gameUI,
+                // Firebase services for multiplayer
+                firebase: {
+                    app: firebaseApp,
+                    auth: firebaseAuth,
+                    db: firebaseDb
+                },
                 // Utility functions for debugging/testing
                 debug: {
                     clearAllCookies: () => {
@@ -455,6 +466,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             console.log('Debug utilities available at window.KalidaGame.debug');
             console.log('Try: window.KalidaGame.debug.listScenarios()');
+            console.log('Firebase services available at window.KalidaGame.firebase');
+            console.log('Try: window.KalidaGame.firebase.auth, window.KalidaGame.firebase.db');
         }
         
     } catch (error) {
