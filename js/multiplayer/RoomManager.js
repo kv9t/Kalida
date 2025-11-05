@@ -140,7 +140,7 @@ export class RoomManager {
     }
 
     /**
-     * Delete a room
+     * Delete a room or leave it (depending on ownership)
      * @param {string} roomId - Room ID to delete
      */
     async deleteRoom(roomId) {
@@ -159,7 +159,16 @@ export class RoomManager {
 
         // Delete from storage
         if (user && !user.isAnonymous) {
-            await this.deleteRoomFromFirestore(roomId, user.uid);
+            // Check if user is the creator
+            if (room.createdBy === user.uid) {
+                // Creator: Hard delete from Firestore
+                await this.deleteRoomFromFirestore(roomId, user.uid);
+                console.log('Room deleted from Firestore (creator):', roomId);
+            } else if (room.type === 'remote' && room.players) {
+                // Non-creator: Leave the room (remove from players)
+                await this.leaveRoom(roomId, user.uid);
+                console.log('Left room (non-creator):', roomId);
+            }
         } else {
             this.saveRoomsToCookies();
         }
@@ -175,10 +184,63 @@ export class RoomManager {
             }
         }
 
-        console.log('Room deleted:', roomId);
         this.notifyRoomChange();
 
         return true;
+    }
+
+    /**
+     * Leave a room (remove yourself from players list)
+     * @param {string} roomId - Room ID to leave
+     * @param {string} userId - User ID leaving
+     */
+    async leaveRoom(roomId, userId) {
+        try {
+            const roomRef = doc(this.db, 'rooms', roomId);
+            const roomDoc = await getDoc(roomRef);
+
+            if (!roomDoc.exists()) {
+                console.log('Room no longer exists:', roomId);
+                return;
+            }
+
+            const roomData = roomDoc.data();
+            const players = roomData.players || {};
+
+            // Find which player slot the user has and remove them
+            const updatedPlayers = { ...players };
+            if (players.X?.userId === userId) {
+                delete updatedPlayers.X;
+            }
+            if (players.O?.userId === userId) {
+                delete updatedPlayers.O;
+            }
+
+            // Check if room is now empty (no players left)
+            const hasPlayers = updatedPlayers.X || updatedPlayers.O;
+
+            if (!hasPlayers && roomData.createdBy === userId) {
+                // Room is empty and user is creator - delete it
+                await deleteDoc(roomRef);
+                console.log('Room deleted (no players left, creator leaving):', roomId);
+            } else if (!hasPlayers) {
+                // Room is empty but user is not creator - just mark as abandoned
+                await updateDoc(roomRef, {
+                    players: updatedPlayers,
+                    status: 'abandoned'
+                });
+                console.log('Room marked as abandoned:', roomId);
+            } else {
+                // Update players list
+                await updateDoc(roomRef, {
+                    players: updatedPlayers,
+                    status: 'waiting' // Back to waiting for opponent
+                });
+                console.log('User removed from room:', roomId);
+            }
+        } catch (error) {
+            console.error('Error leaving room:', error);
+        }
     }
 
     /**
@@ -343,7 +405,11 @@ export class RoomManager {
 
             [createdSnapshot, playerXSnapshot, playerOSnapshot].forEach(snapshot => {
                 snapshot.forEach(doc => {
-                    roomsMap.set(doc.id, { ...doc.data(), id: doc.id });
+                    const roomData = doc.data();
+                    // Skip abandoned rooms
+                    if (roomData.status !== 'abandoned') {
+                        roomsMap.set(doc.id, { ...roomData, id: doc.id });
+                    }
                 });
             });
 
