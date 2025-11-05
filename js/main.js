@@ -682,18 +682,14 @@ function showTutorialForNewUser(game, authManager) {
             // Show the tutorial modal
             if (gameUI.tutorialModal && typeof gameUI.tutorialModal.show === 'function') {
                 console.log('Showing tutorial modal for first-time user');
-                gameUI.tutorialModal.show();
 
-                // Mark tutorial as seen when user closes it
-                const tutorialCloseHandler = async () => {
+                // Set callback to mark tutorial as seen when user closes it
+                gameUI.tutorialModal.setOnCloseCallback(async () => {
                     await authManager.markTutorialAsSeen();
                     console.log('Tutorial marked as seen in user profile');
-                };
+                });
 
-                // Listen for tutorial close - do it once
-                if (gameUI.tutorialModal.onClose) {
-                    gameUI.tutorialModal.onClose(tutorialCloseHandler);
-                }
+                gameUI.tutorialModal.show();
             } else if (gameUI.showTutorial && typeof gameUI.showTutorial === 'function') {
                 // Alternative method if showTutorial method exists
                 console.log('Showing tutorial using showTutorial method');

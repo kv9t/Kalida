@@ -12,13 +12,15 @@ service cloud.firestore {
     match /rooms/{roomId} {
       // Allow read if:
       // - User created the room, OR
-      // - User is a player in the room
+      // - User is a player in the room, OR
+      // - Room is waiting for players (for invite acceptance)
       allow read: if request.auth != null && (
         resource.data.createdBy == request.auth.uid ||
         (resource.data.players != null && (
           resource.data.players.X.userId == request.auth.uid ||
-          resource.data.players.O.userId == request.auth.uid
-        ))
+          (resource.data.players.O != null && resource.data.players.O.userId == request.auth.uid)
+        )) ||
+        resource.data.status == 'waiting'
       );
 
       // Allow create if user is authenticated
@@ -26,13 +28,16 @@ service cloud.firestore {
 
       // Allow update if:
       // - User created the room, OR
-      // - User is a player in the room
+      // - User is a player in the room, OR
+      // - User is joining as Player O (for invite acceptance)
       allow update: if request.auth != null && (
         resource.data.createdBy == request.auth.uid ||
         (resource.data.players != null && (
           resource.data.players.X.userId == request.auth.uid ||
-          resource.data.players.O.userId == request.auth.uid
-        ))
+          (resource.data.players.O != null && resource.data.players.O.userId == request.auth.uid)
+        )) ||
+        (resource.data.status == 'waiting' &&
+         request.resource.data.players.O.userId == request.auth.uid)
       );
 
       // Allow delete only if user created the room

@@ -17,12 +17,13 @@ class TutorialModal {
         this.gameUI = gameUI;
         this.modal = null;
         this.isOpen = false;
-        
+        this.onCloseCallback = null; // Callback for when tutorial is closed
+
         // Tutorial state
         this.currentSlide = 0;
         this.totalSlides = 5;
         this.slides = [];
-        
+
         // Bind methods to preserve 'this' context
         this.show = this.show.bind(this);
         this.hide = this.hide.bind(this);
@@ -116,16 +117,16 @@ class TutorialModal {
      */
     hide() {
         if (!this.isOpen || !this.modal) return;
-        
+
         console.log('Closing Tutorial modal');
-        
+
         // Start hide animation
         this.modal.classList.remove('show');
         const container = this.modal.querySelector('.modal-container');
         if (container) {
             container.classList.remove('show');
         }
-        
+
         // Hide modal after animation completes
         setTimeout(() => {
             if (this.modal) {
@@ -133,6 +134,13 @@ class TutorialModal {
             }
             this.isOpen = false;
             this.scrollToTop();
+
+            // Call the close callback if set
+            if (this.onCloseCallback) {
+                console.log('Calling tutorial close callback');
+                this.onCloseCallback();
+                this.onCloseCallback = null; // Clear after calling
+            }
         }, 300);
         
         // Remove event listeners
@@ -353,6 +361,14 @@ class TutorialModal {
             left: 0,
             behavior: 'smooth'
         });
+    }
+
+    /**
+     * Set callback to be called when tutorial is closed
+     * @param {Function} callback - Function to call when tutorial closes
+     */
+    setOnCloseCallback(callback) {
+        this.onCloseCallback = callback;
     }
 
     /**
