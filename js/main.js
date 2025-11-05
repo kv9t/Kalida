@@ -52,6 +52,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 // User is logged in - hide welcome modal, show game
                 authUI.hideWelcomeModal();
                 console.log('User authenticated:', user.email || 'Guest');
+
+                // Check if we should show tutorial (only for authenticated users)
+                try {
+                    checkForTutorial(game);
+                } catch (tutorialError) {
+                    console.error('Error in tutorial check:', tutorialError);
+                }
             } else {
                 // User is logged out - show welcome modal
                 authUI.showWelcomeModal();
@@ -137,15 +144,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (sliderError) {
                     console.error('Error setting up board resize slider:', sliderError);
                 }
-                
+
             }, 200); // Increased delay to ensure everything is ready
-            
-            // Check for tutorial
-            try {
-                checkForTutorial(game);
-            } catch (tutorialError) {
-                console.error('Error in tutorial check:', tutorialError);
-            }
+
+            // NOTE: Tutorial check moved to auth state change handler
+            // It now only shows AFTER user is authenticated
         });
         
         // Add a global reference for debugging
