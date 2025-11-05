@@ -422,7 +422,7 @@ export class RoomManager {
         }
 
         const gameState = {
-            boardState: game.getBoardState(),
+            boardState: this.compressBoard(game.getBoardState()), // Compress for Firestore
             currentPlayer: game.getCurrentPlayer(),
             gameActive: game.gameActive,
             scores: { ...game.scores },
@@ -479,8 +479,13 @@ export class RoomManager {
         }
 
         // Load board state if it exists
-        if (room.boardState && Array.isArray(room.boardState)) {
-            game.board.setState(room.boardState);
+        if (room.boardState) {
+            // Decompress if it's a string (new format) or use directly if array (legacy)
+            const boardState = typeof room.boardState === 'string'
+                ? this.decompressBoard(room.boardState)
+                : room.boardState;
+
+            game.board.setState(boardState);
             game.currentPlayer = room.currentPlayer || 'X';
             game.gameActive = room.gameActive !== undefined ? room.gameActive : true;
             game.moveCount = room.moveCount || { X: 0, O: 0 };
@@ -494,10 +499,10 @@ export class RoomManager {
         game.scores = room.scores || { X: 0, O: 0 };
         game.matchScores = room.matchScores || { X: 0, O: 0 };
 
-        // Trigger game events to update UI
-        game.trigger('boardSync', { room });
-        game.trigger('scoreUpdate', game.scores);
-        game.trigger('matchScoreUpdate', game.matchScores);
+        // Trigger game events to update UI (using correct method name)
+        game.triggerEvent('boardSync', { room });
+        game.triggerEvent('scoreUpdate', game.scores);
+        game.triggerEvent('matchScoreUpdate', game.matchScores);
 
         console.log('Game state loaded from room');
         return true;
