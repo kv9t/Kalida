@@ -217,8 +217,9 @@ export class RoomManager {
      * Update room data
      * @param {string} roomId - Room ID
      * @param {object} updates - Data to update
+     * @param {boolean} silent - If true, don't trigger room change callbacks
      */
-    async updateRoom(roomId, updates) {
+    async updateRoom(roomId, updates, silent = false) {
         const room = this.rooms.find(r => r.id === roomId);
 
         if (!room) {
@@ -237,7 +238,10 @@ export class RoomManager {
             this.saveRoomsToCookies();
         }
 
-        this.notifyRoomChange();
+        // Only notify if not silent (don't reload state when auto-saving)
+        if (!silent) {
+            this.notifyRoomChange();
+        }
         return true;
     }
 
@@ -281,9 +285,15 @@ export class RoomManager {
             const user = this.authManager.getCurrentUser();
             if (!user || user.isAnonymous) return;
 
+            // Prepare room data for Firestore - compress boardState if it's an array
+            const roomData = { ...room };
+            if (roomData.boardState && Array.isArray(roomData.boardState)) {
+                roomData.boardState = this.compressBoard(roomData.boardState);
+            }
+
             const roomRef = doc(this.db, 'rooms', room.id);
             await setDoc(roomRef, {
-                ...room,
+                ...roomData,
                 createdAt: serverTimestamp(),
                 lastActivityAt: serverTimestamp()
             });
@@ -333,9 +343,15 @@ export class RoomManager {
      */
     async updateRoomInFirestore(roomId, updates) {
         try {
+            // Prepare updates for Firestore - compress boardState if it's an array
+            const firestoreUpdates = { ...updates };
+            if (firestoreUpdates.boardState && Array.isArray(firestoreUpdates.boardState)) {
+                firestoreUpdates.boardState = this.compressBoard(firestoreUpdates.boardState);
+            }
+
             const roomRef = doc(this.db, 'rooms', roomId);
             await updateDoc(roomRef, {
-                ...updates,
+                ...firestoreUpdates,
                 lastActivityAt: serverTimestamp()
             });
 
@@ -445,7 +461,8 @@ export class RoomManager {
             lastMoveAt: new Date().toISOString()
         };
 
-        await this.updateRoom(currentRoom.id, gameState);
+        // Use silent=true to prevent reloading game state after save
+        await this.updateRoom(currentRoom.id, gameState, true);
         console.log('Game state saved to room:', currentRoom.id);
     }
 
