@@ -19,6 +19,7 @@
 @import url('./components/popup-settings.css');
 @import url('./components/about-tutorial-buttons.css'); /* NEW: ABOUT and TUTORIAL buttons */
 @import url('./components/modals.css'); /* NEW: Modal windows */
+@import url('./components/auth.css'); /* NEW: Authentication screens */
 
 /* ===== FEATURE STYLES - Game-specific features ===== */
 @import url('./features/knight-move.css');

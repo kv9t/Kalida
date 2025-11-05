@@ -13,27 +13,51 @@ import TestScenarios, { getScenario, getScenarioNames } from './utils/TestScenar
 import firebaseServices from './config/firebase-config.js';
 const { app: firebaseApp, auth: firebaseAuth, db: firebaseDb } = firebaseServices;
 
+// Authentication imports
+import AuthManager from './auth/AuthManager.js';
+import AuthUI from './ui/AuthUI.js';
+
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Kalida game starting...');
-    
+
     try {
         // Game configuration
         const BOARD_SIZE = 6;
-        
+
+        // Initialize Firebase authentication
+        console.log('Initializing authentication...');
+        const authManager = new AuthManager(firebaseAuth, firebaseDb);
+        const authUI = new AuthUI(authManager);
+
         // Initialize game instance
         console.log('Creating Game instance...');
         const game = new Game(BOARD_SIZE);
-        
+
         // Create AI factory and set it on the game
         console.log('Creating AI factory...');
         const aiFactory = new AIFactory(BOARD_SIZE, game.rules);
         game.setAIFactory(aiFactory);
-        
+
         // Create game UI
         console.log('Creating GameUI...');
         const gameUI = new GameUI(game);
+
+        // Set up authentication state listener
+        authManager.onAuthStateChange((user) => {
+            console.log('Auth state change in main.js:', user ? 'Logged in' : 'Logged out');
+
+            if (user) {
+                // User is logged in - hide welcome modal, show game
+                authUI.hideWelcomeModal();
+                console.log('User authenticated:', user.email || 'Guest');
+            } else {
+                // User is logged out - show welcome modal
+                authUI.showWelcomeModal();
+                console.log('User not authenticated, showing welcome screen');
+            }
+        });
         
         
 
@@ -135,6 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     auth: firebaseAuth,
                     db: firebaseDb
                 },
+                // Authentication managers
+                authManager: authManager,
+                authUI: authUI,
                 // Utility functions for debugging/testing
                 debug: {
                     clearAllCookies: () => {
@@ -468,6 +495,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Try: window.KalidaGame.debug.listScenarios()');
             console.log('Firebase services available at window.KalidaGame.firebase');
             console.log('Try: window.KalidaGame.firebase.auth, window.KalidaGame.firebase.db');
+            console.log('Authentication: window.KalidaGame.authManager, window.KalidaGame.authUI');
         }
         
     } catch (error) {
