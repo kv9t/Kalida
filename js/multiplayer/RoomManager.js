@@ -662,6 +662,80 @@ export class RoomManager {
     }
 
     /**
+     * Join a remote room via invite link
+     * @param {string} roomId - Room ID to join
+     * @returns {Promise<object|null>} Joined room or null if failed
+     */
+    async joinRoomByInvite(roomId) {
+        try {
+            const user = this.authManager.getCurrentUser();
+            if (!user) {
+                console.error('Must be logged in to join room');
+                return null;
+            }
+
+            // Load room from Firestore
+            const roomRef = doc(this.db, 'rooms', roomId);
+            const roomDoc = await getDoc(roomRef);
+
+            if (!roomDoc.exists()) {
+                console.error('Room not found:', roomId);
+                return null;
+            }
+
+            const room = { ...roomDoc.data(), id: roomDoc.id };
+
+            // Verify it's a remote room
+            if (room.type !== 'remote') {
+                console.error('Cannot join non-remote room via invite');
+                return null;
+            }
+
+            // Check if room is already full
+            if (room.players && room.players.O) {
+                console.warn('Room is already full');
+                return null;
+            }
+
+            // Check if user is already Player X (inviting themselves)
+            if (room.players && room.players.X && room.players.X.userId === user.uid) {
+                console.warn('Cannot join own room as second player');
+                // Still allow - just switch to the room
+                this.rooms.push(room);
+                this.switchToRoom(roomId);
+                return room;
+            }
+
+            // Add user as Player O
+            const updates = {
+                players: {
+                    ...room.players,
+                    O: {
+                        userId: user.uid,
+                        displayName: user.displayName || user.email || 'Opponent'
+                    }
+                },
+                status: 'active' // Room is now active with both players
+            };
+
+            await updateDoc(roomRef, updates);
+            console.log('Joined room as Player O:', roomId);
+
+            // Add room to local list
+            const updatedRoom = { ...room, ...updates };
+            this.rooms.push(updatedRoom);
+
+            // Switch to the joined room
+            this.switchToRoom(roomId);
+
+            return updatedRoom;
+        } catch (error) {
+            console.error('Error joining room by invite:', error);
+            return null;
+        }
+    }
+
+    /**
      * Subscribe to real-time updates for a room
      * @param {string} roomId - Room ID to subscribe to
      * @returns {Function} Unsubscribe function

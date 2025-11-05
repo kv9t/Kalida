@@ -53,6 +53,15 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Creating GameUI...');
         const gameUI = new GameUI(game, roomManager);
 
+        // Check for pending invite link before auth
+        let pendingInviteRoomId = null;
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteRoomId = urlParams.get('invite');
+        if (inviteRoomId) {
+            pendingInviteRoomId = inviteRoomId;
+            console.log('Pending invite detected:', inviteRoomId);
+        }
+
         // Set up authentication state listener
         authManager.onAuthStateChange(async (user) => {
             console.log('Auth state change in main.js:', user ? 'Logged in' : 'Logged out');
@@ -77,6 +86,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show room selector
                 roomUI.showRoomSelector();
 
+                // Check for pending invite link
+                if (pendingInviteRoomId) {
+                    console.log('Processing invite for room:', pendingInviteRoomId);
+                    const joinedRoom = await roomManager.joinRoomByInvite(pendingInviteRoomId);
+
+                    if (joinedRoom) {
+                        // Clear the invite parameter from URL
+                        window.history.replaceState({}, document.title, window.location.pathname);
+
+                        // Show success message
+                        const playerXName = joinedRoom.players?.X?.displayName || 'Player X';
+                        alert(`You've joined ${playerXName}'s game! You are Player O.`);
+
+                        // Load the game state
+                        gameUI.boardUI.clearHighlights();
+                        await roomManager.loadGameStateFromRoom(joinedRoom.id, game);
+                        gameUI.updateAll();
+                    } else {
+                        alert('Failed to join game. The room may be full or no longer available.');
+                    }
+
+                    // Clear the pending invite
+                    pendingInviteRoomId = null;
+                }
+
                 // Check if we should show tutorial (only for authenticated users)
                 try {
                     checkForTutorial(game);
@@ -85,7 +119,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } else {
                 // User is logged out - show welcome modal, hide room selector
-                authUI.showWelcomeModal();
+                if (pendingInviteRoomId) {
+                    // Show message about needing to log in for invite
+                    authUI.showWelcomeModal();
+                    setTimeout(() => {
+                        alert('Please log in or create an account to join this game!');
+                    }, 500);
+                } else {
+                    authUI.showWelcomeModal();
+                }
                 roomUI.hideRoomSelector();
                 console.log('User not authenticated, showing welcome screen');
             }
