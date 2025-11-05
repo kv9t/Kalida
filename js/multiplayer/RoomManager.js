@@ -115,11 +115,11 @@ export class RoomManager {
         this.rooms.push(room);
 
         // Save to appropriate storage
-        if (user && !user.isAnonymous && type === 'remote') {
-            // Save remote room to Firestore
+        if (user && !user.isAnonymous) {
+            // Save all room types to Firestore for logged-in users
             await this.saveRoomToFirestore(room);
         } else {
-            // Save to cookies (for computer/local rooms or guest users)
+            // Save to cookies (for guest users only)
             this.saveRoomsToCookies();
         }
 
@@ -155,7 +155,7 @@ export class RoomManager {
         this.rooms.splice(roomIndex, 1);
 
         // Delete from storage
-        if (user && !user.isAnonymous && room.type === 'remote') {
+        if (user && !user.isAnonymous) {
             await this.deleteRoomFromFirestore(roomId, user.uid);
         } else {
             this.saveRoomsToCookies();
@@ -231,7 +231,7 @@ export class RoomManager {
 
         // Save to storage
         const user = this.authManager.getCurrentUser();
-        if (user && !user.isAnonymous && room.type === 'remote') {
+        if (user && !user.isAnonymous) {
             await this.updateRoomInFirestore(roomId, updates);
         } else {
             this.saveRoomsToCookies();
