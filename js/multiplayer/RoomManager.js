@@ -457,6 +457,22 @@ export class RoomManager {
             lastMoveAt: new Date().toISOString()
         };
 
+        // If game is over, check for winner by analyzing the board
+        if (!game.gameActive) {
+            const gameStatus = game.rules.checkGameStatus(
+                game.getBoardState(),
+                game.bounceRuleEnabled,
+                game.missingTeethRuleEnabled,
+                game.wrapRuleEnabled
+            );
+
+            if (gameStatus.winner) {
+                gameState.winner = gameStatus.winner;
+                gameState.winningLine = gameStatus.winningLine;
+            }
+            gameState.isDraw = gameStatus.isDraw;
+        }
+
         // Use silent=true to prevent reloading game state after save
         await this.updateRoom(currentRoom.id, gameState, true);
         console.log('Game state saved to room:', currentRoom.id);
@@ -522,6 +538,18 @@ export class RoomManager {
             game.scores = room.scores || { X: 0, O: 0 };
             game.matchScores = room.matchScores || { X: 0, O: 0 };
 
+            // Fix for old remote rooms: ensure players structure exists
+            if (room.type === 'remote' && !room.players) {
+                console.warn('Remote room missing players structure, fixing...');
+                const user = this.authManager.getCurrentUser();
+                room.players = {
+                    X: { userId: user ? user.uid : null, displayName: user ? (user.displayName || 'You') : 'You' },
+                    O: null
+                };
+                // Save the fix to Firestore
+                await this.updateRoom(room.id, { players: room.players }, true);
+            }
+
             // Trigger game events to update UI (using correct event data format)
             game.triggerEvent('boardSync', { room });
             game.triggerEvent('scoreUpdate', { scores: { ...game.scores } });
@@ -529,6 +557,26 @@ export class RoomManager {
                 matchScores: { ...game.matchScores },
                 roundScores: { ...game.scores }
             });
+
+            // If game was finished, trigger game end event to show proper UI
+            if (room.gameActive === false) {
+                if (room.winner) {
+                    game.triggerEvent('gameEnd', {
+                        type: 'win',
+                        winner: room.winner,
+                        board: game.getBoardState(),
+                        winningLine: room.winningLine || [],
+                        restored: true // Flag to indicate this was restored from save
+                    });
+                } else if (room.isDraw) {
+                    game.triggerEvent('gameEnd', {
+                        type: 'draw',
+                        board: game.getBoardState(),
+                        restored: true
+                    });
+                }
+                console.log('Restored finished game state');
+            }
 
             console.log('Game state loaded from room');
             return true;
@@ -595,9 +643,22 @@ export class RoomManager {
         }
 
         const mySymbol = this.getMyPlayerSymbol(room);
-        if (!mySymbol) return false; // Not a player in this room
+        const currentPlayer = room.currentPlayer;
 
-        return room.currentPlayer === mySymbol;
+        console.log('Turn check:', {
+            roomType: room.type,
+            mySymbol,
+            currentPlayer,
+            isMyTurn: mySymbol === currentPlayer,
+            players: room.players
+        });
+
+        if (!mySymbol) {
+            console.warn('User is not a player in this remote room');
+            return false; // Not a player in this room
+        }
+
+        return currentPlayer === mySymbol;
     }
 
     /**
