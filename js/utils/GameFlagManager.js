@@ -96,9 +96,11 @@ class GameFlagManager {
 
         const user = this.authManager.getCurrentUser();
 
+        const flagId = this.generateFlagId();
+
         const flagData = {
             // Metadata
-            flagId: this.generateFlagId(),
+            flagId: flagId,
             flaggedAt: new Date().toISOString(),
             gameId: this.currentGameContext.gameId,
 
@@ -129,15 +131,16 @@ class GameFlagManager {
                 boardStateBefore,
                 aiMove,
                 reason,
-                comment
+                comment,
+                flagId // Pass the flagId
             )
         };
 
-        // Save to Firestore
+        // Save to Firestore using the flagId as the document ID
         try {
-            const flagRef = doc(collection(this.db, 'flaggedMoves'));
+            const flagRef = doc(this.db, 'flaggedMoves', flagId);
             await setDoc(flagRef, flagData);
-            console.log('Flag saved successfully:', flagData.flagId);
+            console.log('Flag saved successfully:', flagId);
             return flagData;
         } catch (error) {
             console.error('Error saving flag:', error);
@@ -162,7 +165,7 @@ class GameFlagManager {
     /**
      * Generate TestScenario-compatible export
      */
-    generateTestScenarioExport(boardState, aiMove, reason, comment) {
+    generateTestScenarioExport(boardState, aiMove, reason, comment, flagId) {
         const boardString = this.decompressBoardState(boardState);
         const scenarioName = `flagged-${reason}-${Date.now()}`.substring(0, 40);
 
@@ -170,7 +173,8 @@ class GameFlagManager {
 
         return {
             scenarioName: scenarioName,
-            consoleCommand: `window.KalidaGame.debug.loadScenario('${scenarioName}')`,
+            flagId: flagId,
+            consoleCommand: `window.KalidaGame.debug.loadFlaggedScenario('${flagId}')`,
             testScenarioCode: `
     '${scenarioName}': {
         name: 'Flagged: ${this.formatReason(reason)}',
@@ -187,10 +191,10 @@ ${boardString}
     }`.trim(),
             rawBoardState: boardString,
             loadCommand: `
-// To test this scenario, run in console:
-window.KalidaGame.debug.loadScenario('${scenarioName}')
+// EASIEST WAY - Load directly from Firestore:
+await window.KalidaGame.debug.loadFlaggedScenario('${flagId}')
 
-// Or paste this into TestScenarios.js:
+// Or add to TestScenarios.js for permanent testing:
 ${this.generateTestScenarioCode(scenarioName, boardString, aiMove, reason, comment)}
             `.trim()
         };

@@ -12,6 +12,7 @@ import TestScenarios, { getScenario, getScenarioNames } from './utils/TestScenar
 // Firebase imports for multiplayer functionality
 import firebaseServices from './config/firebase-config.js';
 const { app: firebaseApp, auth: firebaseAuth, db: firebaseDb } = firebaseServices;
+import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Authentication imports
 import AuthManager from './auth/AuthManager.js';
@@ -802,6 +803,116 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
 
                         return winners;
+                    },
+
+                    /**
+                     * Load a flagged AI move scenario directly from Firestore
+                     * @param {string} flagId - The flag ID from Firestore
+                     */
+                    loadFlaggedScenario: async (flagId) => {
+                        console.log('Loading flagged scenario from Firestore:', flagId);
+
+                        try {
+                            // Fetch the flag document
+                            const flagRef = doc(firebaseDb, 'flaggedMoves', flagId);
+                            const flagDoc = await getDoc(flagRef);
+
+                            if (!flagDoc.exists()) {
+                                console.error(`Flag "${flagId}" not found in Firestore`);
+                                return false;
+                            }
+
+                            const flagData = flagDoc.data();
+                            console.log('Flag data loaded successfully');
+                            console.log('Reason:', flagData.flagReason);
+                            console.log('Comment:', flagData.userComment || 'None');
+                            console.log('AI Level:', flagData.aiLevel);
+                            console.log('AI Move:', flagData.aiMove);
+
+                            // Decompress board state
+                            const compressBoardState = (compressed) => {
+                                const flat = compressed.split('').map(c => {
+                                    if (c === '0') return '.';
+                                    return c;
+                                });
+
+                                let output = '';
+                                for (let i = 0; i < 6; i++) {
+                                    const row = flat.slice(i * 6, (i + 1) * 6);
+                                    output += '            ' + row.join(' ') + '\n';
+                                }
+                                return output.trimEnd();
+                            };
+
+                            const boardString = compressBoardState(flagData.boardStateBefore);
+
+                            // Create scenario object
+                            const scenario = {
+                                name: `Flagged: ${flagData.flagReason}`,
+                                description: flagData.userComment || 'AI made a poor move',
+                                board: '\n' + boardString + '\n        ',
+                                currentPlayer: 'O',
+                                rules: flagData.rules,
+                                notes: `Flag: ${flagData.flagReason}. AI played: [${flagData.aiMove.row}, ${flagData.aiMove.col}]`
+                            };
+
+                            console.log('\n--- Scenario Details ---');
+                            console.log('Name:', scenario.name);
+                            console.log('Description:', scenario.description);
+                            console.log('Rules:', scenario.rules);
+                            console.log('Board:');
+                            console.log(boardString);
+                            console.log('------------------------\n');
+
+                            // Determine game mode from rules
+                            let targetMode = 'human';
+                            if (scenario.rules.bounce && scenario.rules.wrap) {
+                                targetMode = 'level4';
+                            } else if (scenario.rules.wrap) {
+                                targetMode = 'level3';
+                            } else if (scenario.rules.bounce) {
+                                targetMode = 'level2';
+                            } else {
+                                targetMode = 'level1';
+                            }
+
+                            // Switch game mode if needed
+                            if (game.gameMode !== targetMode) {
+                                console.log(`Switching to ${targetMode} mode...`);
+                                game.gameMode = targetMode;
+                                game.aiDifficulty = 'impossible';
+
+                                if (!game.ai) {
+                                    game.ai = game.createAI(game.aiDifficulty);
+                                }
+                            }
+
+                            // Load the board state
+                            const options = {
+                                currentPlayer: scenario.currentPlayer,
+                                rules: scenario.rules
+                            };
+
+                            const success = game.loadBoardState(scenario.board, options);
+
+                            if (success) {
+                                // Force UI update
+                                if (gameUI && gameUI.boardUI) {
+                                    gameUI.boardUI.updateBoard(game.getBoardState());
+                                }
+
+                                console.log('✓ Scenario loaded successfully!');
+                                console.log(`AI is ready to move. Watch what it does and compare to the flagged move: [${flagData.aiMove.row}, ${flagData.aiMove.col}]`);
+                                return true;
+                            } else {
+                                console.error('Failed to load board state');
+                                return false;
+                            }
+
+                        } catch (error) {
+                            console.error('Error loading flagged scenario:', error);
+                            return false;
+                        }
                     }
                 }
             };
