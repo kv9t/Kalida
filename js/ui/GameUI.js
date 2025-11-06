@@ -78,7 +78,7 @@ class GameUI {
     initialize() {
         try {
             // Find DOM elements
-            this.elements.playerTurn = document.querySelector('.player-turn');
+            this.elements.playerTurn = document.getElementById('turn-indicator');
             this.elements.scoreX = document.getElementById('score-x');
             this.elements.scoreO = document.getElementById('score-o');
             this.elements.matchScoreX = document.getElementById('match-score-x');
@@ -1217,13 +1217,10 @@ class GameUI {
             } else if (typeof this.game.getCurrentPlayer === 'function') {
                 currentPlayer = this.game.getCurrentPlayer();
             }
-            
-            // NEW: Update turn indicator using asset manager if not knight move required
-            if (!isKnightMoveRequired) {
-                this.assetManager.updateTurnIndicator(currentPlayer, gameActive ? 'playing' : 'game_over');
-            }
-            
-            // Update player turn display if knight move not required
+
+            // Update player turn display with personalized text if knight move not required
+            // NOTE: UIAssetManager.updateTurnIndicator is NOT called here because it uses
+            // hardcoded "PLAYER X'S TURN" text. We use getPersonalizedTurnText() instead.
             if (this.elements.playerTurn && !isKnightMoveRequired) {
                 if (gameActive) {
                     this.elements.playerTurn.textContent = this.getPersonalizedTurnText(currentPlayer);
