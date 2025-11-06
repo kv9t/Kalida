@@ -277,6 +277,62 @@ class GameUI {
     }
 
     /**
+     * Update scoreboard player names based on current room
+     */
+    updateScoreboardNames() {
+        if (!this.roomManager) {
+            return;
+        }
+
+        const currentRoom = this.roomManager.getCurrentRoom();
+        let playerXName = 'PLAYER X';
+        let playerOName = 'PLAYER O';
+
+        // Handle computer rooms
+        if (currentRoom && currentRoom.type === 'computer') {
+            playerXName = 'YOU';
+            playerOName = 'COMPUTER';
+        }
+        // Handle remote rooms
+        else if (currentRoom && currentRoom.type === 'remote' && currentRoom.players) {
+            const mySymbol = this.roomManager.getMyPlayerSymbol(currentRoom);
+
+            if (currentRoom.players.X) {
+                if (mySymbol === 'X') {
+                    playerXName = 'YOU';
+                } else {
+                    playerXName = currentRoom.players.X.displayName.toUpperCase();
+                }
+            }
+
+            if (currentRoom.players.O) {
+                if (mySymbol === 'O') {
+                    playerOName = 'YOU';
+                } else {
+                    playerOName = currentRoom.players.O.displayName.toUpperCase();
+                }
+            }
+        }
+
+        // Update all scoreboard name elements
+        const playerXNameEls = [
+            document.getElementById('player-x-name'),
+            document.getElementById('match-player-x-name')
+        ];
+        const playerONameEls = [
+            document.getElementById('player-o-name'),
+            document.getElementById('match-player-o-name')
+        ];
+
+        playerXNameEls.forEach(el => {
+            if (el) el.textContent = playerXName;
+        });
+        playerONameEls.forEach(el => {
+            if (el) el.textContent = playerOName;
+        });
+    }
+
+    /**
      * Get personalized turn text for display
      * @param {string} player - 'X' or 'O'
      * @returns {string} Personalized turn text
@@ -287,6 +343,18 @@ class GameUI {
         }
 
         const currentRoom = this.roomManager.getCurrentRoom();
+
+        // Handle computer rooms
+        if (currentRoom && currentRoom.type === 'computer') {
+            // In computer mode, Player X is always human, Player O is always AI
+            if (player === 'X') {
+                return 'YOUR TURN';
+            } else {
+                return "COMPUTER'S TURN";
+            }
+        }
+
+        // Handle remote rooms
         if (!currentRoom || currentRoom.type !== 'remote' || !currentRoom.players) {
             return `Player ${player}'s Turn`;
         }
@@ -921,8 +989,11 @@ class GameUI {
             }
             
             if (data.type === 'win' && this.boardUI && typeof this.boardUI.highlightWinningCells === 'function') {
+                // Handle both winningCells (from live game) and winningLine (from restored game)
+                const cells = data.winningCells || data.winningLine || [];
+
                 this.boardUI.highlightWinningCells(
-                    data.winningCells,
+                    cells,
                     data.bounceCellIndex,
                     data.secondBounceCellIndex,
                     data.lastMove
@@ -1216,7 +1287,10 @@ class GameUI {
             
             // Update clear scores button text
             this.updateClearScoresButtonText();
-            
+
+            // Update scoreboard player names
+            this.updateScoreboardNames();
+
         } catch (error) {
             console.error('Error in updateAll:', error);
         }

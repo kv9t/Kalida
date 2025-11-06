@@ -557,7 +557,9 @@ export class RoomManager {
 
             if (gameStatus.winner) {
                 gameState.winner = gameStatus.winner;
-                gameState.winningLine = gameStatus.winningLine;
+                gameState.winningLine = gameStatus.winningCells; // Save as winningLine for consistency
+                gameState.bounceCellIndex = gameStatus.bounceCellIndex;
+                gameState.secondBounceCellIndex = gameStatus.secondBounceCellIndex;
             }
             gameState.isDraw = gameStatus.isDraw;
         }
@@ -655,6 +657,8 @@ export class RoomManager {
                         winner: room.winner,
                         board: game.getBoardState(),
                         winningLine: room.winningLine || [],
+                        bounceCellIndex: room.bounceCellIndex || -1,
+                        secondBounceCellIndex: room.secondBounceCellIndex || -1,
                         restored: true // Flag to indicate this was restored from save
                     });
                 } else if (room.isDraw) {
