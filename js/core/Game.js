@@ -46,6 +46,7 @@ class Game {
         // Knight move rule tracking
         this.moveCount = { 'X': 0, 'O': 0 };
         this.firstPlayerFirstMove = null;
+        this.firstPlayerOfGame = 'X'; // Track who goes first in current game (for knight move rule)
         this.knightMoveRuleEnabled = true; // Add toggle for the rule
         
         // Initialize AI based on the difficulty level
@@ -384,17 +385,17 @@ class Game {
         }
         
         // Check if this is the first player's second move and enforce knight move rule
-        if (this.knightMoveRuleEnabled && 
-            this.currentPlayer === 'X' && 
-            this.moveCount['X'] === 1) {
-            
+        if (this.knightMoveRuleEnabled &&
+            this.currentPlayer === this.firstPlayerOfGame &&
+            this.moveCount[this.firstPlayerOfGame] === 1) {
+
             // First, make sure firstPlayerFirstMove is set (this is crucial)
             if (!this.firstPlayerFirstMove) {
                 console.error('Error: firstPlayerFirstMove is not set but moveCount is 1');
                 // We need to reconstruct where the first move must have been by looking at the board
                 for (let r = 0; r < this.boardSize; r++) {
                     for (let c = 0; c < this.boardSize; c++) {
-                        if (this.board.getValueAt(r, c) === 'X') {
+                        if (this.board.getValueAt(r, c) === this.firstPlayerOfGame) {
                             this.firstPlayerFirstMove = { row: r, col: c };
                             console.log('Reconstructed first player first move:', this.firstPlayerFirstMove);
                             break;
@@ -402,11 +403,11 @@ class Game {
                     }
                     if (this.firstPlayerFirstMove) break;
                 }
-                
+
                 // If we still couldn't find it (shouldn't happen), reset the move count
                 if (!this.firstPlayerFirstMove) {
                     console.error('Could not reconstruct first move, resetting move count');
-                    this.moveCount['X'] = 0;
+                    this.moveCount[this.firstPlayerOfGame] = 0;
                     return this.makeMove(row, col);
                 }
             }
@@ -511,9 +512,9 @@ class Game {
         console.log('Switched to player', this.currentPlayer);
         
         // Check if we need to show knight move indicators for next turn
-        const isKnightMoveRequired = this.knightMoveRuleEnabled && 
-                                this.currentPlayer === 'X' && 
-                                this.moveCount['X'] === 1;
+        const isKnightMoveRequired = this.knightMoveRuleEnabled &&
+                                this.currentPlayer === this.firstPlayerOfGame &&
+                                this.moveCount[this.firstPlayerOfGame] === 1;
         
         // Notify of turn change
         this.triggerEvent('turnChange', {
@@ -576,10 +577,11 @@ class Game {
 
         this.gameActive = true;
         this.lastMove = null;
-        
+
         // Reset knight move tracking
         this.moveCount = { 'X': 0, 'O': 0 };
         this.firstPlayerFirstMove = null;
+        this.firstPlayerOfGame = this.currentPlayer; // Track who starts for knight move rule
         
         this.triggerEvent('gameReset', {
             board: this.board.getState(),
@@ -668,20 +670,57 @@ class Game {
         if (!this.ai) {
             this.ai = this.createAI(this.aiDifficulty);
         }
-        
+
         // Use setTimeout to give UI time to update
         setTimeout(async () => { // Add 'async' keyword here
             try {
-                // Get AI move - use await since it returns a Promise
-                // FIXED: Pass all rule parameters to AI
-                const move = await this.ai.getMove(
-                    this.board.getState(),
-                    this.currentPlayer,
-                    this.bounceRuleEnabled,
-                    this.missingTeethRuleEnabled,
-                    this.wrapRuleEnabled  // IMPORTANT: Pass wrap rule to AI
-                );
-                
+                let move;
+
+                // Check if knight move is required for AI
+                const isKnightMoveRequired = this.knightMoveRuleEnabled &&
+                                           this.currentPlayer === this.firstPlayerOfGame &&
+                                           this.moveCount[this.firstPlayerOfGame] === 1;
+
+                if (isKnightMoveRequired && this.firstPlayerFirstMove) {
+                    // Get valid knight moves from AI's first move
+                    const validKnightMoves = this.getValidKnightMoves(
+                        this.firstPlayerFirstMove.row,
+                        this.firstPlayerFirstMove.col
+                    );
+
+                    console.log('AI needs to make knight move. Valid options:', validKnightMoves);
+
+                    // Prefer edge positions (better for bounce opportunities)
+                    const edgePositions = validKnightMoves.filter(pos =>
+                        pos.row === 0 || pos.row === this.boardSize - 1 ||
+                        pos.col === 0 || pos.col === this.boardSize - 1
+                    );
+
+                    if (edgePositions.length > 0) {
+                        // Select random edge position
+                        move = edgePositions[Math.floor(Math.random() * edgePositions.length)];
+                        console.log('AI selected edge knight move:', move);
+                    } else if (validKnightMoves.length > 0) {
+                        // Fall back to random knight move
+                        move = validKnightMoves[Math.floor(Math.random() * validKnightMoves.length)];
+                        console.log('AI selected random knight move:', move);
+                    } else {
+                        console.error('No valid knight moves available!');
+                        move = null;
+                    }
+                } else {
+                    // Normal AI logic - use AI algorithm
+                    // Get AI move - use await since it returns a Promise
+                    // FIXED: Pass all rule parameters to AI
+                    move = await this.ai.getMove(
+                        this.board.getState(),
+                        this.currentPlayer,
+                        this.bounceRuleEnabled,
+                        this.missingTeethRuleEnabled,
+                        this.wrapRuleEnabled  // IMPORTANT: Pass wrap rule to AI
+                    );
+                }
+
                 // Make the move
                 if (move && typeof move.row === 'number' && typeof move.col === 'number') {
                     this.makeMove(move.row, move.col);
@@ -1004,9 +1043,9 @@ class Game {
             currentPlayer: this.currentPlayer,
             lastMove: this.lastMove ? { ...this.lastMove } : null,
             moveCount: { ...this.moveCount },
-            isKnightMoveRequired: this.knightMoveRuleEnabled && 
-                                this.currentPlayer === 'X' && 
-                                this.moveCount['X'] === 1,
+            isKnightMoveRequired: this.knightMoveRuleEnabled &&
+                                this.currentPlayer === this.firstPlayerOfGame &&
+                                this.moveCount[this.firstPlayerOfGame] === 1,
             firstPlayerFirstMove: this.firstPlayerFirstMove ? { ...this.firstPlayerFirstMove } : null,
             gameMode: this.gameMode,
             cookiesEnabled: this.cookiesEnabled // NEW: Include cookie status
