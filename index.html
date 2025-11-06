@@ -110,6 +110,13 @@
             <button id="reset-button" class="new-game-btn">New Game</button>
         </div>
 
+        <!--FLAG AI MOVE BUTTON (shown only during computer games)-->
+        <div class="flag-button-container" style="text-align: center;">
+            <button id="flag-ai-btn" class="flag-ai-btn" style="display: none;">
+                🚩 Flag AI Move
+            </button>
+        </div>
+
         <!--GAME MODE SELECTOR SECTION-->
         <div class="frame-354-container">
             <div class="frame-353 game-mode-selector">
@@ -796,6 +803,52 @@
             </div>
 
             <button id="copy-invite-link-btn" class="rooms-button copy-invite-button">COPY INVITE LINK</button>
+        </div>
+    </div>
+
+    <!-- FLAG AI MOVE MODAL -->
+    <div id="flag-modal" class="modal-backdrop flag-modal" style="display: none;">
+        <div class="flag-modal-content">
+            <div class="flag-modal-header">
+                <span class="flag-modal-icon">🚩</span>
+                <h2 class="flag-modal-title">Flag AI Move</h2>
+            </div>
+
+            <p class="flag-modal-description">
+                Help us improve Kalida's AI! Tell us what was wrong with the AI's last move.
+            </p>
+
+            <div class="flag-form-group">
+                <label class="flag-form-label" for="flag-reason">What was the problem?</label>
+                <select id="flag-reason" class="flag-reason-select">
+                    <option value="">-- Select a reason --</option>
+                    <option value="missed_win">Missed Obvious Win</option>
+                    <option value="missed_block">Didn't Block My Win</option>
+                    <option value="weak_position">Weak/Bad Position</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="flag-form-group">
+                <label class="flag-form-label" for="flag-comment">Additional Details (Optional)</label>
+                <textarea id="flag-comment" class="flag-comment-textarea" placeholder="Tell us more about what the AI should have done..."></textarea>
+            </div>
+
+            <div class="flag-modal-buttons">
+                <button id="flag-cancel-btn" class="flag-cancel-btn">Cancel</button>
+                <button id="flag-submit-btn" class="flag-submit-btn">Submit Flag</button>
+            </div>
+
+            <div id="flag-success-message" class="flag-success-message">
+                <strong>Thanks for your feedback!</strong><br>
+                This will help us make the AI smarter.
+            </div>
+
+            <div id="flag-export-section" class="flag-export-section" style="display: none;">
+                <div class="flag-export-title">Test Scenario Export (Copy & Paste):</div>
+                <pre id="flag-export-code" class="flag-export-code"></pre>
+                <button id="flag-copy-export-btn" class="flag-copy-btn">Copy to Clipboard</button>
+            </div>
         </div>
     </div>
 

@@ -21,6 +21,9 @@ import AuthUI from './ui/AuthUI.js';
 import RoomManager from './multiplayer/RoomManager.js';
 import RoomUI from './ui/RoomUI.js';
 
+// AI Feedback imports
+import GameFlagManager from './utils/GameFlagManager.js';
+
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -48,6 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Initializing room management...');
         const roomManager = new RoomManager(firebaseDb, authManager, game.cookieManager);
         const roomUI = new RoomUI(roomManager);
+
+        // Initialize game flag manager for AI feedback
+        console.log('Initializing AI feedback system...');
+        const gameFlagManager = new GameFlagManager(firebaseDb, authManager);
 
         // Create game UI (with roomManager for turn checking)
         console.log('Creating GameUI...');
@@ -204,6 +211,169 @@ document.addEventListener('DOMContentLoaded', function() {
             await roomManager.saveGameStateToRoom(game);
         });
 
+        // ===== AI FEEDBACK SYSTEM INTEGRATION =====
+
+        // Track new game start
+        game.on('gameReset', () => {
+            const currentRoom = roomManager.getCurrentRoom();
+            if (currentRoom && currentRoom.type === 'computer') {
+                const rules = {
+                    bounce: game.bounceRuleEnabled,
+                    wrap: game.wrapRuleEnabled,
+                    missingTeeth: game.missingTeethRuleEnabled,
+                    knightMove: game.knightMoveRuleEnabled
+                };
+                gameFlagManager.startNewGame(game.gameMode, rules);
+            }
+        });
+
+        // Record every move for context
+        game.on('move', (moveData) => {
+            const currentRoom = roomManager.getCurrentRoom();
+            if (currentRoom && currentRoom.type === 'computer') {
+                gameFlagManager.recordMove(
+                    moveData.player,
+                    { row: moveData.row, col: moveData.col },
+                    game.getBoardState()
+                );
+
+                // Show flag button only after AI moves
+                if (moveData.player === 'O') {
+                    showFlagButton();
+                }
+            }
+        });
+
+        // Hide flag button on game reset/mode change
+        game.on('gameReset', () => {
+            hideFlagButton();
+        });
+
+        // Show/hide flag button based on room type
+        roomManager.onRoomChange((currentRoom) => {
+            if (currentRoom && currentRoom.type === 'computer') {
+                // Will be shown after AI moves
+            } else {
+                hideFlagButton();
+            }
+        });
+
+        // Helper functions for flag button visibility
+        function showFlagButton() {
+            const flagBtn = document.getElementById('flag-ai-btn');
+            if (flagBtn) flagBtn.style.display = 'inline-flex';
+        }
+
+        function hideFlagButton() {
+            const flagBtn = document.getElementById('flag-ai-btn');
+            if (flagBtn) flagBtn.style.display = 'none';
+        }
+
+        // ===== FLAG MODAL UI HANDLERS =====
+
+        const flagModal = document.getElementById('flag-modal');
+        const flagBtn = document.getElementById('flag-ai-btn');
+        const flagSubmitBtn = document.getElementById('flag-submit-btn');
+        const flagCancelBtn = document.getElementById('flag-cancel-btn');
+        const flagReasonSelect = document.getElementById('flag-reason');
+        const flagCommentTextarea = document.getElementById('flag-comment');
+        const flagSuccessMessage = document.getElementById('flag-success-message');
+        const flagExportSection = document.getElementById('flag-export-section');
+        const flagExportCode = document.getElementById('flag-export-code');
+        const flagCopyExportBtn = document.getElementById('flag-copy-export-btn');
+
+        // Open flag modal
+        if (flagBtn) {
+            flagBtn.addEventListener('click', () => {
+                flagModal.classList.add('show');
+                flagModal.style.display = 'flex';
+                flagReasonSelect.value = '';
+                flagCommentTextarea.value = '';
+                flagSuccessMessage.classList.remove('show');
+                flagExportSection.style.display = 'none';
+            });
+        }
+
+        // Close flag modal
+        if (flagCancelBtn) {
+            flagCancelBtn.addEventListener('click', () => {
+                flagModal.classList.remove('show');
+                setTimeout(() => flagModal.style.display = 'none', 200);
+            });
+        }
+
+        // Submit flag
+        if (flagSubmitBtn) {
+            flagSubmitBtn.addEventListener('click', async () => {
+                const reason = flagReasonSelect.value;
+                const comment = flagCommentTextarea.value.trim();
+
+                if (!reason) {
+                    alert('Please select a reason for flagging this move.');
+                    return;
+                }
+
+                try {
+                    flagSubmitBtn.disabled = true;
+                    flagSubmitBtn.textContent = 'Submitting...';
+
+                    const flagData = await gameFlagManager.flagLastAIMove(reason, comment);
+
+                    // Show success message
+                    flagSuccessMessage.classList.add('show');
+
+                    // Show export section with test scenario code
+                    flagExportSection.style.display = 'block';
+                    flagExportCode.textContent = flagData.testScenarioExport.loadCommand;
+
+                    // Reset button
+                    flagSubmitBtn.disabled = false;
+                    flagSubmitBtn.textContent = 'Submit Flag';
+
+                    // Hide flag button (move already flagged)
+                    hideFlagButton();
+
+                    console.log('Flag submitted successfully:', flagData.flagId);
+
+                } catch (error) {
+                    console.error('Error submitting flag:', error);
+                    alert('Error submitting flag. Please try again.');
+                    flagSubmitBtn.disabled = false;
+                    flagSubmitBtn.textContent = 'Submit Flag';
+                }
+            });
+        }
+
+        // Copy export code to clipboard
+        if (flagCopyExportBtn) {
+            flagCopyExportBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(flagExportCode.textContent);
+                    flagCopyExportBtn.textContent = '✓ Copied!';
+                    flagCopyExportBtn.classList.add('copied');
+
+                    setTimeout(() => {
+                        flagCopyExportBtn.textContent = 'Copy to Clipboard';
+                        flagCopyExportBtn.classList.remove('copied');
+                    }, 2000);
+                } catch (error) {
+                    console.error('Error copying to clipboard:', error);
+                    alert('Failed to copy. Please select and copy manually.');
+                }
+            });
+        }
+
+        // Close modal on background click
+        if (flagModal) {
+            flagModal.addEventListener('click', (e) => {
+                if (e.target === flagModal) {
+                    flagModal.classList.remove('show');
+                    setTimeout(() => flagModal.style.display = 'none', 200);
+                }
+            });
+        }
+
+        // ===== END AI FEEDBACK SYSTEM =====
 
 
         // Initialize the game with cookie consent handling

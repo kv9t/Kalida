@@ -21,6 +21,7 @@
 @import url('./components/modals.css'); /* NEW: Modal windows */
 @import url('./components/auth.css'); /* NEW: Authentication screens */
 @import url('./components/rooms.css'); /* NEW: Room management */
+@import url('./components/flag-modal.css'); /* NEW: AI move flagging */
 
 /* ===== FEATURE STYLES - Game-specific features ===== */
 @import url('./features/knight-move.css');

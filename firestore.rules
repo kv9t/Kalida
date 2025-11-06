@@ -43,5 +43,17 @@ service cloud.firestore {
       // Allow delete only if user created the room
       allow delete: if request.auth != null && resource.data.createdBy == request.auth.uid;
     }
+
+    // Flagged Moves collection - AI feedback system
+    match /flaggedMoves/{flagId} {
+      // Anyone authenticated can create flags
+      allow create: if request.auth != null;
+
+      // Users can read their own flags
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // No updates or deletes (flags are immutable for data integrity)
+      allow update, delete: if false;
+    }
   }
 }

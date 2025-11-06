@@ -219,3 +219,40 @@ select:focus {
     visibility: visible;
     opacity: 1;
 }
+/* ===== FLAG AI MOVE BUTTON ===== */
+
+.flag-ai-btn {
+    display: inline-flex;
+    padding: 8px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 20px;
+    border: 2px solid #ff9800;
+    background: #fff;
+    color: #ff9800;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 8px 0;
+    outline: none !important;
+}
+
+.flag-ai-btn:hover {
+    background: #ff9800;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+.flag-ai-btn:active {
+    transform: translateY(0);
+}
+
+.flag-ai-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
