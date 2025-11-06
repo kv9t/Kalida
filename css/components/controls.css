@@ -228,9 +228,9 @@ select:focus {
     align-items: center;
     gap: 8px;
     border-radius: 20px;
-    border: 2px solid #ff9800;
+    border: 2px solid #dc3545;
     background: #fff;
-    color: #ff9800;
+    color: #dc3545;
     font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-size: 13px;
     font-weight: 700;
@@ -242,10 +242,10 @@ select:focus {
 }
 
 .flag-ai-btn:hover {
-    background: #ff9800;
+    background: #dc3545;
     color: #fff;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
 .flag-ai-btn:active {

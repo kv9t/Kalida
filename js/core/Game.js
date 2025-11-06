@@ -29,7 +29,8 @@ class Game {
         this.matchWinMargin = 2;    // Must have 2 more round wins than opponent
         this.matchWinner = null;    // Tracks if current round sequence has a match winner
         this.matchJustWon = false;  // Flag to track if a match was just won (for resetting on next game)
-        
+        this.lastRoundWinner = null; // Track who won the last round (for "loser goes first" rule)
+
         this.lastMove = null;
         
         // Rule settings
@@ -467,11 +468,14 @@ class Game {
         
         if (gameStatus.isOver) {
             this.gameActive = false;
-            
+
             if (gameStatus.winner) {
+                // Track winner for "loser goes first" rule
+                this.lastRoundWinner = gameStatus.winner;
+
                 // Update round score
                 this.scores[gameStatus.winner]++;
-                
+
                 // Check if this round win leads to a match win
                 this.checkForMatchWin(gameStatus.winner);
                 
@@ -491,6 +495,7 @@ class Game {
                 // NEW: Save data to cookies after score update
                 this.saveDataToCookies();
             } else if (gameStatus.isDraw) {
+                // On draw, don't change lastRoundWinner (keep same starting player next game)
                 // Handle draw
                 this.triggerEvent('gameEnd', {
                     type: 'draw',
@@ -554,10 +559,21 @@ class Game {
             this.scores = { 'X': 0, 'O': 0 };
             this.matchWinner = null;
             this.matchJustWon = false;
+            this.lastRoundWinner = null; // Reset for new match
         }
-        
+
         this.board.reset();
-        this.currentPlayer = 'X';
+
+        // NEW: "Loser goes first" rule
+        // If there was a previous round winner, the loser starts
+        if (this.lastRoundWinner) {
+            this.currentPlayer = this.lastRoundWinner === 'X' ? 'O' : 'X';
+            console.log(`Loser goes first: ${this.currentPlayer} starts (last winner was ${this.lastRoundWinner})`);
+        } else {
+            // First game - X goes first by default
+            this.currentPlayer = 'X';
+        }
+
         this.gameActive = true;
         this.lastMove = null;
         
@@ -573,8 +589,8 @@ class Game {
             matchWinner: this.matchWinner
         });
         
-        // If playing against computer and computer goes first, make a move
-        if (this.gameMode !== 'human' && this.computerPlayer === 'X') {
+        // If playing against computer and it's the computer's turn to start, make a move
+        if (this.gameMode !== 'human' && this.currentPlayer === this.computerPlayer) {
             this.makeComputerMove();
         }
     }
