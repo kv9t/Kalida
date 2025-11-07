@@ -378,6 +378,52 @@ export class AuthManager {
     }
 
     /**
+     * Update user stats in Firestore
+     * @param {object} statsUpdate - Stats to update (e.g., { totalMatchesWon: 1 })
+     * @returns {Promise<{success: boolean, error?: string}>}
+     */
+    async updateUserStats(statsUpdate) {
+        if (!this.currentUser) {
+            return { success: false, error: 'No user logged in' };
+        }
+
+        try {
+            const userRef = doc(this.db, 'users', this.currentUser.uid);
+
+            // Get current stats
+            const userDoc = await getDoc(userRef);
+            let currentStats = {
+                totalMatchesPlayed: 0,
+                totalMatchesWon: 0,
+                totalRoundsWon: 0
+            };
+
+            if (userDoc.exists()) {
+                currentStats = userDoc.data().stats || currentStats;
+            }
+
+            // Increment the stats
+            const newStats = {
+                stats: {
+                    totalMatchesPlayed: currentStats.totalMatchesPlayed + (statsUpdate.totalMatchesPlayed || 0),
+                    totalMatchesWon: currentStats.totalMatchesWon + (statsUpdate.totalMatchesWon || 0),
+                    totalRoundsWon: currentStats.totalRoundsWon + (statsUpdate.totalRoundsWon || 0)
+                },
+                lastUpdatedAt: serverTimestamp()
+            };
+
+            await setDoc(userRef, newStats, { merge: true });
+
+            console.log('User stats updated:', newStats);
+            return { success: true };
+
+        } catch (error) {
+            console.error('Error updating user stats:', error);
+            return { success: false, error: this.getErrorMessage(error) };
+        }
+    }
+
+    /**
      * Get user-friendly error message
      * @param {Error} error - Firebase error
      * @returns {string} User-friendly error message

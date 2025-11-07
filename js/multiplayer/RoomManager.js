@@ -582,7 +582,12 @@ export class RoomManager {
 
         // Use silent=true to prevent reloading game state after save
         await this.updateRoom(currentRoom.id, gameState, true);
-        console.log('Game state saved to room:', currentRoom.id);
+        console.log('Game state saved to room:', currentRoom.id, {
+            gameActive: gameState.gameActive,
+            winner: gameState.winner,
+            currentPlayer: gameState.currentPlayer,
+            lastMove: gameState.lastMove
+        });
     }
 
     /**
@@ -667,7 +672,14 @@ export class RoomManager {
 
             // If game was finished, trigger game end event to show proper UI
             if (room.gameActive === false) {
+                console.log('Loading finished game state:', {
+                    winner: room.winner,
+                    isDraw: room.isDraw,
+                    winningLine: room.winningLine
+                });
+
                 if (room.winner) {
+                    console.log('Triggering gameEnd event for winner:', room.winner);
                     game.triggerEvent('gameEnd', {
                         type: 'win',
                         winner: room.winner,
@@ -678,6 +690,7 @@ export class RoomManager {
                         restored: true // Flag to indicate this was restored from save
                     });
                 } else if (room.isDraw) {
+                    console.log('Triggering gameEnd event for draw');
                     game.triggerEvent('gameEnd', {
                         type: 'draw',
                         board: game.getBoardState(),

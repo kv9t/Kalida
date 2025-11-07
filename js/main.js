@@ -346,10 +346,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Only sync if this is the current room
             if (currentRoom && currentRoom.id === updatedRoom.id) {
-                console.log('Real-time sync: Loading updated game state');
+                console.log('Real-time sync: Loading updated game state', {
+                    gameActive: updatedRoom.gameActive,
+                    winner: updatedRoom.winner,
+                    currentPlayer: updatedRoom.currentPlayer,
+                    lastMove: updatedRoom.lastMove
+                });
+
                 gameUI.boardUI.clearHighlights();
                 await roomManager.loadGameStateFromRoom(updatedRoom.id, game);
                 gameUI.updateAll();
+
+                console.log('Real-time sync complete. Game state loaded.');
             }
         });
 
@@ -360,8 +368,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Save on gameEnd (captures final game state with winner)
-        game.on('gameEnd', async () => {
+        game.on('gameEnd', async (data) => {
+            console.log('gameEnd event fired:', data);
+
+            // Small delay to ensure turnChange save completes first
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            console.log('Saving game end state to room...');
             await roomManager.saveGameStateToRoom(game);
+            console.log('Game end state saved');
+
+            // Update stats for the winner (round win)
+            if (data.winner && data.winner !== 'computer') {
+                const currentRoom = roomManager.getCurrentRoom();
+                if (currentRoom && currentRoom.type === 'remote') {
+                    // In remote multiplayer, check if current user is the winner
+                    const mySymbol = roomManager.getMyPlayerSymbol(currentRoom);
+                    if (mySymbol === data.winner) {
+                        console.log('You won the round! Updating stats...');
+                        await authManager.updateUserStats({ totalRoundsWon: 1 });
+                    }
+                }
+            }
+        });
+
+        // Track match wins
+        game.on('matchWin', async (data) => {
+            if (data.winner && data.winner !== 'computer') {
+                const currentRoom = roomManager.getCurrentRoom();
+                if (currentRoom && currentRoom.type === 'remote') {
+                    // In remote multiplayer, check if current user is the winner
+                    const mySymbol = roomManager.getMyPlayerSymbol(currentRoom);
+                    if (mySymbol === data.winner) {
+                        console.log('You won the match! Updating stats...');
+                        await authManager.updateUserStats({
+                            totalMatchesPlayed: 1,
+                            totalMatchesWon: 1
+                        });
+                    } else {
+                        // Lost the match, but still count as played
+                        console.log('Match ended. Updating stats...');
+                        await authManager.updateUserStats({ totalMatchesPlayed: 1 });
+                    }
+                }
+            }
         });
 
         // Save on gameReset (when starting new round)
