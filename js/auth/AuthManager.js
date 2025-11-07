@@ -328,6 +328,7 @@ export class AuthManager {
      */
     async getUserStats() {
         if (!this.currentUser) {
+            console.log('getUserStats: No current user');
             return null;
         }
 
@@ -335,12 +336,17 @@ export class AuthManager {
             const userRef = doc(this.db, 'users', this.currentUser.uid);
             const userDoc = await getDoc(userRef);
 
+            console.log('getUserStats: Fetching stats for user', this.currentUser.uid);
+            console.log('getUserStats: User doc exists?', userDoc.exists());
+
             if (userDoc.exists()) {
                 const data = userDoc.data();
+                console.log('getUserStats: Firestore data:', data);
+
                 return {
-                    displayName: data.displayName || 'Anonymous',
-                    email: data.email || null,
-                    isAnonymous: data.isAnonymous || false,
+                    displayName: data.displayName || this.currentUser.displayName || 'Anonymous',
+                    email: data.email || this.currentUser.email || null,
+                    isAnonymous: data.isAnonymous || this.currentUser.isAnonymous || false,
                     stats: data.stats || {
                         totalMatchesPlayed: 0,
                         totalMatchesWon: 0,
@@ -349,8 +355,22 @@ export class AuthManager {
                     createdAt: data.createdAt,
                     activeRooms: data.activeRooms || []
                 };
+            } else {
+                console.log('getUserStats: User doc does not exist, using Firebase Auth data only');
+                // User doc doesn't exist yet, use Firebase Auth data
+                return {
+                    displayName: this.currentUser.displayName || 'Anonymous',
+                    email: this.currentUser.email || null,
+                    isAnonymous: this.currentUser.isAnonymous || false,
+                    stats: {
+                        totalMatchesPlayed: 0,
+                        totalMatchesWon: 0,
+                        totalRoundsWon: 0
+                    },
+                    createdAt: null,
+                    activeRooms: []
+                };
             }
-            return null;
         } catch (error) {
             console.error('Error getting user stats:', error);
             return null;

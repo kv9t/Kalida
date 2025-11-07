@@ -299,9 +299,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     const result = await authManager.signOut();
                     if (result.success) {
                         console.log('User logged out successfully');
-                        // Close the modal
+                        // Close the modal with fade-out transition
                         if (profileModal) {
-                            profileModal.style.display = 'none';
+                            profileModal.classList.remove('show');
+                            // Also remove 'show' from container
+                            const container = profileModal.querySelector('.modal-container');
+                            if (container) {
+                                container.classList.remove('show');
+                            }
+                            // Wait for fade-out transition before hiding
+                            setTimeout(() => {
+                                if (profileModal) {
+                                    profileModal.style.display = 'none';
+                                }
+                            }, 300);
                         }
                         // The onAuthStateChange callback will handle UI updates
                     } else {
