@@ -245,7 +245,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     // Update the display in room UI if needed
-                    roomUI.updateAll();
+                    const currentRoom = roomManager.getCurrentRoom();
+                    if (currentRoom) {
+                        roomUI.updateRoomSelector(currentRoom);
+                    }
                 } else {
                     if (nameUpdateMessage) {
                         nameUpdateMessage.textContent = result.error || 'Failed to update name';
