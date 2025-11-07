@@ -2,6 +2,17 @@
  * User Profile Modal Styles
  */
 
+/* Profile modal backdrop - inherits from .modal-backdrop but needs flex display */
+.user-profile-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-profile-modal.show {
+    display: flex !important;
+}
+
 /* Profile button styling (replaces logout button) */
 .user-profile-btn {
     background: transparent;

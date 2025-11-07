@@ -164,6 +164,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (profileModal) {
                     profileModal.style.display = 'flex';
 
+                    // Add 'show' class for CSS transition/opacity
+                    setTimeout(() => {
+                        if (profileModal) {
+                            profileModal.classList.add('show');
+                            // Also add 'show' to the container inside
+                            const container = profileModal.querySelector('.modal-container');
+                            if (container) {
+                                container.classList.add('show');
+                            }
+                        }
+                    }, 10);
+
                     // Load user stats
                     const stats = await authManager.getUserStats();
                     if (stats) {
@@ -201,7 +213,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (closeProfileBtn) {
             closeProfileBtn.addEventListener('click', () => {
                 if (profileModal) {
-                    profileModal.style.display = 'none';
+                    profileModal.classList.remove('show');
+                    // Also remove 'show' from container
+                    const container = profileModal.querySelector('.modal-container');
+                    if (container) {
+                        container.classList.remove('show');
+                    }
+                    // Wait for fade-out transition before hiding
+                    setTimeout(() => {
+                        if (profileModal) {
+                            profileModal.style.display = 'none';
+                        }
+                    }, 300);
                 }
             });
         }
@@ -210,7 +233,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (profileModal) {
             profileModal.addEventListener('click', (e) => {
                 if (e.target === profileModal) {
-                    profileModal.style.display = 'none';
+                    profileModal.classList.remove('show');
+                    // Also remove 'show' from container
+                    const container = profileModal.querySelector('.modal-container');
+                    if (container) {
+                        container.classList.remove('show');
+                    }
+                    // Wait for fade-out transition before hiding
+                    setTimeout(() => {
+                        if (profileModal) {
+                            profileModal.style.display = 'none';
+                        }
+                    }, 300);
                 }
             });
         }
