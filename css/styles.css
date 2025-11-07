@@ -22,6 +22,7 @@
 @import url('./components/auth.css'); /* NEW: Authentication screens */
 @import url('./components/rooms.css'); /* NEW: Room management */
 @import url('./components/flag-modal.css'); /* NEW: AI move flagging */
+@import url('./components/user-profile.css'); /* NEW: User profile and stats */
 
 /* ===== FEATURE STYLES - Game-specific features ===== */
 @import url('./features/knight-move.css');

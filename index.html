@@ -51,8 +51,8 @@
                     <span class="room-chevron">▼</span>
                 </div>
             </div>
-            <button id="logout-btn" class="logout-btn" style="display: none;" title="Logout">
-                👤 Logout
+            <button id="user-profile-btn" class="user-profile-btn" style="display: none;" title="Profile & Stats">
+                👤 Profile
             </button>
         </div>
         <!-- <div class="header-divider"></div> -->
@@ -848,6 +848,73 @@
                 <div class="flag-export-title">Test Scenario Export (Copy & Paste):</div>
                 <pre id="flag-export-code" class="flag-export-code"></pre>
                 <button id="flag-copy-export-btn" class="flag-copy-btn">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER PROFILE & STATS MODAL -->
+    <div id="user-profile-modal" class="modal-backdrop user-profile-modal" style="display: none;">
+        <div class="modal-container user-profile-container">
+            <button class="modal-close-btn" id="close-user-profile">
+                ✕
+            </button>
+
+            <div class="modal-content user-profile-content">
+                <h2 class="user-profile-title">USER PROFILE</h2>
+
+                <!-- Display Name Section -->
+                <div class="profile-section">
+                    <h3>Display Name</h3>
+                    <div class="profile-name-group">
+                        <input type="text" id="profile-display-name" class="profile-input" placeholder="Enter display name">
+                        <button id="update-name-btn" class="profile-btn">Update Name</button>
+                    </div>
+                    <div id="name-update-message" class="profile-message"></div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="profile-section stats-section">
+                    <h3>Your Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Matches</div>
+                            <div class="stat-value" id="stat-total-matches">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Matches Won</div>
+                            <div class="stat-value" id="stat-matches-won">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Rounds Won</div>
+                            <div class="stat-value" id="stat-rounds-won">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Win Rate</div>
+                            <div class="stat-value" id="stat-win-rate">0%</div>
+                        </div>
+                    </div>
+                    <div class="stats-note">Stats are tracked for logged-in users only</div>
+                </div>
+
+                <!-- Account Info Section -->
+                <div class="profile-section">
+                    <h3>Account Info</h3>
+                    <div class="account-info">
+                        <div class="info-row">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value" id="profile-email">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Account Type:</span>
+                            <span class="info-value" id="profile-type">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logout Section -->
+                <div class="profile-section logout-section">
+                    <button id="logout-btn" class="profile-logout-btn">Logout</button>
+                </div>
             </div>
         </div>
     </div>

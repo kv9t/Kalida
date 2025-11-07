@@ -9,11 +9,12 @@ class CookieManager {
         // Cookie names used by the application
         this.cookieNames = {
             CONSENT: 'kalida_cookie_consent',
-            TUTORIAL_COMPLETED: 'kalida_tutorial_completed', 
+            TUTORIAL_COMPLETED: 'kalida_tutorial_completed',
             GAME_MODE: 'kalida_game_mode',
             ROUND_SCORES: 'kalida_round_scores',
             MATCH_SCORES: 'kalida_match_scores',
-            RULE_PREFERENCES: 'kalida_rule_preferences'
+            RULE_PREFERENCES: 'kalida_rule_preferences',
+            LAST_ROOM: 'kalida_last_room'
         };
         
         // Default expiration: 30 days from now
@@ -160,6 +161,25 @@ class CookieManager {
     }
     
     /**
+     * Save last room ID
+     * @param {string} roomId - Room ID
+     */
+    saveLastRoom(roomId) {
+        if (!this.hasConsent()) return false;
+        this.setCookie(this.cookieNames.LAST_ROOM, roomId);
+        return true;
+    }
+
+    /**
+     * Get last room ID
+     * @returns {string|null} - Last room ID or null
+     */
+    getLastRoom() {
+        if (!this.hasConsent()) return null;
+        return this.getCookie(this.cookieNames.LAST_ROOM);
+    }
+
+    /**
      * Clear all game-related cookies (keep consent)
      */
     clearGameData() {
@@ -168,6 +188,7 @@ class CookieManager {
         this.deleteCookie(this.cookieNames.ROUND_SCORES);
         this.deleteCookie(this.cookieNames.MATCH_SCORES);
         this.deleteCookie(this.cookieNames.RULE_PREFERENCES);
+        this.deleteCookie(this.cookieNames.LAST_ROOM);
     }
     
     /**

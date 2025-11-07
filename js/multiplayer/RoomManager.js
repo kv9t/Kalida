@@ -56,9 +56,21 @@ export class RoomManager {
             await this.createDefaultRoom();
         }
 
-        // Set current room to first room
-        if (this.rooms.length > 0 && !this.currentRoomId) {
-            this.currentRoomId = this.rooms[0].id;
+        // Try to restore last room from cookies
+        const lastRoomId = this.cookieManager.getLastRoom();
+        if (lastRoomId && this.rooms.find(r => r.id === lastRoomId)) {
+            this.currentRoomId = lastRoomId;
+            console.log('Restored last room from cookies:', lastRoomId);
+        } else {
+            // Set current room to first room
+            if (this.rooms.length > 0 && !this.currentRoomId) {
+                this.currentRoomId = this.rooms[0].id;
+            }
+        }
+
+        // Save current room to cookies
+        if (this.currentRoomId) {
+            this.cookieManager.saveLastRoom(this.currentRoomId);
         }
 
         console.log('Rooms initialized:', this.rooms);
@@ -256,6 +268,10 @@ export class RoomManager {
         }
 
         this.currentRoomId = roomId;
+
+        // Save to cookies so we remember the room on refresh
+        this.cookieManager.saveLastRoom(roomId);
+
         console.log('Switched to room:', room);
         this.notifyRoomChange();
 

@@ -293,6 +293,71 @@ export class AuthManager {
     }
 
     /**
+     * Update user's display name
+     * @param {string} newDisplayName - New display name
+     * @returns {Promise<{success: boolean, error?: string}>}
+     */
+    async updateDisplayName(newDisplayName) {
+        if (!this.currentUser) {
+            return { success: false, error: 'No user logged in' };
+        }
+
+        try {
+            // Update in Firebase Auth
+            await updateProfile(this.currentUser, { displayName: newDisplayName });
+
+            // Update in Firestore
+            const userRef = doc(this.db, 'users', this.currentUser.uid);
+            await setDoc(userRef, {
+                displayName: newDisplayName,
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+
+            console.log('Display name updated:', newDisplayName);
+            return { success: true };
+
+        } catch (error) {
+            console.error('Error updating display name:', error);
+            return { success: false, error: this.getErrorMessage(error) };
+        }
+    }
+
+    /**
+     * Get user stats from Firestore
+     * @returns {Promise<object|null>} User stats or null
+     */
+    async getUserStats() {
+        if (!this.currentUser) {
+            return null;
+        }
+
+        try {
+            const userRef = doc(this.db, 'users', this.currentUser.uid);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                return {
+                    displayName: data.displayName || 'Anonymous',
+                    email: data.email || null,
+                    isAnonymous: data.isAnonymous || false,
+                    stats: data.stats || {
+                        totalMatchesPlayed: 0,
+                        totalMatchesWon: 0,
+                        totalRoundsWon: 0
+                    },
+                    createdAt: data.createdAt,
+                    activeRooms: data.activeRooms || []
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error('Error getting user stats:', error);
+            return null;
+        }
+    }
+
+    /**
      * Get user-friendly error message
      * @param {Error} error - Firebase error
      * @returns {string} User-friendly error message

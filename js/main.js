@@ -91,11 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     gameUI.updateAll();
                 }
 
-                // Show room selector and logout button
+                // Show room selector and profile button
                 roomUI.showRoomSelector();
-                const logoutBtn = document.getElementById('logout-btn');
-                if (logoutBtn) {
-                    logoutBtn.style.display = 'block';
+                const profileBtn = document.getElementById('user-profile-btn');
+                if (profileBtn) {
+                    profileBtn.style.display = 'block';
                 }
 
                 // Check for pending invite link
@@ -141,22 +141,131 @@ document.addEventListener('DOMContentLoaded', function() {
                     authUI.showWelcomeModal();
                 }
                 roomUI.hideRoomSelector();
-                const logoutBtn = document.getElementById('logout-btn');
-                if (logoutBtn) {
-                    logoutBtn.style.display = 'none';
+                const profileBtn = document.getElementById('user-profile-btn');
+                if (profileBtn) {
+                    profileBtn.style.display = 'none';
                 }
                 console.log('User not authenticated, showing welcome screen');
             }
         });
 
-        // Set up logout button
+        // Set up user profile modal
+        const profileBtn = document.getElementById('user-profile-btn');
+        const profileModal = document.getElementById('user-profile-modal');
+        const closeProfileBtn = document.getElementById('close-user-profile');
+        const updateNameBtn = document.getElementById('update-name-btn');
         const logoutBtn = document.getElementById('logout-btn');
+        const displayNameInput = document.getElementById('profile-display-name');
+        const nameUpdateMessage = document.getElementById('name-update-message');
+
+        // Open profile modal
+        if (profileBtn) {
+            profileBtn.addEventListener('click', async () => {
+                if (profileModal) {
+                    profileModal.style.display = 'flex';
+
+                    // Load user stats
+                    const stats = await authManager.getUserStats();
+                    if (stats) {
+                        // Update display name input
+                        if (displayNameInput) {
+                            displayNameInput.value = stats.displayName;
+                        }
+
+                        // Update stats display
+                        document.getElementById('stat-total-matches').textContent = stats.stats.totalMatchesPlayed || 0;
+                        document.getElementById('stat-matches-won').textContent = stats.stats.totalMatchesWon || 0;
+                        document.getElementById('stat-rounds-won').textContent = stats.stats.totalRoundsWon || 0;
+
+                        // Calculate win rate
+                        const winRate = stats.stats.totalMatchesPlayed > 0
+                            ? Math.round((stats.stats.totalMatchesWon / stats.stats.totalMatchesPlayed) * 100)
+                            : 0;
+                        document.getElementById('stat-win-rate').textContent = winRate + '%';
+
+                        // Update account info
+                        document.getElementById('profile-email').textContent = stats.email || 'N/A';
+                        document.getElementById('profile-type').textContent = stats.isAnonymous ? 'Guest' : 'Registered';
+                    }
+
+                    // Clear any previous messages
+                    if (nameUpdateMessage) {
+                        nameUpdateMessage.textContent = '';
+                        nameUpdateMessage.className = 'profile-message';
+                    }
+                }
+            });
+        }
+
+        // Close profile modal
+        if (closeProfileBtn) {
+            closeProfileBtn.addEventListener('click', () => {
+                if (profileModal) {
+                    profileModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Close on backdrop click
+        if (profileModal) {
+            profileModal.addEventListener('click', (e) => {
+                if (e.target === profileModal) {
+                    profileModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Update display name
+        if (updateNameBtn) {
+            updateNameBtn.addEventListener('click', async () => {
+                const newName = displayNameInput?.value.trim();
+
+                if (!newName) {
+                    if (nameUpdateMessage) {
+                        nameUpdateMessage.textContent = 'Please enter a display name';
+                        nameUpdateMessage.className = 'profile-message error';
+                    }
+                    return;
+                }
+
+                // Disable button while updating
+                updateNameBtn.disabled = true;
+                updateNameBtn.textContent = 'Updating...';
+
+                const result = await authManager.updateDisplayName(newName);
+
+                // Re-enable button
+                updateNameBtn.disabled = false;
+                updateNameBtn.textContent = 'Update Name';
+
+                if (result.success) {
+                    if (nameUpdateMessage) {
+                        nameUpdateMessage.textContent = 'Display name updated successfully!';
+                        nameUpdateMessage.className = 'profile-message success';
+                    }
+
+                    // Update the display in room UI if needed
+                    roomUI.updateAll();
+                } else {
+                    if (nameUpdateMessage) {
+                        nameUpdateMessage.textContent = result.error || 'Failed to update name';
+                        nameUpdateMessage.className = 'profile-message error';
+                    }
+                }
+            });
+        }
+
+        // Logout button (inside modal)
         if (logoutBtn) {
             logoutBtn.addEventListener('click', async () => {
                 if (confirm('Are you sure you want to logout?')) {
                     const result = await authManager.signOut();
                     if (result.success) {
                         console.log('User logged out successfully');
+                        // Close the modal
+                        if (profileModal) {
+                            profileModal.style.display = 'none';
+                        }
                         // The onAuthStateChange callback will handle UI updates
                     } else {
                         alert('Logout failed: ' + result.error);
