@@ -350,7 +350,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     gameActive: updatedRoom.gameActive,
                     winner: updatedRoom.winner,
                     currentPlayer: updatedRoom.currentPlayer,
-                    lastMove: updatedRoom.lastMove
+                    lastMove: updatedRoom.lastMove,
+                    readyPlayers: updatedRoom.readyPlayers
                 });
 
                 gameUI.boardUI.clearHighlights();
@@ -358,6 +359,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 gameUI.updateAll();
 
                 console.log('Real-time sync complete. Game state loaded.');
+
+                // Check if both players are ready for next game
+                if (updatedRoom.type === 'remote' && roomManager.areBothPlayersReady(updatedRoom)) {
+                    console.log('Both players ready! Starting new game...');
+
+                    // Clear ready states
+                    await roomManager.clearReadyStates(updatedRoom.id);
+
+                    // Reset the game
+                    game.resetGame();
+
+                    // Update button text
+                    gameUI.updateReadyButtonText(updatedRoom);
+                } else if (updatedRoom.type === 'remote') {
+                    // Update button text to show ready states
+                    gameUI.updateReadyButtonText(updatedRoom);
+                }
             }
         });
 
@@ -389,6 +407,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         await authManager.updateUserStats({ totalRoundsWon: 1 });
                     }
                 }
+            }
+
+            // Update button text for multiplayer ready-up system
+            const currentRoom = roomManager.getCurrentRoom();
+            if (currentRoom && currentRoom.type === 'remote') {
+                // Clear ready states from Firestore when game ends
+                await roomManager.clearReadyStates(currentRoom.id);
+                // Update button to show it's ready for new game
+                gameUI.updateReadyButtonText(currentRoom);
             }
         });
 

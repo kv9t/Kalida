@@ -411,14 +411,35 @@ class GameUI {
     setupEventListeners() {
         // Reset button
         if (this.elements.resetButton) {
-            this.elements.resetButton.addEventListener('click', () => {
-                // Change button text back to normal if it was modified
-                if (this.elements.resetButton.textContent !== 'New Game') {
-                    this.elements.resetButton.textContent = 'New Game';
-                    this.elements.resetButton.classList.remove('new-match-button');
+            this.elements.resetButton.addEventListener('click', async () => {
+                // Check if this is a remote multiplayer room
+                const currentRoom = this.roomManager ? this.roomManager.getCurrentRoom() : null;
+
+                if (currentRoom && currentRoom.type === 'remote' && !this.game.gameActive) {
+                    // Multiplayer ready-up system
+                    const mySymbol = this.roomManager.getMyPlayerSymbol(currentRoom);
+
+                    if (!mySymbol) {
+                        console.error('Could not determine player symbol');
+                        return;
+                    }
+
+                    // Toggle ready state
+                    const currentlyReady = currentRoom.readyPlayers && currentRoom.readyPlayers[mySymbol];
+                    await this.roomManager.setPlayerReady(currentRoom.id, mySymbol, !currentlyReady);
+
+                    // Update button text immediately
+                    this.updateReadyButtonText(currentRoom);
+                } else {
+                    // Single player or local multiplayer - reset immediately
+                    // Change button text back to normal if it was modified
+                    if (this.elements.resetButton.textContent !== 'New Game') {
+                        this.elements.resetButton.textContent = 'New Game';
+                        this.elements.resetButton.classList.remove('new-match-button');
+                    }
+
+                    this.game.resetGame();
                 }
-                
-                this.game.resetGame();
             });
         }
         
@@ -1347,6 +1368,38 @@ class GameUI {
             }, displayTime);
         } catch (error) {
             console.error('Error showing message:', error);
+        }
+    }
+
+    /**
+     * Update ready button text based on ready states
+     * @param {object} room - Current room
+     */
+    updateReadyButtonText(room) {
+        if (!this.elements.resetButton || !room || room.type !== 'remote') {
+            return;
+        }
+
+        const mySymbol = this.roomManager.getMyPlayerSymbol(room);
+        if (!mySymbol) return;
+
+        const readyPlayers = room.readyPlayers || { X: false, O: false };
+        const iAmReady = readyPlayers[mySymbol];
+        const opponentSymbol = mySymbol === 'X' ? 'O' : 'X';
+        const opponentReady = readyPlayers[opponentSymbol];
+
+        if (iAmReady && opponentReady) {
+            this.elements.resetButton.textContent = 'Both Ready - Starting...';
+            this.elements.resetButton.classList.add('both-ready');
+        } else if (iAmReady) {
+            this.elements.resetButton.textContent = 'Ready ✓ (Waiting for opponent)';
+            this.elements.resetButton.classList.add('player-ready');
+        } else if (opponentReady) {
+            this.elements.resetButton.textContent = 'Opponent Ready - Click to Continue';
+            this.elements.resetButton.classList.add('opponent-ready');
+        } else {
+            this.elements.resetButton.textContent = 'New Game';
+            this.elements.resetButton.classList.remove('player-ready', 'opponent-ready', 'both-ready');
         }
     }
 }

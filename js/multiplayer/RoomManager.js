@@ -117,13 +117,14 @@ export class RoomManager {
             lastMove: null
         };
 
-        // For remote rooms, add invite link
+        // For remote rooms, add invite link and ready tracking
         if (type === 'remote') {
             room.inviteLink = `${window.location.origin}/?invite=${roomId}`;
             room.players = {
                 X: { userId: user ? user.uid : null, displayName: user ? (user.displayName || 'You') : 'You' },
                 O: null
             };
+            room.readyPlayers = { X: false, O: false }; // Track who's ready for next game
         }
 
         // Add to local array
@@ -921,6 +922,68 @@ export class RoomManager {
      */
     notifyRoomSync(room) {
         this.roomSyncCallbacks.forEach(callback => callback(room));
+    }
+
+    /**
+     * Set player ready state for next game
+     * @param {string} roomId - Room ID
+     * @param {string} playerSymbol - 'X' or 'O'
+     * @param {boolean} ready - Ready state
+     */
+    async setPlayerReady(roomId, playerSymbol, ready) {
+        const room = this.rooms.find(r => r.id === roomId);
+        if (!room || room.type !== 'remote') {
+            console.error('Cannot set ready state for non-remote room');
+            return false;
+        }
+
+        if (!room.readyPlayers) {
+            room.readyPlayers = { X: false, O: false };
+        }
+
+        room.readyPlayers[playerSymbol] = ready;
+
+        console.log(`Player ${playerSymbol} ready state: ${ready}`);
+
+        // Update in Firestore
+        await this.updateRoom(roomId, { readyPlayers: room.readyPlayers }, true);
+
+        return true;
+    }
+
+    /**
+     * Check if both players are ready
+     * @param {object} room - Room object
+     * @returns {boolean} True if both players ready
+     */
+    areBothPlayersReady(room) {
+        if (!room || room.type !== 'remote') {
+            return false;
+        }
+
+        if (!room.readyPlayers) {
+            return false;
+        }
+
+        return room.readyPlayers.X === true && room.readyPlayers.O === true;
+    }
+
+    /**
+     * Clear ready states (after game starts)
+     * @param {string} roomId - Room ID
+     */
+    async clearReadyStates(roomId) {
+        const room = this.rooms.find(r => r.id === roomId);
+        if (!room || room.type !== 'remote') {
+            return;
+        }
+
+        room.readyPlayers = { X: false, O: false };
+
+        console.log('Clearing ready states');
+
+        // Update in Firestore
+        await this.updateRoom(roomId, { readyPlayers: room.readyPlayers }, true);
     }
 }
 
