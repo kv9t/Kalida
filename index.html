@@ -597,7 +597,8 @@
             <div class="modal-content welcome-content">
                 <!-- Welcome title -->
                 <div class="welcome-frame-367">
-                    <h2 class="welcome-title">WELCOME TO KALIDA</h2>
+                    <h2 class="welcome-title">welcome to kalida</h2>
+                    <p class="welcome-subtitle" style="font-size: 13px; color: #666; text-align: center; margin-top: 10px; line-height: 1.4;">Create an account to save your scores and play friends online</p>
                 </div>
 
                 <!-- Game icon -->
@@ -605,28 +606,18 @@
                     <img src="images/tutorial_cover_board-img.svg" alt="Kalida game" class="welcome-game-icon">
                 </div>
 
-                <!-- Play as Guest button -->
-                <div class="welcome-guest-section">
-                    <button id="play-as-guest-btn" class="welcome-button guest-button">PLAY AS GUEST</button>
-                </div>
-
-                <!-- OR divider -->
-                <div class="welcome-divider">
-                    <span>OR LOG IN TO PLAY</span>
-                </div>
-
                 <!-- Login form -->
                 <div id="login-form" class="auth-form">
                     <div class="form-group">
-                        <input type="email" id="login-email" class="auth-input" placeholder="Email" autocomplete="email">
+                        <input type="email" id="login-email" class="auth-input" placeholder="email" autocomplete="email">
                     </div>
                     <div class="form-group">
-                        <input type="password" id="login-password" class="auth-input" placeholder="Password" autocomplete="current-password">
+                        <input type="password" id="login-password" class="auth-input" placeholder="password" autocomplete="current-password">
                     </div>
                     <div class="forgot-password-section">
-                        <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot password? <span class="reset-link">Reset password</span></a>
+                        <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot Password? <span class="reset-link">reset password</span></a>
                     </div>
-                    <button id="login-btn" class="welcome-button login-button">LOGIN</button>
+                    <button id="login-btn" class="welcome-button login-button">login</button>
                     <div class="auth-message" id="login-message"></div>
                 </div>
 
@@ -639,18 +630,15 @@
                 <!-- Create Account form (hidden initially) -->
                 <div id="signup-form" class="auth-form" style="display: none;">
                     <div class="form-group">
-                        <input type="text" id="signup-name" class="auth-input" placeholder="Display Name" autocomplete="name">
+                        <input type="text" id="signup-name" class="auth-input" placeholder="first name" autocomplete="name">
                     </div>
                     <div class="form-group">
-                        <input type="email" id="signup-email" class="auth-input" placeholder="Email" autocomplete="email">
+                        <input type="email" id="signup-email" class="auth-input" placeholder="email" autocomplete="email">
                     </div>
                     <div class="form-group">
-                        <input type="password" id="signup-password" class="auth-input" placeholder="Password" autocomplete="new-password">
+                        <input type="password" id="signup-password" class="auth-input" placeholder="password" autocomplete="new-password">
                     </div>
-                    <div class="form-group">
-                        <input type="password" id="signup-password-confirm" class="auth-input" placeholder="Confirm Password" autocomplete="new-password">
-                    </div>
-                    <button id="signup-btn" class="welcome-button signup-button">CREATE ACCOUNT</button>
+                    <button id="signup-btn" class="welcome-button signup-button">create account</button>
                     <div class="auth-message" id="signup-message"></div>
                     <div class="back-to-login">
                         <a href="#" id="back-to-login-link" class="back-link">← Back to Login</a>
@@ -724,7 +712,7 @@
             </button>
 
             <div class="modal-content rooms-content">
-                <h2 class="rooms-modal-title">SWITCH ROOMS</h2>
+                <h2 class="rooms-modal-title">Switch Rooms</h2>
 
                 <!-- Top buttons -->
                 <div class="rooms-top-buttons">
@@ -751,41 +739,36 @@
             </button>
 
             <div class="modal-content new-room-content">
-                <h2 class="new-room-modal-title">NEW ROOM</h2>
+                <h2 class="new-room-modal-title">New room</h2>
 
                 <!-- Room type selection -->
                 <div class="room-type-selection">
                     <label class="room-type-option">
-                        <input type="radio" name="room-type" value="computer" checked>
-                        <span class="room-type-label">
-                            <span class="room-type-icon">🖥️</span>
-                            <span class="room-type-text">COMPUTER</span>
-                        </span>
-                    </label>
-                    <label class="room-type-option">
-                        <input type="radio" name="room-type" value="local">
+                        <input type="radio" name="room-type" value="local" checked>
                         <span class="room-type-label">
                             <span class="room-type-icon">👥</span>
-                            <span class="room-type-text">LOCAL</span>
+                            <span class="room-type-text">Local</span>
+                            <span class="room-type-description">play with someone on this device</span>
                         </span>
                     </label>
                     <label class="room-type-option">
                         <input type="radio" name="room-type" value="remote">
                         <span class="room-type-label">
                             <span class="room-type-icon">🌐</span>
-                            <span class="room-type-text">REMOTE</span>
+                            <span class="room-type-text">Online</span>
+                            <span class="room-type-description">create an invite link and play with someone online</span>
                         </span>
                     </label>
                 </div>
 
                 <!-- Opponent name input -->
                 <div class="opponent-name-section">
-                    <label for="opponent-name" class="opponent-name-label">NAME OF YOUR OPPONENT</label>
-                    <input type="text" id="opponent-name" class="opponent-name-input" placeholder="Enter opponent name">
+                    <label for="opponent-name" class="opponent-name-label">Name of your opponent (Required)</label>
+                    <input type="text" id="opponent-name" class="opponent-name-input" placeholder="Opponents first name">
                 </div>
 
                 <!-- Create room button -->
-                <button id="create-room-btn" class="rooms-button create-room-button">CREATE ROOM</button>
+                <button id="create-room-btn" class="rooms-button create-room-button">Create Room</button>
                 <div class="room-message" id="room-message"></div>
             </div>
         </div>
