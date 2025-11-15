@@ -1,0 +1,249 @@
+/* ===================================================================
+   FLAG MODAL - AI Move Flagging Interface
+   Modal for reporting poor AI moves with reason and comment
+   =================================================================== */
+
+.flag-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.2s ease;
+}
+
+.flag-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flag-modal-content {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.flag-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.flag-modal-icon {
+    font-size: 32px;
+}
+
+.flag-modal-title {
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.flag-modal-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.flag-form-group {
+    margin-bottom: 20px;
+}
+
+.flag-form-label {
+    display: block;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.flag-reason-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    color: #333;
+    background-color: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    outline: none;
+}
+
+.flag-reason-select:focus {
+    border-color: #ff9800;
+    background-color: #fff;
+}
+
+.flag-comment-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    color: #333;
+    background-color: #fafafa;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.flag-comment-textarea:focus {
+    border-color: #ff9800;
+    background-color: #fff;
+}
+
+.flag-comment-textarea::placeholder {
+    color: #999;
+}
+
+.flag-modal-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.flag-submit-btn,
+.flag-cancel-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 8px;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    border: none;
+}
+
+.flag-submit-btn {
+    background-color: #ff9800;
+    color: #fff;
+}
+
+.flag-submit-btn:hover {
+    background-color: #f57c00;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+.flag-submit-btn:active {
+    transform: translateY(0);
+}
+
+.flag-submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.flag-cancel-btn {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.flag-cancel-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.flag-success-message {
+    display: none;
+    padding: 16px;
+    background-color: #4caf50;
+    color: white;
+    border-radius: 8px;
+    margin-top: 16px;
+    font-size: 14px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.flag-success-message.show {
+    display: block;
+}
+
+.flag-export-section {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.flag-export-title {
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.flag-export-code {
+    background-color: #2d2d2d;
+    color: #f8f8f2;
+    padding: 12px;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.flag-copy-btn {
+    width: 100%;
+    padding: 8px;
+    margin-top: 8px;
+    background-color: #2d2d2d;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.flag-copy-btn:hover {
+    background-color: #3d3d3d;
+}
+
+.flag-copy-btn.copied {
+    background-color: #4caf50;
+    border-color: #4caf50;
+}
