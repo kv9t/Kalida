@@ -41,6 +41,20 @@
         <header class="header">
             <h1>KALIDA</h1>
         </header>
+
+        <!-- ROOM SELECTOR AND USER MENU -->
+        <div style="display: flex; gap: 10px; align-items: center; justify-content: center;">
+            <div id="room-selector" class="room-selector" style="display: none;">
+                <div class="room-selector-content">
+                    <span class="room-icon">🖥️</span>
+                    <span class="room-name" id="current-room-name">COMPUTER</span>
+                    <span class="room-chevron">▼</span>
+                </div>
+            </div>
+            <button id="user-profile-btn" class="user-profile-btn" style="display: none;" title="Profile & Stats">
+                👤 Profile
+            </button>
+        </div>
         <!-- <div class="header-divider"></div> -->
       
 
@@ -50,25 +64,25 @@
                 <div class="scoreboard-title">ROUND WINS</div>
                 <div class="player-placards">
                     <div class="player-placard player-x-placard">
-                        <div class="player-name">PLAYER X</div>
+                        <div class="player-name" id="player-x-name">PLAYER X</div>
                         <div class="player-score" id="score-x">0</div>
                     </div>
                     <div class="player-placard player-o-placard">
-                        <div class="player-name">PLAYER O</div>
+                        <div class="player-name" id="player-o-name">PLAYER O</div>
                         <div class="player-score" id="score-o">0</div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="matches-won-scoreboard">
                 <div class="scoreboard-title">MATCHES WON</div>
                 <div class="player-placards">
                     <div class="player-placard player-x-placard">
-                        <div class="player-name">PLAYER X</div>
+                        <div class="player-name" id="match-player-x-name">PLAYER X</div>
                         <div class="player-score" id="match-score-x">0</div>
                     </div>
                     <div class="player-placard player-o-placard">
-                        <div class="player-name">PLAYER O</div>
+                        <div class="player-name" id="match-player-o-name">PLAYER O</div>
                         <div class="player-score" id="match-score-o">0</div>
                     </div>
                 </div>
@@ -94,6 +108,13 @@
         <!--NEW GAME BUTTON-->
         <div class="frame-372">
             <button id="reset-button" class="new-game-btn">New Game</button>
+        </div>
+
+        <!--FLAG AI MOVE BUTTON (shown only during computer games)-->
+        <div class="flag-button-container" style="text-align: center;">
+            <button id="flag-ai-btn" class="flag-ai-btn" style="display: none;">
+                🚩 Flag AI Move
+            </button>
         </div>
 
         <!--GAME MODE SELECTOR SECTION-->
@@ -570,9 +591,337 @@
 
     </div>
 
-    <div class="version-indicator" id="version-indicator">v10.15.25.2-beta</div>
+    <!-- WELCOME / AUTH Modal -->
+    <div id="welcome-modal" class="modal-backdrop welcome-modal" style="display: none;">
+        <div class="modal-container welcome-container">
+            <div class="modal-content welcome-content">
+                <!-- Welcome title -->
+                <div class="welcome-frame-367">
+                    <h2 class="welcome-title">WELCOME TO KALIDA</h2>
+                </div>
 
-    
+                <!-- Game icon -->
+                <div class="welcome-icon-container">
+                    <img src="images/tutorial_cover_board-img.svg" alt="Kalida game" class="welcome-game-icon">
+                </div>
+
+                <!-- Play as Guest button -->
+                <div class="welcome-guest-section">
+                    <button id="play-as-guest-btn" class="welcome-button guest-button">PLAY AS GUEST</button>
+                </div>
+
+                <!-- OR divider -->
+                <div class="welcome-divider">
+                    <span>OR LOG IN TO PLAY</span>
+                </div>
+
+                <!-- Login form -->
+                <div id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <input type="email" id="login-email" class="auth-input" placeholder="Email" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="login-password" class="auth-input" placeholder="Password" autocomplete="current-password">
+                    </div>
+                    <div class="forgot-password-section">
+                        <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot password? <span class="reset-link">Reset password</span></a>
+                    </div>
+                    <button id="login-btn" class="welcome-button login-button">LOGIN</button>
+                    <div class="auth-message" id="login-message"></div>
+                </div>
+
+                <!-- Sign up prompt -->
+                <div class="signup-prompt">
+                    <span>Don't have an account?</span>
+                    <a href="#" id="show-signup-link" class="signup-link">Create Account</a>
+                </div>
+
+                <!-- Create Account form (hidden initially) -->
+                <div id="signup-form" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="signup-name" class="auth-input" placeholder="Display Name" autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="signup-email" class="auth-input" placeholder="Email" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="signup-password" class="auth-input" placeholder="Password" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="signup-password-confirm" class="auth-input" placeholder="Confirm Password" autocomplete="new-password">
+                    </div>
+                    <button id="signup-btn" class="welcome-button signup-button">CREATE ACCOUNT</button>
+                    <div class="auth-message" id="signup-message"></div>
+                    <div class="back-to-login">
+                        <a href="#" id="back-to-login-link" class="back-link">← Back to Login</a>
+                    </div>
+                </div>
+
+                <!-- Reset Password form (hidden initially) -->
+                <div id="reset-password-form" class="auth-form" style="display: none;">
+                    <div class="reset-password-title">Reset Password</div>
+                    <div class="reset-password-description">Enter your email address and we'll send you a link to reset your password.</div>
+                    <div class="form-group">
+                        <input type="email" id="reset-email" class="auth-input" placeholder="Email" autocomplete="email">
+                    </div>
+                    <button id="reset-password-btn" class="welcome-button reset-button">SEND RESET LINK</button>
+                    <div class="auth-message" id="reset-message"></div>
+                    <div class="back-to-login">
+                        <a href="#" id="back-to-login-from-reset-link" class="back-link">← Back to Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVITE Modal (for invitees) -->
+    <div id="invite-modal" class="modal-backdrop invite-modal" style="display: none;">
+        <div class="modal-container invite-container">
+            <div class="modal-content invite-content">
+                <div class="invite-title"><span id="inviter-name">BOB</span> INVITED YOU TO PLAY KALIDA</div>
+
+                <!-- Game icon -->
+                <div class="invite-icon-container">
+                    <img src="images/tutorial_cover_board-img.svg" alt="Kalida game" class="invite-game-icon">
+                </div>
+
+                <!-- For logged-in users -->
+                <div id="invite-accept-section" style="display: none;">
+                    <button id="accept-invite-btn" class="welcome-button accept-button">ACCEPT INVITE</button>
+                </div>
+
+                <!-- For logged-out users -->
+                <div id="invite-login-section">
+                    <div class="invite-login-message">PLEASE LOGIN TO PLAY</div>
+                    <!-- Login form (similar structure) -->
+                    <div class="auth-form">
+                        <div class="form-group">
+                            <input type="email" id="invite-login-email" class="auth-input" placeholder="Email" autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="invite-login-password" class="auth-input" placeholder="Password" autocomplete="current-password">
+                        </div>
+                        <button id="invite-login-btn" class="welcome-button login-button">LOGIN</button>
+                        <div class="auth-message" id="invite-login-message"></div>
+                    </div>
+                    <div class="signup-prompt">
+                        <span>Don't have an account?</span>
+                        <a href="#" id="invite-show-signup-link" class="signup-link">Create Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SWITCH ROOMS Modal -->
+    <div id="switch-rooms-modal" class="modal-backdrop rooms-modal" style="display: none;">
+        <div class="modal-container rooms-container">
+            <button class="modal-close-btn" id="close-switch-rooms">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                    <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                    <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                </svg>
+            </button>
+
+            <div class="modal-content rooms-content">
+                <h2 class="rooms-modal-title">SWITCH ROOMS</h2>
+
+                <!-- Top buttons -->
+                <div class="rooms-top-buttons">
+                    <button id="add-room-btn" class="rooms-button add-room-button">+ ADD ROOM</button>
+                    <button id="edit-rooms-btn" class="rooms-button edit-rooms-button">✏️</button>
+                </div>
+
+                <!-- Room list -->
+                <div id="room-list" class="room-list">
+                    <!-- Rooms will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW ROOM Modal -->
+    <div id="new-room-modal" class="modal-backdrop new-room-modal" style="display: none;">
+        <div class="modal-container new-room-container">
+            <button class="modal-close-btn" id="close-new-room">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                    <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                    <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                </svg>
+            </button>
+
+            <div class="modal-content new-room-content">
+                <h2 class="new-room-modal-title">NEW ROOM</h2>
+
+                <!-- Room type selection -->
+                <div class="room-type-selection">
+                    <label class="room-type-option">
+                        <input type="radio" name="room-type" value="computer" checked>
+                        <span class="room-type-label">
+                            <span class="room-type-icon">🖥️</span>
+                            <span class="room-type-text">COMPUTER</span>
+                        </span>
+                    </label>
+                    <label class="room-type-option">
+                        <input type="radio" name="room-type" value="local">
+                        <span class="room-type-label">
+                            <span class="room-type-icon">👥</span>
+                            <span class="room-type-text">LOCAL</span>
+                        </span>
+                    </label>
+                    <label class="room-type-option">
+                        <input type="radio" name="room-type" value="remote">
+                        <span class="room-type-label">
+                            <span class="room-type-icon">🌐</span>
+                            <span class="room-type-text">REMOTE</span>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Opponent name input -->
+                <div class="opponent-name-section">
+                    <label for="opponent-name" class="opponent-name-label">NAME OF YOUR OPPONENT</label>
+                    <input type="text" id="opponent-name" class="opponent-name-input" placeholder="Enter opponent name">
+                </div>
+
+                <!-- Create room button -->
+                <button id="create-room-btn" class="rooms-button create-room-button">CREATE ROOM</button>
+                <div class="room-message" id="room-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVITE LINK Overlay -->
+    <div id="invite-link-overlay" class="invite-link-overlay" style="display: none;">
+        <div class="invite-link-container">
+            <button class="invite-link-close" id="close-invite-link">✕</button>
+
+            <h3 class="invite-link-title">SHARE THIS INVITE LINK WITH YOUR OPPONENT</h3>
+
+            <div class="invite-link-url" id="invite-link-url">
+                https://playkalida.com/?invite=abc123
+            </div>
+
+            <button id="copy-invite-link-btn" class="rooms-button copy-invite-button">COPY INVITE LINK</button>
+        </div>
+    </div>
+
+    <!-- FLAG AI MOVE MODAL -->
+    <div id="flag-modal" class="modal-backdrop flag-modal" style="display: none;">
+        <div class="flag-modal-content">
+            <div class="flag-modal-header">
+                <span class="flag-modal-icon">🚩</span>
+                <h2 class="flag-modal-title">Flag AI Move</h2>
+            </div>
+
+            <p class="flag-modal-description">
+                Help us improve Kalida's AI! Tell us what was wrong with the AI's last move.
+            </p>
+
+            <div class="flag-form-group">
+                <label class="flag-form-label" for="flag-reason">What was the problem?</label>
+                <select id="flag-reason" class="flag-reason-select">
+                    <option value="">-- Select a reason --</option>
+                    <option value="missed_win">Missed Obvious Win</option>
+                    <option value="missed_block">Didn't Block My Win</option>
+                    <option value="weak_position">Weak/Bad Position</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="flag-form-group">
+                <label class="flag-form-label" for="flag-comment">Additional Details (Optional)</label>
+                <textarea id="flag-comment" class="flag-comment-textarea" placeholder="Tell us more about what the AI should have done..."></textarea>
+            </div>
+
+            <div class="flag-modal-buttons">
+                <button id="flag-cancel-btn" class="flag-cancel-btn">Cancel</button>
+                <button id="flag-submit-btn" class="flag-submit-btn">Submit Flag</button>
+            </div>
+
+            <div id="flag-success-message" class="flag-success-message">
+                <strong>Thanks for your feedback!</strong><br>
+                This will help us make the AI smarter.
+            </div>
+
+            <div id="flag-export-section" class="flag-export-section" style="display: none;">
+                <div class="flag-export-title">Test Scenario Export (Copy & Paste):</div>
+                <pre id="flag-export-code" class="flag-export-code"></pre>
+                <button id="flag-copy-export-btn" class="flag-copy-btn">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER PROFILE & STATS MODAL -->
+    <div id="user-profile-modal" class="modal-backdrop user-profile-modal" style="display: none;">
+        <div class="modal-container user-profile-container">
+            <button class="modal-close-btn" id="close-user-profile">
+                ✕
+            </button>
+
+            <div class="modal-content user-profile-content">
+                <h2 class="user-profile-title">USER PROFILE</h2>
+
+                <!-- Display Name Section -->
+                <div class="profile-section">
+                    <h3>Display Name</h3>
+                    <div class="profile-name-group">
+                        <input type="text" id="profile-display-name" class="profile-input" placeholder="Enter display name">
+                        <button id="update-name-btn" class="profile-btn">Update Name</button>
+                    </div>
+                    <div id="name-update-message" class="profile-message"></div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="profile-section stats-section">
+                    <h3>Your Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Matches</div>
+                            <div class="stat-value" id="stat-total-matches">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Matches Won</div>
+                            <div class="stat-value" id="stat-matches-won">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Rounds Won</div>
+                            <div class="stat-value" id="stat-rounds-won">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Win Rate</div>
+                            <div class="stat-value" id="stat-win-rate">0%</div>
+                        </div>
+                    </div>
+                    <div class="stats-note">Stats are tracked for logged-in users only</div>
+                </div>
+
+                <!-- Account Info Section -->
+                <div class="profile-section">
+                    <h3>Account Info</h3>
+                    <div class="account-info">
+                        <div class="info-row">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value" id="profile-email">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Account Type:</span>
+                            <span class="info-value" id="profile-type">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logout Section -->
+                <div class="profile-section logout-section">
+                    <button id="logout-btn" class="profile-logout-btn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="version-indicator" id="version-indicator">v11.05.25.2-claude</div>
+
+
     <!-- ONLY load the main entry point as a module -->
     <!-- The ES6 import system will handle loading all dependencies -->
     <script type="module" src="js/main.js"></script>

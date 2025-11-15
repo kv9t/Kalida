@@ -19,9 +19,11 @@ class GameUI {
     /**
      * Create a new game UI
      * @param {Game} game - The game instance to connect with
+     * @param {RoomManager} roomManager - The room manager for turn checking (optional)
      */
-    constructor(game) {
+    constructor(game, roomManager = null) {
         this.game = game;
+        this.roomManager = roomManager;
         this.boardUI = null;
         
         // Initialize UI Asset Manager
@@ -76,7 +78,7 @@ class GameUI {
     initialize() {
         try {
             // Find DOM elements
-            this.elements.playerTurn = document.querySelector('.player-turn');
+            this.elements.playerTurn = document.getElementById('turn-indicator');
             this.elements.scoreX = document.getElementById('score-x');
             this.elements.scoreO = document.getElementById('score-o');
             this.elements.matchScoreX = document.getElementById('match-score-x');
@@ -273,21 +275,171 @@ class GameUI {
             console.error('Error applying current game state to UI:', error);
         }
     }
-    
+
+    /**
+     * Update scoreboard player names based on current room
+     */
+    updateScoreboardNames() {
+        if (!this.roomManager) {
+            return;
+        }
+
+        const currentRoom = this.roomManager.getCurrentRoom();
+        let playerXName = 'PLAYER X';
+        let playerOName = 'PLAYER O';
+
+        // Handle computer rooms
+        if (currentRoom && currentRoom.type === 'computer') {
+            playerXName = 'YOU';
+            playerOName = 'COMPUTER';
+        }
+        // Handle remote rooms
+        else if (currentRoom && currentRoom.type === 'remote' && currentRoom.players) {
+            const mySymbol = this.roomManager.getMyPlayerSymbol(currentRoom);
+
+            if (currentRoom.players.X) {
+                if (mySymbol === 'X') {
+                    playerXName = 'YOU';
+                } else {
+                    playerXName = currentRoom.players.X.displayName.toUpperCase();
+                }
+            }
+
+            if (currentRoom.players.O) {
+                if (mySymbol === 'O') {
+                    playerOName = 'YOU';
+                } else {
+                    playerOName = currentRoom.players.O.displayName.toUpperCase();
+                }
+            }
+        }
+
+        // Update all scoreboard name elements
+        const playerXNameEls = [
+            document.getElementById('player-x-name'),
+            document.getElementById('match-player-x-name')
+        ];
+        const playerONameEls = [
+            document.getElementById('player-o-name'),
+            document.getElementById('match-player-o-name')
+        ];
+
+        playerXNameEls.forEach(el => {
+            if (el) el.textContent = playerXName;
+        });
+        playerONameEls.forEach(el => {
+            if (el) el.textContent = playerOName;
+        });
+    }
+
+    /**
+     * Get personalized turn text for display
+     * @param {string} player - 'X' or 'O'
+     * @returns {string} Personalized turn text
+     */
+    getPersonalizedTurnText(player) {
+        if (!this.roomManager) {
+            return `Player ${player}'s Turn`;
+        }
+
+        const currentRoom = this.roomManager.getCurrentRoom();
+
+        // Handle computer rooms
+        if (currentRoom && currentRoom.type === 'computer') {
+            // In computer mode, Player X is always human, Player O is always AI
+            if (player === 'X') {
+                return 'YOUR TURN';
+            } else {
+                return "COMPUTER'S TURN";
+            }
+        }
+
+        // Handle remote rooms
+        if (!currentRoom || currentRoom.type !== 'remote' || !currentRoom.players) {
+            return `Player ${player}'s Turn`;
+        }
+
+        // Get the player info for the current turn
+        const playerInfo = currentRoom.players[player];
+        if (!playerInfo) {
+            return `Player ${player}'s Turn`;
+        }
+
+        // Check if it's the current user's turn
+        const mySymbol = this.roomManager.getMyPlayerSymbol(currentRoom);
+        if (mySymbol === player) {
+            return 'YOUR TURN';
+        }
+
+        // It's the opponent's turn - show their display name
+        return `${playerInfo.displayName}'s TURN`;
+    }
+
+    /**
+     * Handle cell click - with turn checking for remote rooms
+     * @param {number} row - Row index
+     * @param {number} col - Column index
+     */
+    handleCellClick(row, col) {
+        console.log('handleCellClick called:', { row, col, hasRoomManager: !!this.roomManager });
+
+        // Check if it's player's turn in remote rooms
+        if (this.roomManager) {
+            const currentRoom = this.roomManager.getCurrentRoom();
+            console.log('Current room:', currentRoom?.name, 'type:', currentRoom?.type);
+
+            if (currentRoom && currentRoom.type === 'remote') {
+                const isMyTurn = this.roomManager.isMyTurn(currentRoom);
+                console.log('Is my turn?', isMyTurn);
+
+                if (!isMyTurn) {
+                    console.warn('❌ Not your turn! Waiting for opponent...');
+                    alert('Not your turn! Wait for your opponent to move.');
+                    return;
+                }
+                console.log('✅ Your turn - allowing move');
+            }
+        }
+
+        // Allow the move
+        this.game.makeMove(row, col);
+    }
+
     /**
      * Set up UI event listeners
      */
     setupEventListeners() {
         // Reset button
         if (this.elements.resetButton) {
-            this.elements.resetButton.addEventListener('click', () => {
-                // Change button text back to normal if it was modified
-                if (this.elements.resetButton.textContent !== 'New Game') {
-                    this.elements.resetButton.textContent = 'New Game';
-                    this.elements.resetButton.classList.remove('new-match-button');
+            this.elements.resetButton.addEventListener('click', async () => {
+                // Check if this is a remote multiplayer room
+                const currentRoom = this.roomManager ? this.roomManager.getCurrentRoom() : null;
+
+                if (currentRoom && currentRoom.type === 'remote' && !this.game.gameActive) {
+                    // Multiplayer ready-up system
+                    const mySymbol = this.roomManager.getMyPlayerSymbol(currentRoom);
+
+                    if (!mySymbol) {
+                        console.error('Could not determine player symbol');
+                        return;
+                    }
+
+                    // Toggle ready state
+                    const currentlyReady = currentRoom.readyPlayers && currentRoom.readyPlayers[mySymbol];
+                    await this.roomManager.setPlayerReady(currentRoom.id, mySymbol, !currentlyReady);
+
+                    // Update button text immediately
+                    this.updateReadyButtonText(currentRoom);
+                } else {
+                    // Single player or local multiplayer - reset immediately
+                    // Change button text back to normal if it was modified
+                    if (this.elements.resetButton.textContent !== 'New Game') {
+                        this.elements.resetButton.textContent = 'New Game';
+                        this.elements.resetButton.classList.remove('new-match-button');
+                    }
+
+                    this.game.resetGame();
                 }
-                
-                this.game.resetGame();
             });
         }
         
@@ -801,7 +953,7 @@ class GameUI {
                 // Update player turn display to indicate knight move is required
                 const playerTurnElement = document.querySelector('.player-turn-indicator');
                 if (playerTurnElement) {
-                    playerTurnElement.textContent = 'Player X\'s Turn';
+                    playerTurnElement.textContent = this.getPersonalizedTurnText('X');
                 }
                 
                 // Add the knight move message to the special message area
@@ -858,8 +1010,11 @@ class GameUI {
             }
             
             if (data.type === 'win' && this.boardUI && typeof this.boardUI.highlightWinningCells === 'function') {
+                // Handle both winningCells (from live game) and winningLine (from restored game)
+                const cells = data.winningCells || data.winningLine || [];
+
                 this.boardUI.highlightWinningCells(
-                    data.winningCells,
+                    cells,
                     data.bounceCellIndex,
                     data.secondBounceCellIndex,
                     data.lastMove
@@ -880,7 +1035,7 @@ class GameUI {
             
             if (playerTurnElement) {
                 // Update player turn text
-                playerTurnElement.textContent = `Player ${data.currentPlayer}'s Turn`;
+                playerTurnElement.textContent = this.getPersonalizedTurnText(data.currentPlayer);
             }
             
             // Clear any knight move indicators if not required
@@ -970,18 +1125,7 @@ class GameUI {
             }
         }
     }
-    
-    /**
-     * Handle cell click
-     * @param {number} row - Row index
-     * @param {number} col - Column index
-     */
-    handleCellClick(row, col) {
-        if (typeof this.game.makeMove === 'function') {
-            this.game.makeMove(row, col);
-        }
-    }
-    
+
     /**
      * Update scores display
      * @param {Object} scores - Scores object { X: number, O: number }
@@ -1140,8 +1284,8 @@ class GameUI {
                     
                     // Update player turn text
                     if (this.elements.playerTurn) {
-                        this.elements.playerTurn.innerHTML = 
-                            `Player X's Turn <span class="knight-move-indicator">♘ Knight Move Required</span>`;
+                        this.elements.playerTurn.innerHTML =
+                            `${this.getPersonalizedTurnText('X')} <span class="knight-move-indicator">♘ Knight Move Required</span>`;
                     }
                 } else {
                     // Ensure knight move requirements are cleared if not needed
@@ -1152,22 +1296,22 @@ class GameUI {
             } else if (typeof this.game.getCurrentPlayer === 'function') {
                 currentPlayer = this.game.getCurrentPlayer();
             }
-            
-            // NEW: Update turn indicator using asset manager if not knight move required
-            if (!isKnightMoveRequired) {
-                this.assetManager.updateTurnIndicator(currentPlayer, gameActive ? 'playing' : 'game_over');
-            }
-            
-            // Update player turn display if knight move not required
+
+            // Update player turn display with personalized text if knight move not required
+            // NOTE: UIAssetManager.updateTurnIndicator is NOT called here because it uses
+            // hardcoded "PLAYER X'S TURN" text. We use getPersonalizedTurnText() instead.
             if (this.elements.playerTurn && !isKnightMoveRequired) {
                 if (gameActive) {
-                    this.elements.playerTurn.textContent = `Player ${currentPlayer}'s Turn`;
+                    this.elements.playerTurn.textContent = this.getPersonalizedTurnText(currentPlayer);
                 }
             }
             
             // Update clear scores button text
             this.updateClearScoresButtonText();
-            
+
+            // Update scoreboard player names
+            this.updateScoreboardNames();
+
         } catch (error) {
             console.error('Error in updateAll:', error);
         }
@@ -1224,6 +1368,38 @@ class GameUI {
             }, displayTime);
         } catch (error) {
             console.error('Error showing message:', error);
+        }
+    }
+
+    /**
+     * Update ready button text based on ready states
+     * @param {object} room - Current room
+     */
+    updateReadyButtonText(room) {
+        if (!this.elements.resetButton || !room || room.type !== 'remote') {
+            return;
+        }
+
+        const mySymbol = this.roomManager.getMyPlayerSymbol(room);
+        if (!mySymbol) return;
+
+        const readyPlayers = room.readyPlayers || { X: false, O: false };
+        const iAmReady = readyPlayers[mySymbol];
+        const opponentSymbol = mySymbol === 'X' ? 'O' : 'X';
+        const opponentReady = readyPlayers[opponentSymbol];
+
+        if (iAmReady && opponentReady) {
+            this.elements.resetButton.textContent = 'Both Ready - Starting...';
+            this.elements.resetButton.classList.add('both-ready');
+        } else if (iAmReady) {
+            this.elements.resetButton.textContent = 'Ready ✓ (Waiting for opponent)';
+            this.elements.resetButton.classList.add('player-ready');
+        } else if (opponentReady) {
+            this.elements.resetButton.textContent = 'Opponent Ready - Click to Continue';
+            this.elements.resetButton.classList.add('opponent-ready');
+        } else {
+            this.elements.resetButton.textContent = 'New Game';
+            this.elements.resetButton.classList.remove('player-ready', 'opponent-ready', 'both-ready');
         }
     }
 }
