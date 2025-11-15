@@ -153,6 +153,28 @@ class Board {
     getSize() {
         return this.size;
     }
+
+    /**
+     * Set the board state from a 2D array
+     * @param {Array} newState - 2D array representing the new board state
+     */
+    setState(newState) {
+        if (!newState || !Array.isArray(newState)) {
+            console.error('Invalid board state provided to setState');
+            return false;
+        }
+
+        // Validate dimensions
+        if (newState.length !== this.size || newState[0].length !== this.size) {
+            console.error('Board state dimensions do not match board size');
+            return false;
+        }
+
+        // Deep copy the new state
+        this.state = newState.map(row => [...row]);
+        console.log('Board state updated');
+        return true;
+    }
 }
 
 export default Board;

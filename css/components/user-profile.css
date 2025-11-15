@@ -1,0 +1,258 @@
+/**
+ * User Profile Modal Styles
+ */
+
+/* Profile modal backdrop - inherits from .modal-backdrop but needs flex display */
+.user-profile-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-profile-modal.show {
+    display: flex !important;
+}
+
+/* Profile button styling (replaces logout button) */
+.user-profile-btn {
+    background: transparent;
+    border: 2px solid #3498db;
+    color: #3498db;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.user-profile-btn:hover {
+    background: #3498db;
+    color: white;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+/* Profile modal container */
+.user-profile-modal .user-profile-container {
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.user-profile-content {
+    padding: 20px;
+}
+
+.user-profile-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin: 0 0 24px 0;
+    font-family: 'Space Mono', monospace;
+}
+
+/* Profile sections */
+.profile-section {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.profile-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.profile-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #34495e;
+    margin: 0 0 12px 0;
+    font-family: 'Space Mono', monospace;
+}
+
+/* Display name input group */
+.profile-name-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.profile-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid #bdc3c7;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.profile-input:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.profile-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile-btn:hover {
+    background: #2980b9;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.profile-btn:active {
+    transform: scale(0.98);
+}
+
+/* Profile messages */
+.profile-message {
+    min-height: 20px;
+    font-size: 13px;
+    font-family: 'Space Mono', monospace;
+    margin-top: 4px;
+}
+
+.profile-message.success {
+    color: #27ae60;
+}
+
+.profile-message.error {
+    color: #e74c3c;
+}
+
+/* Stats grid */
+.stats-section {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #ecf0f1;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-bottom: 4px;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    font-family: 'Space Mono', monospace;
+}
+
+.stats-note {
+    font-size: 11px;
+    color: #95a5a6;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Account info */
+.account-info {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-family: 'Space Mono', monospace;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    font-size: 13px;
+    color: #7f8c8d;
+    font-weight: 600;
+}
+
+.info-value {
+    font-size: 13px;
+    color: #2c3e50;
+}
+
+/* Logout section */
+.logout-section {
+    text-align: center;
+    padding-top: 12px;
+}
+
+.profile-logout-btn {
+    background: transparent;
+    border: 2px solid #e74c3c;
+    color: #e74c3c;
+    padding: 10px 32px;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile-logout-btn:hover {
+    background: #e74c3c;
+    color: white;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.profile-logout-btn:active {
+    transform: scale(0.98);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    .user-profile-container {
+        width: 95%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-name-group {
+        flex-direction: column;
+    }
+
+    .profile-btn {
+        width: 100%;
+    }
+}

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalida - Flagged Moves Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .filter-section {
+            margin-top: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        select, input {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .status {
+            padding: 15px;
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+        }
+
+        .status.error {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .summary-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.missed-win {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge.missed-block {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .badge.weak-position {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .badge.other {
+            background: #e0e0e0;
+            color: #424242;
+        }
+
+        .load-scenario-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .load-scenario-btn:hover {
+            background: #45a049;
+        }
+
+        #flagsList {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 Flagged Moves Analyzer</h1>
+            <p class="subtitle">Analyze and improve Kalida AI based on user feedback</p>
+        </header>
+
+        <div class="controls">
+            <div class="button-group">
+                <button onclick="loadAllFlags()">📥 Load All Flags</button>
+                <button onclick="loadRecentFlags()">🕐 Load Recent (50)</button>
+                <button onclick="showSummary()">📊 Show Summary</button>
+                <button onclick="findPatterns()">🔍 Find Patterns</button>
+                <button class="secondary" onclick="exportJSON()">💾 Export JSON</button>
+                <button class="secondary" onclick="exportCSV()">📄 Export CSV</button>
+            </div>
+
+            <div class="filter-section">
+                <strong>Filters:</strong>
+                <div class="filter-group">
+                    <select id="reasonFilter" onchange="applyFilters()">
+                        <option value="">All Reasons</option>
+                        <option value="missed_win">Missed Win</option>
+                        <option value="missed_block">Missed Block</option>
+                        <option value="weak_position">Weak Position</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <select id="levelFilter" onchange="applyFilters()">
+                        <option value="">All Levels</option>
+                        <option value="level1">Level 1</option>
+                        <option value="level2">Level 2</option>
+                        <option value="level3">Level 3</option>
+                        <option value="level4">Level 4</option>
+                    </select>
+
+                    <button onclick="clearFilters()">Clear Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="status" class="status" style="display: none;"></div>
+
+            <div id="summary" style="display: none;">
+                <h2>Summary Statistics</h2>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h3>Total Flags</h3>
+                        <div class="value" id="totalFlags">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Missed Wins</h3>
+                        <div class="value" id="missedWins">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Missed Blocks</h3>
+                        <div class="value" id="missedBlocks">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Weak Positions</h3>
+                        <div class="value" id="weakPositions">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="flagsList"></div>
+        </div>
+    </div>
+
+    <!-- Firebase and App Scripts -->
+    <script type="module">
+        import { app, auth, db } from './js/config/firebase-config.js';
+        import FlaggedMoveAnalyzer from './js/tools/FlaggedMoveAnalyzer.js';
+
+        // Make globally available
+        window.firebaseDb = db;
+        window.firebaseAuth = auth;
+        window.analyzer = new FlaggedMoveAnalyzer(db);
+        window.currentFlags = [];
+
+        console.log('✓ Firebase and Analyzer initialized');
+        showStatus('Ready! Click "Load All Flags" to start analyzing.', 'success');
+
+        // Global functions
+        window.loadAllFlags = async function() {
+            showStatus('Loading all flags...', 'info');
+            try {
+                window.currentFlags = await window.analyzer.getAllFlags();
+                displayFlags(window.currentFlags);
+                showSummary();
+                showStatus(`Loaded ${window.currentFlags.length} flags successfully!`, 'success');
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        };
+
+        window.loadRecentFlags = async function() {
+            showStatus('Loading recent flags...', 'info');
+            try {
+                window.currentFlags = await window.analyzer.getRecentFlags(50);
+                displayFlags(window.currentFlags);
+                showSummary();
+                showStatus(`Loaded ${window.currentFlags.length} recent flags!`, 'success');
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        };
+
+        window.showSummary = function() {
+            if (window.currentFlags.length === 0) {
+                showStatus('Load flags first!', 'error');
+                return;
+            }
+
+            const summary = document.getElementById('summary');
+            summary.style.display = 'block';
+
+            document.getElementById('totalFlags').textContent = window.currentFlags.length;
+
+            const byReason = window.analyzer.groupBy(window.currentFlags, 'flagReason');
+            document.getElementById('missedWins').textContent = byReason.missed_win || 0;
+            document.getElementById('missedBlocks').textContent = byReason.missed_block || 0;
+            document.getElementById('weakPositions').textContent = byReason.weak_position || 0;
+
+            window.analyzer.printSummary(window.currentFlags);
+        };
+
+        window.findPatterns = function() {
+            if (window.currentFlags.length === 0) {
+                showStatus('Load flags first!', 'error');
+                return;
+            }
+            window.analyzer.findPatterns(window.currentFlags);
+            showStatus('Check browser console for pattern analysis', 'success');
+        };
+
+        window.applyFilters = function() {
+            const reasonFilter = document.getElementById('reasonFilter').value;
+            const levelFilter = document.getElementById('levelFilter').value;
+
+            let filtered = window.currentFlags;
+
+            if (reasonFilter) {
+                filtered = filtered.filter(f => f.flagReason === reasonFilter);
+            }
+
+            if (levelFilter) {
+                filtered = filtered.filter(f => f.aiLevel === levelFilter);
+            }
+
+            displayFlags(filtered);
+            showStatus(`Showing ${filtered.length} of ${window.currentFlags.length} flags`, 'info');
+        };
+
+        window.clearFilters = function() {
+            document.getElementById('reasonFilter').value = '';
+            document.getElementById('levelFilter').value = '';
+            displayFlags(window.currentFlags);
+            showStatus('Filters cleared', 'success');
+        };
+
+        window.exportJSON = function() {
+            if (window.currentFlags.length === 0) {
+                showStatus('Load flags first!', 'error');
+                return;
+            }
+            window.analyzer.exportToJSON(window.currentFlags);
+            showStatus('Exported to JSON!', 'success');
+        };
+
+        window.exportCSV = function() {
+            if (window.currentFlags.length === 0) {
+                showStatus('Load flags first!', 'error');
+                return;
+            }
+            window.analyzer.exportToCSV(window.currentFlags);
+            showStatus('Exported to CSV!', 'success');
+        };
+
+        window.loadScenario = async function(flagId) {
+            showStatus(`Loading scenario ${flagId}...`, 'info');
+            try {
+                await window.analyzer.loadScenario(flagId);
+                showStatus('Scenario loaded! Check the main game.', 'success');
+            } catch (error) {
+                showStatus(`Error loading scenario: ${error.message}`, 'error');
+            }
+        };
+
+        function displayFlags(flags) {
+            const container = document.getElementById('flagsList');
+
+            if (flags.length === 0) {
+                container.innerHTML = '<p class="loading">No flags found. Start playing and flagging AI moves!</p>';
+                return;
+            }
+
+            const html = `
+                <h2>Flagged Moves (${flags.length})</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Reason</th>
+                            <th>Level</th>
+                            <th>Move #</th>
+                            <th>AI Move</th>
+                            <th>Rules</th>
+                            <th>User</th>
+                            <th>Comment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${flags.map(flag => `
+                            <tr>
+                                <td>${new Date(flag.flaggedAt).toLocaleDateString()}</td>
+                                <td><span class="badge ${flag.flagReason}">${formatReason(flag.flagReason)}</span></td>
+                                <td>${flag.aiLevel}</td>
+                                <td>${flag.moveNumber}</td>
+                                <td>[${flag.aiMove.row}, ${flag.aiMove.col}]</td>
+                                <td>${formatRules(flag.rules)}</td>
+                                <td>${flag.userDisplayName}</td>
+                                <td>${flag.userComment || '-'}</td>
+                                <td>
+                                    <button class="load-scenario-btn" onclick="loadScenario('${flag.flagId}')">
+                                        Load
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function formatReason(reason) {
+            const map = {
+                'missed_win': 'Missed Win',
+                'missed_block': 'Missed Block',
+                'weak_position': 'Weak Position',
+                'other': 'Other'
+            };
+            return map[reason] || reason;
+        }
+
+        function formatRules(rules) {
+            if (!rules) return 'Standard';
+            const active = [];
+            if (rules.bounce) active.push('B');
+            if (rules.wrap) active.push('W');
+            if (rules.missingTeeth) active.push('M');
+            if (rules.knightMove) active.push('K');
+            return active.join('') || 'Standard';
+        }
+
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>
