@@ -574,7 +574,11 @@ export class RoomManager {
 
             if (gameStatus.winner) {
                 gameState.winner = gameStatus.winner;
-                gameState.winningLine = gameStatus.winningCells; // Save as winningLine for consistency
+                // Firestore doesn't support nested arrays, so serialize winningLine
+                // Convert [[0,0], [0,1], [0,2]] to ["0,0", "0,1", "0,2"]
+                gameState.winningLine = gameStatus.winningCells
+                    ? gameStatus.winningCells.map(cell => `${cell[0]},${cell[1]}`)
+                    : [];
                 gameState.bounceCellIndex = gameStatus.bounceCellIndex;
                 gameState.secondBounceCellIndex = gameStatus.secondBounceCellIndex;
             }
@@ -681,11 +685,28 @@ export class RoomManager {
 
                 if (room.winner) {
                     console.log('Triggering gameEnd event for winner:', room.winner);
+
+                    // Deserialize winningLine from Firestore format
+                    // Convert ["0,0", "0,1", "0,2"] back to [[0,0], [0,1], [0,2]]
+                    let winningLine = [];
+                    if (room.winningLine && Array.isArray(room.winningLine)) {
+                        // Check if it's already in the correct format (legacy data)
+                        if (room.winningLine.length > 0 && Array.isArray(room.winningLine[0])) {
+                            winningLine = room.winningLine;
+                        } else {
+                            // Deserialize from string format
+                            winningLine = room.winningLine.map(str => {
+                                const parts = str.split(',');
+                                return [parseInt(parts[0]), parseInt(parts[1])];
+                            });
+                        }
+                    }
+
                     game.triggerEvent('gameEnd', {
                         type: 'win',
                         winner: room.winner,
                         board: game.getBoardState(),
-                        winningLine: room.winningLine || [],
+                        winningLine: winningLine,
                         bounceCellIndex: room.bounceCellIndex || -1,
                         secondBounceCellIndex: room.secondBounceCellIndex || -1,
                         restored: true // Flag to indicate this was restored from save
