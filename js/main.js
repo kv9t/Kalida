@@ -354,6 +354,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     readyPlayers: updatedRoom.readyPlayers
                 });
 
+                // IMPORTANT: Don't reload board state if local game is already finished
+                // This prevents stale Firestore updates from overwriting the winning move
+                if (!game.gameActive && updatedRoom.gameActive) {
+                    console.log('Ignoring stale sync - local game is already finished');
+                    // Still update ready button states though
+                    if (updatedRoom.type === 'remote') {
+                        gameUI.updateReadyButtonText(updatedRoom);
+                    }
+                    return;
+                }
+
                 gameUI.boardUI.clearHighlights();
                 await roomManager.loadGameStateFromRoom(updatedRoom.id, game);
                 gameUI.updateAll();
@@ -389,9 +400,8 @@ document.addEventListener('DOMContentLoaded', function() {
         game.on('gameEnd', async (data) => {
             console.log('gameEnd event fired:', data);
 
-            // Small delay to ensure turnChange save completes first
-            await new Promise(resolve => setTimeout(resolve, 100));
-
+            // Save immediately - winning moves don't trigger turnChange, so no delay needed
+            // This prevents race conditions where stale Firestore updates overwrite the winning move
             console.log('Saving game end state to room...');
             await roomManager.saveGameStateToRoom(game);
             console.log('Game end state saved');
