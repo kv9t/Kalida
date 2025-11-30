@@ -355,10 +355,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 // IMPORTANT: Don't reload board state if local game is already finished
-                // This prevents stale Firestore updates from overwriting the winning move
-                if (!game.gameActive && updatedRoom.gameActive) {
-                    console.log('Ignoring stale sync - local game is already finished');
-                    // Still update ready button states though
+                // This prevents:
+                // 1. Stale Firestore updates from overwriting the winning move
+                // 2. Redundant reloads that cause the winning highlight to flash multiple times
+                if (!game.gameActive) {
+                    console.log('Ignoring sync - local game is already finished');
+                    // Still update ready button states for multiplayer ready-up system
                     if (updatedRoom.type === 'remote') {
                         gameUI.updateReadyButtonText(updatedRoom);
                     }
