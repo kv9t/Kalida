@@ -400,14 +400,22 @@ document.addEventListener('DOMContentLoaded', function() {
         game.on('gameEnd', async (data) => {
             console.log('gameEnd event fired:', data);
 
-            // Save immediately - winning moves don't trigger turnChange, so no delay needed
-            // This prevents race conditions where stale Firestore updates overwrite the winning move
-            console.log('Saving game end state to room...');
-            await roomManager.saveGameStateToRoom(game);
-            console.log('Game end state saved');
+            // Don't save if this is a restored game (loaded from Firestore)
+            // This prevents an infinite loop: save → sync → load → gameEnd → save → ...
+            if (data.restored) {
+                console.log('Game end was restored from Firestore, skipping save to prevent loop');
+                // Skip the save and ready state clear for restored games
+                // But still update UI elements below
+            } else {
+                // Save immediately - winning moves don't trigger turnChange, so no delay needed
+                // This prevents race conditions where stale Firestore updates overwrite the winning move
+                console.log('Saving game end state to room...');
+                await roomManager.saveGameStateToRoom(game);
+                console.log('Game end state saved');
+            }
 
-            // Update stats for the winner (round win)
-            if (data.winner && data.winner !== 'computer') {
+            // Update stats for the winner (round win) - only for fresh wins
+            if (!data.restored && data.winner && data.winner !== 'computer') {
                 const currentRoom = roomManager.getCurrentRoom();
                 if (currentRoom && currentRoom.type === 'remote') {
                     // In remote multiplayer, check if current user is the winner
@@ -422,9 +430,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update button text for multiplayer ready-up system
             const currentRoom = roomManager.getCurrentRoom();
             if (currentRoom && currentRoom.type === 'remote') {
-                // Clear ready states from Firestore when game ends
-                await roomManager.clearReadyStates(currentRoom.id);
-                // Update button to show it's ready for new game
+                // Only clear ready states for fresh wins, not restored games
+                if (!data.restored) {
+                    await roomManager.clearReadyStates(currentRoom.id);
+                }
+                // Always update button text to show current state
                 gameUI.updateReadyButtonText(currentRoom);
             }
         });
