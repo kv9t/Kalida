@@ -168,6 +168,10 @@ class ScoreboardModal {
         const roundScores = this.game.getScores();
         const matchScores = this.game.getMatchScores();
         
+        // Get personalized player names
+        const playerXName = this.gameUI.getPersonalizedPlayerName ? this.gameUI.getPersonalizedPlayerName('X') : 'X';
+        const playerOName = this.gameUI.getPersonalizedPlayerName ? this.gameUI.getPersonalizedPlayerName('O') : 'O';
+
         if (scoreboardType === 'round') {
             if (titleElement) titleElement.textContent = 'Round Wins';
             if (descriptionElement) {
@@ -176,11 +180,11 @@ class ScoreboardModal {
             if (currentScoresElement) {
                 currentScoresElement.innerHTML = `
                     <div class="score-display">
-                        <span class="player-label">Player X:</span> 
+                        <span class="player-label">${playerXName}:</span>
                         <span class="score-value player-x-score">${roundScores.X}</span>
                     </div>
                     <div class="score-display">
-                        <span class="player-label">Player O:</span> 
+                        <span class="player-label">${playerOName}:</span>
                         <span class="score-value player-o-score">${roundScores.O}</span>
                     </div>
                 `;
@@ -193,11 +197,11 @@ class ScoreboardModal {
             if (currentScoresElement) {
                 currentScoresElement.innerHTML = `
                     <div class="score-display">
-                        <span class="player-label">Player X:</span> 
+                        <span class="player-label">${playerXName}:</span>
                         <span class="score-value player-x-score">${matchScores.X}</span>
                     </div>
                     <div class="score-display">
-                        <span class="player-label">Player O:</span> 
+                        <span class="player-label">${playerOName}:</span>
                         <span class="score-value player-o-score">${matchScores.O}</span>
                     </div>
                 `;

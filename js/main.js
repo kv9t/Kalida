@@ -108,8 +108,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         window.history.replaceState({}, document.title, window.location.pathname);
 
                         // Show success message
-                        const playerXName = joinedRoom.players?.X?.displayName || 'Player X';
-                        alert(`You've joined ${playerXName}'s game! You are Player O.`);
+                        const playerXName = joinedRoom.players?.X?.displayName || 'your opponent';
+                        alert(`You've joined ${playerXName}'s game!`);
 
                         // Load the game state
                         gameUI.boardUI.clearHighlights();
