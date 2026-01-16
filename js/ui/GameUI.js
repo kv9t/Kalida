@@ -48,6 +48,8 @@ class GameUI {
             resetButton: null,
             declareDrawButton: null,
             clearScoresButton: null,
+            clearScoresBtn: null,      // New Clear Scores utility button
+            toggleLabelsBtn: null,     // New Toggle Labels utility button
             gameModeSelect: null,
             bounceToggle: null,
             wrapToggle: null,
@@ -96,7 +98,8 @@ class GameUI {
             this.elements.knightMoveToggle = document.getElementById('knight-move-toggle');
             this.elements.aboutButton = document.getElementById('about-btn');
             this.elements.tutorialButton = document.getElementById('tutorial-btn');
-            
+            this.elements.clearScoresBtn = document.getElementById('clear-scores-btn');
+            this.elements.toggleLabelsBtn = document.getElementById('toggle-labels-btn');
 
 
             // Create board UI if not already created
@@ -693,6 +696,43 @@ class GameUI {
                 this.elements.sizeValueDisplay.textContent = `${percentage}%`;
                 if (typeof this.boardUI.resize === 'function') {
                     this.boardUI.resize(percentage);
+                }
+            });
+        }
+
+        // Clear Scores utility button
+        if (this.elements.clearScoresBtn) {
+            this.elements.clearScoresBtn.addEventListener('click', () => {
+                // Simple confirmation dialog
+                if (confirm('Are you sure you want to clear all scores?\n\nThis will reset both Round Wins and Matches Won to 0.')) {
+                    if (typeof this.game.clearScores === 'function') {
+                        this.game.clearScores();
+                    }
+                    if (typeof this.game.resetMatchScores === 'function') {
+                        this.game.resetMatchScores();
+                    }
+                    console.log('Scores cleared via utility button');
+                }
+            });
+        }
+
+        // Toggle Labels utility button
+        if (this.elements.toggleLabelsBtn) {
+            this.elements.toggleLabelsBtn.addEventListener('click', () => {
+                if (this.boardUI && typeof this.boardUI.toggleLabels === 'function') {
+                    const labelsVisible = this.boardUI.toggleLabels();
+
+                    // Update button text based on state
+                    this.elements.toggleLabelsBtn.textContent = labelsVisible ? 'Remove Labels' : 'Label Squares';
+
+                    // Update button appearance
+                    if (labelsVisible) {
+                        this.elements.toggleLabelsBtn.classList.add('labels-active');
+                    } else {
+                        this.elements.toggleLabelsBtn.classList.remove('labels-active');
+                    }
+
+                    console.log('Square labels toggled:', labelsVisible ? 'visible' : 'hidden');
                 }
             });
         }
