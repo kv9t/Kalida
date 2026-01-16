@@ -339,7 +339,8 @@ class GameUI {
      */
     getPersonalizedTurnText(player) {
         if (!this.roomManager) {
-            return `Player ${player}'s Turn`;
+            // Local mode without room manager - use "YOUR TURN" since it's a local game
+            return 'YOUR TURN';
         }
 
         const currentRoom = this.roomManager.getCurrentRoom();
@@ -354,15 +355,22 @@ class GameUI {
             }
         }
 
+        // Handle local rooms (pass and play)
+        if (currentRoom && currentRoom.type === 'local') {
+            // In local pass-and-play, just indicate whose turn it is
+            return player === 'X' ? "X'S TURN" : "O'S TURN";
+        }
+
         // Handle remote rooms
         if (!currentRoom || currentRoom.type !== 'remote' || !currentRoom.players) {
-            return `Player ${player}'s Turn`;
+            // Fallback for unrecognized room types
+            return 'YOUR TURN';
         }
 
         // Get the player info for the current turn
         const playerInfo = currentRoom.players[player];
         if (!playerInfo) {
-            return `Player ${player}'s Turn`;
+            return 'YOUR TURN';
         }
 
         // Check if it's the current user's turn
@@ -372,7 +380,79 @@ class GameUI {
         }
 
         // It's the opponent's turn - show their display name
-        return `${playerInfo.displayName}'s TURN`;
+        return `${playerInfo.displayName.toUpperCase()}'S TURN`;
+    }
+
+    /**
+     * Get personalized player name for display
+     * @param {string} player - 'X' or 'O'
+     * @returns {string} Personalized player name (e.g., "YOU", "COMPUTER", "John", "X", "O")
+     */
+    getPersonalizedPlayerName(player) {
+        if (!this.roomManager) {
+            // Local mode - use symbol
+            return player;
+        }
+
+        const currentRoom = this.roomManager.getCurrentRoom();
+
+        // Handle computer rooms
+        if (currentRoom && currentRoom.type === 'computer') {
+            return player === 'X' ? 'YOU' : 'COMPUTER';
+        }
+
+        // Handle local rooms (pass and play)
+        if (currentRoom && currentRoom.type === 'local') {
+            return player;
+        }
+
+        // Handle remote rooms
+        if (!currentRoom || currentRoom.type !== 'remote' || !currentRoom.players) {
+            return player;
+        }
+
+        const mySymbol = this.roomManager.getMyPlayerSymbol(currentRoom);
+        const playerInfo = currentRoom.players[player];
+
+        if (!playerInfo) {
+            return player;
+        }
+
+        if (mySymbol === player) {
+            return 'YOU';
+        }
+
+        return playerInfo.displayName.toUpperCase();
+    }
+
+    /**
+     * Get personalized win text for display
+     * @param {string} winner - 'X' or 'O'
+     * @returns {string} Personalized win message
+     */
+    getPersonalizedWinText(winner) {
+        const playerName = this.getPersonalizedPlayerName(winner);
+
+        if (playerName === 'YOU') {
+            return 'YOU WIN!';
+        }
+
+        return `${playerName} WINS!`;
+    }
+
+    /**
+     * Get personalized match win text for display
+     * @param {string} winner - 'X' or 'O'
+     * @returns {string} Personalized match win message
+     */
+    getPersonalizedMatchWinText(winner) {
+        const playerName = this.getPersonalizedPlayerName(winner);
+
+        if (playerName === 'YOU') {
+            return 'YOU WIN THE MATCH!';
+        }
+
+        return `${playerName} WINS MATCH!`;
     }
 
     /**
@@ -903,14 +983,15 @@ class GameUI {
                 }
             }
             
-            // NEW: Update turn indicator using asset manager
-            this.assetManager.updateTurnIndicator(data.currentPlayer, 'playing');
-            
+            // Update turn indicator using personalized text
+            const turnText = this.getPersonalizedTurnText(data.currentPlayer);
+            this.assetManager.updateTurnIndicator(data.currentPlayer, 'playing', turnText);
+
             // Keep existing legacy support
             if (this.elements.playerTurn) {
-                this.elements.playerTurn.textContent = `Player ${data.currentPlayer}'s Turn`;
+                this.elements.playerTurn.textContent = turnText;
             }
-            
+
             this.updateScores(data.scores);
             
             if (data.matchScores) {
@@ -978,11 +1059,12 @@ class GameUI {
                 this.boardUI.gameBoard.classList.add('game-over');
             }
             
-            // NEW: Update turn indicator using asset manager
+            // Update turn indicator using personalized text
             if (data.type === 'win') {
-                this.assetManager.updateTurnIndicator(data.winner, 'win');
+                const winText = this.getPersonalizedWinText(data.winner);
+                this.assetManager.updateTurnIndicator(data.winner, 'win', winText);
             } else if (data.type === 'draw') {
-                this.assetManager.updateTurnIndicator(null, 'draw');
+                this.assetManager.updateTurnIndicator(null, 'draw', 'DRAW!');
                 // Show browser alert for draw
                 setTimeout(() => {
                     if (data.declaredDraw) {
@@ -990,15 +1072,14 @@ class GameUI {
                     } else {
                         alert("It's a draw! The board is full.");
                     }
-                }, 500); 
-            
+                }, 500);
             }
-            
+
             // Keep existing legacy support
             const playerTurnElement = document.querySelector('.player-turn-indicator');
             if (playerTurnElement) {
                 if (data.type === 'win') {
-                    playerTurnElement.textContent = `Player ${data.winner} wins!`;
+                    playerTurnElement.textContent = this.getPersonalizedWinText(data.winner);
                 } else if (data.type === 'draw') {
                     // Handle declared draws with different messaging
                     if (data.declaredDraw) {
@@ -1025,17 +1106,18 @@ class GameUI {
         // Turn change event
         this.game.on('turnChange', (data) => {
             console.log('Turn change event received', data);
-            
-            // NEW: Update turn indicator using asset manager
-            this.assetManager.updateTurnIndicator(data.currentPlayer, 'playing');
-            
+
+            // Update turn indicator using personalized text
+            const turnText = this.getPersonalizedTurnText(data.currentPlayer);
+            this.assetManager.updateTurnIndicator(data.currentPlayer, 'playing', turnText);
+
             // Keep existing legacy support
             const playerTurnElement = document.querySelector('.player-turn-indicator');
             const specialMessageElement = document.getElementById('special-message');
-            
+
             if (playerTurnElement) {
                 // Update player turn text
-                playerTurnElement.textContent = this.getPersonalizedTurnText(data.currentPlayer);
+                playerTurnElement.textContent = turnText;
             }
             
             // Clear any knight move indicators if not required
@@ -1065,9 +1147,10 @@ class GameUI {
         
         // Match won event
         this.game.on('matchWon', (data) => {
-            // NEW: Update turn indicator for match completion
-            this.assetManager.updateTurnIndicator(data.winner, 'match_complete');
-            
+            // Update turn indicator for match completion using personalized text
+            const matchWinText = this.getPersonalizedMatchWinText(data.winner);
+            this.assetManager.updateTurnIndicator(data.winner, 'match_complete', matchWinText);
+
             // Show prominent victory message
             this.showMatchVictory(data.winner);
             
@@ -1145,10 +1228,16 @@ class GameUI {
      * @param {string} winner - The winner of the match
      */
     showMatchVictory(winner) {
+        // Get personalized player name
+        const playerName = this.getPersonalizedPlayerName(winner);
+        const victoryMessage = playerName === 'YOU'
+            ? '🏆 YOU WON THE MATCH! 🏆'
+            : `🏆 ${playerName} HAS WON THE MATCH! 🏆`;
+
         // Use the special-message div
         const specialMessageElement = document.getElementById('special-message');
         if (specialMessageElement) {
-            specialMessageElement.innerHTML = `<span class="victory-indicator">🏆 Player ${winner} has won the match! 🏆</span>`;
+            specialMessageElement.innerHTML = `<span class="victory-indicator">${victoryMessage}</span>`;
             
             // Clear the message after a delay
             setTimeout(() => {
@@ -1211,14 +1300,22 @@ class GameUI {
                 const margin = this.game.matchWinMargin || 2;
                 
                 // Only show specific progress messages, and put them in special-message instead
+                // Get personalized player names
+                const playerXName = this.getPersonalizedPlayerName('X');
+                const playerOName = this.getPersonalizedPlayerName('O');
+
                 if (xScore >= threshold && xScore - oScore === margin - 1) {
-                    specialMessageElement.innerHTML = "<span class='match-progress'>Player X needs 1 more win for match!</span>";
+                    const msg = playerXName === 'YOU' ? 'You need 1 more win for match!' : `${playerXName} needs 1 more win for match!`;
+                    specialMessageElement.innerHTML = `<span class='match-progress'>${msg}</span>`;
                 } else if (oScore >= threshold && oScore - xScore === margin - 1) {
-                    specialMessageElement.innerHTML = "<span class='match-progress'>Player O needs 1 more win for match!</span>";
+                    const msg = playerOName === 'YOU' ? 'You need 1 more win for match!' : `${playerOName} needs 1 more win for match!`;
+                    specialMessageElement.innerHTML = `<span class='match-progress'>${msg}</span>`;
                 } else if (xScore >= threshold - 1 && oScore <= xScore - margin + 1) {
-                    specialMessageElement.innerHTML = "<span class='match-progress'>Player X nearing match win!</span>";
+                    const msg = playerXName === 'YOU' ? 'You are nearing match win!' : `${playerXName} nearing match win!`;
+                    specialMessageElement.innerHTML = `<span class='match-progress'>${msg}</span>`;
                 } else if (oScore >= threshold - 1 && xScore <= oScore - margin + 1) {
-                    specialMessageElement.innerHTML = "<span class='match-progress'>Player O nearing match win!</span>";
+                    const msg = playerOName === 'YOU' ? 'You are nearing match win!' : `${playerOName} nearing match win!`;
+                    specialMessageElement.innerHTML = `<span class='match-progress'>${msg}</span>`;
                 } else {
                     // Clear any existing messages
                     specialMessageElement.innerHTML = "";

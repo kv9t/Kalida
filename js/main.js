@@ -108,8 +108,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         window.history.replaceState({}, document.title, window.location.pathname);
 
                         // Show success message
-                        const playerXName = joinedRoom.players?.X?.displayName || 'Player X';
-                        alert(`You've joined ${playerXName}'s game! You are Player O.`);
+                        const playerXName = joinedRoom.players?.X?.displayName || 'your opponent';
+                        alert(`You've joined ${playerXName}'s game!`);
 
                         // Load the game state
                         gameUI.boardUI.clearHighlights();
@@ -354,6 +354,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     readyPlayers: updatedRoom.readyPlayers
                 });
 
+                // Check if both players are ready for next game FIRST
+                // This needs to happen even if game is already finished
+                if (updatedRoom.type === 'remote' && roomManager.areBothPlayersReady(updatedRoom)) {
+                    console.log('Both players ready! Starting new game...');
+
+                    // Clear ready states
+                    await roomManager.clearReadyStates(updatedRoom.id);
+
+                    // Reset the game
+                    game.resetGame();
+
+                    // Update button text
+                    gameUI.updateReadyButtonText(updatedRoom);
+                    return;
+                }
+
                 // IMPORTANT: Don't reload board state if local game is already finished
                 // This prevents:
                 // 1. Stale Firestore updates from overwriting the winning move
@@ -373,19 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 console.log('Real-time sync complete. Game state loaded.');
 
-                // Check if both players are ready for next game
-                if (updatedRoom.type === 'remote' && roomManager.areBothPlayersReady(updatedRoom)) {
-                    console.log('Both players ready! Starting new game...');
-
-                    // Clear ready states
-                    await roomManager.clearReadyStates(updatedRoom.id);
-
-                    // Reset the game
-                    game.resetGame();
-
-                    // Update button text
-                    gameUI.updateReadyButtonText(updatedRoom);
-                } else if (updatedRoom.type === 'remote') {
+                if (updatedRoom.type === 'remote') {
                     // Update button text to show ready states
                     gameUI.updateReadyButtonText(updatedRoom);
                 }

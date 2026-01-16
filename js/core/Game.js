@@ -442,10 +442,12 @@ class Game {
         console.log('Move made successfully, new moveCount:', this.moveCount);
         
         // If this is the first player's first move, store it
-        if (this.currentPlayer === 'X' && this.moveCount['X'] === 1) {
+        // BUG FIX: Use firstPlayerOfGame instead of hardcoded 'X' so Knight's Rule
+        // correctly applies to whoever goes first in each round (not always 'X')
+        if (this.currentPlayer === this.firstPlayerOfGame && this.moveCount[this.firstPlayerOfGame] === 1) {
             this.firstPlayerFirstMove = { row, col };
             console.log('First player first move set:', this.firstPlayerFirstMove);
-            
+
             // Pre-calculate valid knight moves for the next turn
             const validKnightMoves = this.getValidKnightMoves(row, col);
             console.log('Pre-calculated valid knight moves:', validKnightMoves);

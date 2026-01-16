@@ -107,35 +107,42 @@ class UIAssetManager {
     
     /**
      * Update turn indicator text based on current player and game state
-     * @param {string} player - Current player ('X' or 'O')
+     * @param {string} player - Current player ('X' or 'O') - ignored if personalizedText is provided
      * @param {string} gameState - Game state ('playing', 'win', 'draw', 'match_complete')
+     * @param {string} personalizedText - Optional personalized text to display (overrides default)
      */
-    updateTurnIndicator(player, gameState = 'playing') {
+    updateTurnIndicator(player, gameState = 'playing', personalizedText = null) {
         if (!this.elements.turnIndicator) {
             console.warn('UIAssetManager: Cannot update turn indicator - element not found');
             return;
         }
-        
+
         let text = '';
-        
-        switch(gameState) {
-            case 'win':
-                text = `PLAYER ${player} WINS!`;
-                break;
-            case 'draw':
-                text = 'DRAW!';
-                break;
-            case 'match_complete':
-                text = `PLAYER ${player} WINS MATCH!`;
-                break;
-            case 'playing':
-            default:
-                text = `PLAYER ${player}'S TURN`;
-                break;
+
+        // Use personalized text if provided
+        if (personalizedText) {
+            text = personalizedText;
+        } else {
+            // Fallback to generic text (should rarely be used now)
+            switch(gameState) {
+                case 'win':
+                    text = `PLAYER ${player} WINS!`;
+                    break;
+                case 'draw':
+                    text = 'DRAW!';
+                    break;
+                case 'match_complete':
+                    text = `PLAYER ${player} WINS MATCH!`;
+                    break;
+                case 'playing':
+                default:
+                    text = `PLAYER ${player}'S TURN`;
+                    break;
+            }
         }
-        
+
         this.elements.turnIndicator.textContent = text;
-        
+
         console.log(`UIAssetManager: Updated turn indicator to "${text}"`);
     }
     
