@@ -215,7 +215,7 @@
     font-size: 10px;
     font-weight: 600;
     font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.7);
     pointer-events: none;
     user-select: none;
     z-index: 1;
@@ -236,18 +236,18 @@
 
 /* Slightly darker labels on light squares for better visibility */
 .cell[data-cell-type="light"] .square-label {
-    color: rgba(0, 0, 0, 0.2);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 /* Slightly lighter labels on dark squares */
 .cell[data-cell-type="dark"] .square-label {
-    color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 /* Ensure labels don't interfere with winning cell highlights */
 .cell.winning-cell .square-label,
 .cell.bounce-cell .square-label {
-    color: rgba(0, 0, 0, 0.25);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 /* 🆕 NEW: Version indicator styles */
