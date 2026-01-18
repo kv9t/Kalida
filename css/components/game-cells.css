@@ -206,6 +206,50 @@
     background-color: var(--cell-dark);
 }
 
+/* ===== SQUARE LABELS ===== */
+/* Subtle labels for each square on the board */
+.square-label {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    color: rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* Cell needs position relative to position the label */
+.cell {
+    position: relative;
+}
+
+/* Show labels when the board has show-labels class */
+.board.show-labels .square-label {
+    opacity: 1;
+}
+
+/* Slightly darker labels on light squares for better visibility */
+.cell[data-cell-type="light"] .square-label {
+    color: rgba(0, 0, 0, 0.2);
+}
+
+/* Slightly lighter labels on dark squares */
+.cell[data-cell-type="dark"] .square-label {
+    color: rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure labels don't interfere with winning cell highlights */
+.cell.winning-cell .square-label,
+.cell.bounce-cell .square-label {
+    color: rgba(0, 0, 0, 0.25);
+}
+
 /* 🆕 NEW: Version indicator styles */
 .version-indicator {
     position: fixed;

@@ -304,3 +304,65 @@ select:focus {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* ===== UTILITY BUTTONS (Clear Scores & Label Squares) ===== */
+
+/* Container for side-by-side utility buttons */
+.utility-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+/* Utility button base styling - similar to new-game-btn but smaller */
+.utility-btn {
+    display: flex;
+    height: 40px;
+    padding: 8px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 20px;
+    border: 1px solid #E6E6E6;
+    background: #FAFAFA;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    /* Typography */
+    color: #000;
+    font-family: "SF Pro", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: uppercase;
+
+    /* Remove blue focus outline */
+    outline: none !important;
+}
+
+/* Utility button hover state */
+.utility-btn:hover {
+    background: #F0F0F0;
+    border-color: #D0D0D0;
+}
+
+/* Utility button active state */
+.utility-btn:active {
+    background: #E8E8E8;
+    transform: scale(0.98);
+}
+
+/* Remove focus outline */
+.utility-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Active state for Label Squares button when labels are visible */
+.utility-btn.labels-active {
+    background: #E8E8E8;
+    border-color: #C0C0C0;
+}

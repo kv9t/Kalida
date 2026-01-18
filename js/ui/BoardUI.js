@@ -23,7 +23,19 @@ class BoardUI {
         this.cells = [];
         this.validKnightMoves = []; // Track valid knight moves
         this.isKnightMoveRequired = false; // Flag to track if knight move is required
-        
+        this.labelsVisible = false; // Track if square labels are visible
+
+        // Square labels from Kalida_SquareLabeling.csv
+        // 6x6 grid: A-F, G-L, M-R, S-X, Y-Z+1-4, 5-0
+        this.squareLabels = [
+            ['A', 'B', 'C', 'D', 'E', 'F'],
+            ['G', 'H', 'I', 'J', 'K', 'L'],
+            ['M', 'N', 'O', 'P', 'Q', 'R'],
+            ['S', 'T', 'U', 'V', 'W', 'X'],
+            ['Y', 'Z', '1', '2', '3', '4'],
+            ['5', '6', '7', '8', '9', '0']
+        ];
+
         // Initialize the marker renderer
         this.markerRenderer = new PlayerMarkerRenderer({
             size: 28,
@@ -63,7 +75,13 @@ class BoardUI {
                 // Add checkered pattern logic
                 const isLightSquare = (row + col) % 2 === 0;
                 cell.dataset.cellType = isLightSquare ? 'light' : 'dark';
-                
+
+                // Add square label element
+                const labelElement = document.createElement('span');
+                labelElement.className = 'square-label';
+                labelElement.textContent = this.squareLabels[row][col];
+                cell.appendChild(labelElement);
+
                 // Add click handler
                 cell.addEventListener('click', () => {
                     if (this.onCellClick) {
@@ -483,6 +501,38 @@ class BoardUI {
     setCurrentPlayer(player) {
         this.gameBoard.classList.remove('player-turn-x', 'player-turn-o');
         this.gameBoard.classList.add(`player-turn-${player.toLowerCase()}`);
+    }
+
+    /**
+     * Toggle the visibility of square labels
+     * @param {boolean} visible - Whether labels should be visible
+     */
+    setLabelsVisible(visible) {
+        this.labelsVisible = visible;
+        if (this.gameBoard) {
+            if (visible) {
+                this.gameBoard.classList.add('show-labels');
+            } else {
+                this.gameBoard.classList.remove('show-labels');
+            }
+        }
+    }
+
+    /**
+     * Toggle square labels on/off
+     * @returns {boolean} - New visibility state
+     */
+    toggleLabels() {
+        this.setLabelsVisible(!this.labelsVisible);
+        return this.labelsVisible;
+    }
+
+    /**
+     * Get current labels visibility state
+     * @returns {boolean} - Whether labels are visible
+     */
+    areLabelsVisible() {
+        return this.labelsVisible;
     }
 }
 
