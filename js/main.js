@@ -89,6 +89,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     gameUI.boardUI.clearHighlights();
                     await roomManager.loadGameStateFromRoom(currentRoom.id, game);
                     gameUI.updateAll();
+
+                    // Subscribe to real-time updates for remote rooms on page load
+                    if (currentRoom.type === 'remote') {
+                        roomManager.subscribeToRoom(currentRoom.id);
+                    }
                 }
 
                 // Show room selector and profile button
