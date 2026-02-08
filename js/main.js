@@ -331,6 +331,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 await roomManager.loadGameStateFromRoom(currentRoom.id, game);
                 gameUI.updateAll();
 
+                // Apply game type from room data (kalida/fin)
+                if (currentRoom.gameType) {
+                    gameUI.updateGameTypeUI(currentRoom.gameType);
+                }
+
                 // Subscribe to real-time updates for remote rooms
                 if (currentRoom.type === 'remote') {
                     roomManager.subscribeToRoom(currentRoom.id);
@@ -386,6 +391,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 gameUI.boardUI.clearHighlights();
                 await roomManager.loadGameStateFromRoom(updatedRoom.id, game);
                 gameUI.updateAll();
+
+                // Apply game type from synced room data
+                if (updatedRoom.gameType) {
+                    gameUI.updateGameTypeUI(updatedRoom.gameType);
+                }
 
                 console.log('Real-time sync complete. Game state loaded.');
 
@@ -469,6 +479,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Save on gameReset (when starting new round)
         game.on('gameReset', async () => {
+            await roomManager.saveGameStateToRoom(game);
+        });
+
+        // Save when game type changes (Kalida <-> Fin)
+        game.on('gameTypeChanged', async () => {
             await roomManager.saveGameStateToRoom(game);
         });
 

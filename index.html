@@ -149,6 +149,7 @@
         <div class="frame-378">
             <button class="about-btn" id="about-btn">ABOUT</button>
             <button class="tutorial-btn" id="tutorial-btn">TUTORIAL</button>
+            <button class="tutorial-btn" id="fin-tutorial-btn">FIN TUTORIAL</button>
         </div>
         
 
@@ -493,7 +494,332 @@
             </div>
         </div>
 
-        <!-- SCOREBOARD Modal -->   
+        <!-- FIN TUTORIAL Modal -->
+        <div id="fin-tutorial-modal" class="modal-backdrop tutorial-modal">
+            <div class="modal-container tutorial-container">
+                <!-- Close button -->
+                <button class="modal-close-btn tutorial-close-btn" data-modal="fin-tutorial">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none">
+                        <rect x="13.5" y="11.4932" width="2.13156" height="16.2531" transform="rotate(135 13.5 11.4932)" fill="#666666"/>
+                        <rect x="2.00732" y="13" width="2.13156" height="16.2531" transform="rotate(-135 2.00732 13)" fill="#666666"/>
+                    </svg>
+                </button>
+
+                <div class="modal-content">
+                    <!-- Slide 1: Cover Page -->
+                    <div class="tutorial-slide active cover" data-slide="0">
+                        <div class="tutorial-frame-367"></div>
+                        <div class="tutorial-frame-373">
+                            <div class="tutorial-welcome-title">Welcome to<br/>Fin</div>
+                            <div class="tutorial-game-subtitle">AN EDGE-TO-EDGE STRATEGY GAME</div>
+                            <!-- Inline SVG mini-board preview -->
+                            <div class="tutorial-board-image">
+                                <svg viewBox="0 0 180 180" width="180" height="180" xmlns="http://www.w3.org/2000/svg" class="tutorial-board-svg">
+                                    <!-- Board grid -->
+                                    <rect x="0" y="0" width="180" height="180" rx="6" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+                                    <line x1="30" y1="0" x2="30" y2="180" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="60" y1="0" x2="60" y2="180" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="90" y1="0" x2="90" y2="180" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="120" y1="0" x2="120" y2="180" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="150" y1="0" x2="150" y2="180" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="0" y1="30" x2="180" y2="30" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="0" y1="60" x2="180" y2="60" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="0" y1="90" x2="180" y2="90" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="0" y1="120" x2="180" y2="120" stroke="#ddd" stroke-width="0.5"/>
+                                    <line x1="0" y1="150" x2="180" y2="150" stroke="#ddd" stroke-width="0.5"/>
+                                    <!-- Diamond markers (X) - path from left to right -->
+                                    <polygon points="15,5 25,15 15,25 5,15" fill="#5834db" stroke="#5834db" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="45,35 55,45 45,55 35,45" fill="#5834db" stroke="#5834db" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="75,65 85,75 75,85 65,75" fill="#5834db" stroke="#5834db" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="105,95 115,105 105,115 95,105" fill="#5834db" stroke="#5834db" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="135,125 145,135 135,145 125,135" fill="#5834db" stroke="#5834db" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="165,155 175,165 165,175 155,165" fill="#5834db" stroke="#5834db" stroke-width="2" stroke-linejoin="round"/>
+                                    <!-- Triangle markers (O) - scattered -->
+                                    <polygon points="135,10 143,24 127,24" fill="none" stroke="#00C7BE" stroke-width="2.5" stroke-linejoin="round"/>
+                                    <polygon points="105,40 113,54 97,54" fill="none" stroke="#00C7BE" stroke-width="2.5" stroke-linejoin="round"/>
+                                    <polygon points="45,100 53,114 37,114" fill="none" stroke="#00C7BE" stroke-width="2.5" stroke-linejoin="round"/>
+                                    <polygon points="75,130 83,144 67,144" fill="none" stroke="#00C7BE" stroke-width="2.5" stroke-linejoin="round"/>
+                                    <polygon points="45,160 53,174 37,174" fill="none" stroke="#00C7BE" stroke-width="2.5" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="tutorial-nav cover">
+                            <button class="tutorial-nav-btn" data-action="start">Learn to play &#8594;</button>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Edge-to-Edge -->
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="1">
+                        <div class="tutorial-frame-367"></div>
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <div class="tutorial-content-title">EDGE-TO-EDGE</div>
+                            <div class="tutorial-content-subtitle">connect opposite sides of the board</div>
+                            <div class="tutorial-examples">
+                                <!-- Example 1: Left-to-right horizontal path -->
+                                <div class="tutorial-example">
+                                    <svg viewBox="0 0 120 120" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="0" y="0" width="120" height="120" rx="4" fill="#f8f8f8" stroke="#ddd" stroke-width="0.5"/>
+                                        <line x1="20" y1="0" x2="20" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="40" y1="0" x2="40" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="80" y1="0" x2="80" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="100" y1="0" x2="100" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="20" x2="120" y2="20" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="40" x2="120" y2="40" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="80" x2="120" y2="80" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="100" x2="120" y2="100" stroke="#eee" stroke-width="0.5"/>
+                                        <!-- Left edge highlight -->
+                                        <rect x="0" y="0" width="2" height="120" fill="#5834db" opacity="0.3"/>
+                                        <!-- Right edge highlight -->
+                                        <rect x="118" y="0" width="2" height="120" fill="#5834db" opacity="0.3"/>
+                                        <!-- Horizontal path: left to right -->
+                                        <polygon points="10,45 16,50 10,55 4,50" fill="#5834db"/>
+                                        <polygon points="30,45 36,50 30,55 24,50" fill="#5834db"/>
+                                        <polygon points="50,45 56,50 50,55 44,50" fill="#5834db"/>
+                                        <polygon points="70,45 76,50 70,55 64,50" fill="#5834db"/>
+                                        <polygon points="90,45 96,50 90,55 84,50" fill="#5834db"/>
+                                        <polygon points="110,45 116,50 110,55 104,50" fill="#5834db"/>
+                                    </svg>
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                <!-- Example 2: Top-to-bottom vertical path -->
+                                <div class="tutorial-example">
+                                    <svg viewBox="0 0 120 120" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="0" y="0" width="120" height="120" rx="4" fill="#f8f8f8" stroke="#ddd" stroke-width="0.5"/>
+                                        <line x1="20" y1="0" x2="20" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="40" y1="0" x2="40" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="80" y1="0" x2="80" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="100" y1="0" x2="100" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="20" x2="120" y2="20" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="40" x2="120" y2="40" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="80" x2="120" y2="80" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="100" x2="120" y2="100" stroke="#eee" stroke-width="0.5"/>
+                                        <!-- Top edge highlight -->
+                                        <rect x="0" y="0" width="120" height="2" fill="#00C7BE" opacity="0.3"/>
+                                        <!-- Bottom edge highlight -->
+                                        <rect x="0" y="118" width="120" height="2" fill="#00C7BE" opacity="0.3"/>
+                                        <!-- Vertical path: top to bottom -->
+                                        <polygon points="70,6 77,14 63,14" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="70,26 77,34 63,34" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="70,46 77,54 63,54" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="70,66 77,74 63,74" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="70,86 77,94 63,94" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="70,106 77,114 63,114" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                    </svg>
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                                <!-- Example 3: Winding path left-to-right -->
+                                <div class="tutorial-example">
+                                    <svg viewBox="0 0 120 120" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="0" y="0" width="120" height="120" rx="4" fill="#f8f8f8" stroke="#ddd" stroke-width="0.5"/>
+                                        <line x1="20" y1="0" x2="20" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="40" y1="0" x2="40" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="80" y1="0" x2="80" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="100" y1="0" x2="100" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="20" x2="120" y2="20" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="40" x2="120" y2="40" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="80" x2="120" y2="80" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="100" x2="120" y2="100" stroke="#eee" stroke-width="0.5"/>
+                                        <!-- Left edge highlight -->
+                                        <rect x="0" y="0" width="2" height="120" fill="#5834db" opacity="0.3"/>
+                                        <!-- Right edge highlight -->
+                                        <rect x="118" y="0" width="2" height="120" fill="#5834db" opacity="0.3"/>
+                                        <!-- Winding path -->
+                                        <polygon points="10,25 16,30 10,35 4,30" fill="#5834db"/>
+                                        <polygon points="10,45 16,50 10,55 4,50" fill="#5834db"/>
+                                        <polygon points="30,55 36,60 30,65 24,60" fill="#5834db"/>
+                                        <polygon points="50,55 56,60 50,65 44,60" fill="#5834db"/>
+                                        <polygon points="70,55 76,60 70,65 64,60" fill="#5834db"/>
+                                        <polygon points="70,75 76,80 70,85 64,80" fill="#5834db"/>
+                                        <polygon points="90,75 96,80 90,85 84,80" fill="#5834db"/>
+                                        <polygon points="110,75 116,80 110,85 104,80" fill="#5834db"/>
+                                    </svg>
+                                    <img src="images/checkmark_img.svg" alt="Checkmark" class="tutorial-checkmark">
+                                </div>
+                            </div>
+                            <div class="tutorial-explanation">Create a connected path of your markers from any edge to the opposite edge. Horizontal or vertical &mdash; your choice.</div>
+                        </div>
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="next">Next &#8594;</button>
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Diagonal Rule -->
+                    <div class="tutorial-slide tutorial-content-slide" data-slide="2">
+                        <div class="tutorial-frame-367"></div>
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <div class="tutorial-content-title">DIAGONAL RULE</div>
+                            <div class="tutorial-content-subtitle">the one-diagonal constraint</div>
+                            <div class="tutorial-examples">
+                                <!-- Example 1: Valid - one diagonal stretch -->
+                                <div class="tutorial-example">
+                                    <svg viewBox="0 0 120 120" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="0" y="0" width="120" height="120" rx="4" fill="#f8f8f8" stroke="#ddd" stroke-width="0.5"/>
+                                        <line x1="20" y1="0" x2="20" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="40" y1="0" x2="40" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="80" y1="0" x2="80" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="100" y1="0" x2="100" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="20" x2="120" y2="20" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="40" x2="120" y2="40" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="80" x2="120" y2="80" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="100" x2="120" y2="100" stroke="#eee" stroke-width="0.5"/>
+                                        <rect x="0" y="0" width="2" height="120" fill="#5834db" opacity="0.3"/>
+                                        <rect x="118" y="0" width="2" height="120" fill="#5834db" opacity="0.3"/>
+                                        <!-- Path with one diagonal -->
+                                        <polygon points="10,25 16,30 10,35 4,30" fill="#5834db"/>
+                                        <polygon points="30,45 36,50 30,55 24,50" fill="#5834db"/>
+                                        <polygon points="50,45 56,50 50,55 44,50" fill="#5834db"/>
+                                        <polygon points="70,45 76,50 70,55 64,50" fill="#5834db"/>
+                                        <polygon points="90,45 96,50 90,55 84,50" fill="#5834db"/>
+                                        <polygon points="110,45 116,50 110,55 104,50" fill="#5834db"/>
+                                        <!-- Diagonal indicator -->
+                                        <line x1="14" y1="32" x2="26" y2="48" stroke="#5834db" stroke-width="1" stroke-dasharray="2,2" opacity="0.5"/>
+                                    </svg>
+                                    <img src="images/checkmark_img.svg" alt="Valid" class="tutorial-checkmark">
+                                </div>
+                                <!-- Example 2: Valid - one diagonal stretch -->
+                                <div class="tutorial-example">
+                                    <svg viewBox="0 0 120 120" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="0" y="0" width="120" height="120" rx="4" fill="#f8f8f8" stroke="#ddd" stroke-width="0.5"/>
+                                        <line x1="20" y1="0" x2="20" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="40" y1="0" x2="40" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="80" y1="0" x2="80" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="100" y1="0" x2="100" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="20" x2="120" y2="20" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="40" x2="120" y2="40" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="80" x2="120" y2="80" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="100" x2="120" y2="100" stroke="#eee" stroke-width="0.5"/>
+                                        <rect x="0" y="0" width="120" height="2" fill="#00C7BE" opacity="0.3"/>
+                                        <rect x="0" y="118" width="120" height="2" fill="#00C7BE" opacity="0.3"/>
+                                        <!-- Path top to bottom with one diagonal -->
+                                        <polygon points="50,6 57,14 43,14" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="50,26 57,34 43,34" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="50,46 57,54 43,54" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="70,66 77,74 63,74" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="70,86 77,94 63,94" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <polygon points="70,106 77,114 63,114" fill="none" stroke="#00C7BE" stroke-width="2" stroke-linejoin="round"/>
+                                        <line x1="52" y1="54" x2="66" y2="66" stroke="#00C7BE" stroke-width="1" stroke-dasharray="2,2" opacity="0.5"/>
+                                    </svg>
+                                    <img src="images/checkmark_img.svg" alt="Valid" class="tutorial-checkmark">
+                                </div>
+                                <!-- Example 3: INVALID - two diagonal stretches -->
+                                <div class="tutorial-example">
+                                    <svg viewBox="0 0 120 120" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="0" y="0" width="120" height="120" rx="4" fill="#f8f8f8" stroke="#ddd" stroke-width="0.5"/>
+                                        <line x1="20" y1="0" x2="20" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="40" y1="0" x2="40" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="80" y1="0" x2="80" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="100" y1="0" x2="100" y2="120" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="20" x2="120" y2="20" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="40" x2="120" y2="40" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="80" x2="120" y2="80" stroke="#eee" stroke-width="0.5"/>
+                                        <line x1="0" y1="100" x2="120" y2="100" stroke="#eee" stroke-width="0.5"/>
+                                        <rect x="0" y="0" width="2" height="120" fill="#5834db" opacity="0.3"/>
+                                        <rect x="118" y="0" width="2" height="120" fill="#5834db" opacity="0.3"/>
+                                        <!-- Path with TWO diagonals (invalid) -->
+                                        <polygon points="10,25 16,30 10,35 4,30" fill="#5834db" opacity="0.5"/>
+                                        <polygon points="30,45 36,50 30,55 24,50" fill="#5834db" opacity="0.5"/>
+                                        <polygon points="50,65 56,70 50,75 44,70" fill="#5834db" opacity="0.5"/>
+                                        <polygon points="70,45 76,50 70,55 64,50" fill="#5834db" opacity="0.5"/>
+                                        <polygon points="90,65 96,70 90,75 84,70" fill="#5834db" opacity="0.5"/>
+                                        <polygon points="110,65 116,70 110,75 104,70" fill="#5834db" opacity="0.5"/>
+                                        <!-- Two diagonal indicators -->
+                                        <line x1="14" y1="32" x2="26" y2="48" stroke="red" stroke-width="1" stroke-dasharray="2,2" opacity="0.7"/>
+                                        <line x1="54" y1="68" x2="66" y2="48" stroke="red" stroke-width="1" stroke-dasharray="2,2" opacity="0.7"/>
+                                    </svg>
+                                    <!-- X mark instead of checkmark -->
+                                    <svg viewBox="0 0 24 24" width="20" height="20" class="tutorial-checkmark" style="color:#e53e3e;">
+                                        <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                        <line x1="20" y1="4" x2="4" y2="20" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="tutorial-explanation">Your path may include <strong>at most one diagonal step</strong>. Two or more diagonal stretches are not allowed.</div>
+                        </div>
+                        <div class="tutorial-nav-section tutorial-content-nav">
+                            <div class="tutorial-nav-buttons">
+                                <button class="tutorial-nav-btn tutorial-content-btn" data-action="prev">&#8592; Back</button>
+                                <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="next">Next &#8594;</button>
+                            </div>
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot active"></div>
+                                <div class="progress-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4: Scoring -->
+                    <div class="tutorial-slide tutorial-scoring-slide" data-slide="3">
+                        <div class="tutorial-frame-367"></div>
+                        <div class="tutorial-frame-373 tutorial-content">
+                            <div class="tutorial-content-title">SCORING</div>
+                            <div class="tutorial-content-subtitle">for the win</div>
+                            <div class="tutorial-scoring-sections">
+                                <div class="tutorial-scoreboard">
+                                    <div class="scoreboard-label">Round wins</div>
+                                    <div class="scoreboard-players">
+                                        <div class="mini-player-card">
+                                            <div class="mini-player-name">Player X</div>
+                                            <div class="mini-player-score">7</div>
+                                        </div>
+                                        <div class="mini-player-card">
+                                            <div class="mini-player-name">Player O</div>
+                                            <div class="mini-player-score">5</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tutorial-explanation">You win a single round by connecting edge to edge.</div>
+                                <div class="tutorial-scoreboard">
+                                    <div class="scoreboard-label">match wins</div>
+                                    <div class="scoreboard-players">
+                                        <div class="mini-player-card">
+                                            <div class="mini-player-name">Player X</div>
+                                            <div class="mini-player-score">13</div>
+                                        </div>
+                                        <div class="mini-player-card">
+                                            <div class="mini-player-name">Player O</div>
+                                            <div class="mini-player-score">17</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tutorial-explanation">First to reach 8 round wins AND have at least 2 more wins than their opponent wins the match.</div>
+                            </div>
+                        </div>
+                        <div class="tutorial-nav-section tutorial-scoring-nav">
+                            <div class="tutorial-nav-buttons">
+                                <button class="tutorial-nav-btn tutorial-content-btn" data-action="prev">&#8592; Back</button>
+                                <button class="tutorial-nav-btn tutorial-content-btn primary" data-action="finish">Let's Play!</button>
+                            </div>
+                            <div class="tutorial-progress-dots">
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot"></div>
+                                <div class="progress-dot active"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- SCOREBOARD Modal -->
         <div id="scoreboard-modal" class="modal-backdrop scoreboard-modal">
             <div class="modal-container scoreboard-container">
                 <!-- Frame 374: Close button positioned absolutely within container -->

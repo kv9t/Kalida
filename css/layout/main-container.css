@@ -88,6 +88,20 @@
     display: block;
 }
 
+/* Fin tutorial button: hidden by default, shown in fin-mode */
+#fin-tutorial-btn {
+    display: none;
+}
+
+.main-container.fin-mode #fin-tutorial-btn {
+    display: inline-flex;
+}
+
+/* Hide Kalida tutorial button in fin-mode */
+.main-container.fin-mode #tutorial-btn {
+    display: none;
+}
+
 .header-divider {
     width: 100%;
     height: 1px;

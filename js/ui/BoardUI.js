@@ -248,6 +248,29 @@ class BoardUI {
         }
     }
     
+    /**
+     * Set the game type and re-render all existing markers
+     * @param {string} type - 'kalida' or 'fin'
+     */
+    setGameType(type) {
+        this.markerRenderer.setGameType(type);
+        // Re-render all existing markers with the new shape
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                const index = row * this.boardSize + col;
+                const cell = this.cells[index];
+
+                if (cell.classList.contains('marker-x')) {
+                    this.markerRenderer.renderMarker(cell, 'X');
+                    cell.classList.add('player-x');
+                } else if (cell.classList.contains('marker-o')) {
+                    this.markerRenderer.renderMarker(cell, 'O');
+                    cell.classList.add('player-o');
+                }
+            }
+        }
+    }
+
     // NEW: Method to get marker preview for other UI elements
     getMarkerPreview(player, size = 16) {
         return this.markerRenderer.createMarkerPreview(player, size);

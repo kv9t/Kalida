@@ -109,6 +109,7 @@ export class RoomManager {
             lastMoveAt: null,
             lastMoveBy: null,
             // Game state
+            gameType: 'kalida',
             gameMode: type === 'computer' ? 'level4' : 'human',
             boardState: this.createEmptyBoard(),
             currentPlayer: 'X',
@@ -553,6 +554,7 @@ export class RoomManager {
             matchScores: { ...game.matchScores },
             moveCount: { ...game.moveCount },
             lastMove: game.lastMove,
+            gameType: game.gameType || 'kalida',
             gameMode: game.gameMode,
             rules: {
                 bounce: game.bounceRuleEnabled,
@@ -613,6 +615,9 @@ export class RoomManager {
         this.isLoadingGameState = true;
 
         try {
+            // Restore game type (kalida/fin) directly to avoid resetting scores
+            game.gameType = room.gameType || 'kalida';
+
             // Set game mode based on room type
             let targetGameMode = room.gameMode || 'human';
             if (room.type === 'computer' && !room.gameMode) {

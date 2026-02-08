@@ -24,6 +24,17 @@ class PlayerMarkerRenderer {
             enableAppearAnimation: options.enableAppearAnimation !== false,
             ...options
         };
+
+        // Game type determines marker shapes: 'kalida' = star/circle, 'fin' = diamond/triangle
+        this.gameType = 'kalida';
+    }
+
+    /**
+     * Set the game type to change marker shapes
+     * @param {string} type - 'kalida' or 'fin'
+     */
+    setGameType(type) {
+        this.gameType = type;
     }
     
     /**
@@ -44,14 +55,18 @@ class PlayerMarkerRenderer {
             return;
         }
         
-        // Create the appropriate marker
+        // Create the appropriate marker based on game type
         let markerElement;
-        
+
         if (player === 'X') {
-            markerElement = this.createStarMarker(options);
+            markerElement = this.gameType === 'fin'
+                ? this.createDiamondMarker(options)
+                : this.createStarMarker(options);
             cellElement.classList.add('marker-x');
         } else if (player === 'O') {
-            markerElement = this.createCircleMarker(options);
+            markerElement = this.gameType === 'fin'
+                ? this.createTriangleMarker(options)
+                : this.createCircleMarker(options);
             cellElement.classList.add('marker-o');
         } else {
             console.warn(`Unknown player: ${player}`);
@@ -127,6 +142,66 @@ class PlayerMarkerRenderer {
         return svg;
     }
     
+    /**
+     * Create an SVG diamond marker for Player X (Fin game)
+     * @param {Object} options - Override options for this marker
+     * @returns {SVGElement} - SVG diamond element
+     */
+    createDiamondMarker(options = {}) {
+        const config = { ...this.config, ...options };
+        const size = config.size;
+        const center = size / 2;
+
+        // Diamond points: top, right, bottom, left
+        const inset = size * 0.12;
+        const diamondPoints = `${center},${inset} ${size - inset},${center} ${center},${size - inset} ${inset},${center}`;
+
+        const svg = this.createBaseSVG(size, config);
+
+        const diamond = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        diamond.setAttribute('points', diamondPoints);
+        diamond.setAttribute('fill', 'currentColor');
+        diamond.setAttribute('stroke', 'currentColor');
+        diamond.setAttribute('stroke-width', size / 8);
+        diamond.setAttribute('stroke-linejoin', 'round');
+
+        svg.appendChild(diamond);
+        return svg;
+    }
+
+    /**
+     * Create an SVG triangle marker for Player O (Fin game)
+     * @param {Object} options - Override options for this marker
+     * @returns {SVGElement} - SVG triangle element
+     */
+    createTriangleMarker(options = {}) {
+        const config = { ...this.config, ...options };
+        const size = config.size;
+        const center = size / 2;
+
+        // Equilateral triangle pointing up, sized to match circle proportions
+        const triHeight = size * 0.7;
+        const triBase = triHeight * (2 / Math.sqrt(3));
+        const topY = (size - triHeight) / 2;
+        const bottomY = topY + triHeight;
+        const leftX = center - triBase / 2;
+        const rightX = center + triBase / 2;
+
+        const triPoints = `${center},${topY} ${rightX},${bottomY} ${leftX},${bottomY}`;
+
+        const svg = this.createBaseSVG(size, config);
+
+        const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        triangle.setAttribute('points', triPoints);
+        triangle.setAttribute('fill', 'none');
+        triangle.setAttribute('stroke', 'currentColor');
+        triangle.setAttribute('stroke-width', config.strokeWidth * 3.5);
+        triangle.setAttribute('stroke-linejoin', 'round');
+
+        svg.appendChild(triangle);
+        return svg;
+    }
+
     /**
      * Create a base SVG element with common attributes
      * @param {number} size - Size of the SVG

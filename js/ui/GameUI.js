@@ -12,6 +12,7 @@ import BoardUI from './BoardUI.js';
 import GameSettingsPopup from './GameSettingsPopup.js';
 import AboutModal from './AboutModal.js'; // Import AboutModal
 import TutorialModal from './TutorialModal.js'; // Import TutorialModal
+import FinTutorialModal from './FinTutorialModal.js'; // Import FinTutorialModal
 import ScoreboardModal from './ScoreboardModal.js'; // Import ScoreboardModal
 
 
@@ -35,7 +36,8 @@ class GameUI {
         // Initialize modal components
         this.aboutModal = new AboutModal(this.game, this);
         this.tutorialModal = new TutorialModal(this.game, this);
-        this.scoreboardModal = new ScoreboardModal(this.game, this); 
+        this.finTutorialModal = new FinTutorialModal(this.game, this);
+        this.scoreboardModal = new ScoreboardModal(this.game, this);
 
         // Store references to DOM elements
         this.elements = {
@@ -125,6 +127,7 @@ class GameUI {
             // Initialize modal components
             this.aboutModal.initialize();
             this.tutorialModal.initialize();
+            this.finTutorialModal.initialize();
             this.scoreboardModal.initialize();
 
             // Initialize the UI with current game state
@@ -142,6 +145,15 @@ class GameUI {
     showTutorial() {
         if (this.tutorialModal) {
             this.tutorialModal.show();
+        }
+    }
+
+    /**
+     * Show Fin tutorial modal programmatically
+     */
+    showFinTutorial() {
+        if (this.finTutorialModal) {
+            this.finTutorialModal.show();
         }
     }
 
@@ -185,10 +197,11 @@ class GameUI {
      * Useful for preventing certain game actions when modals are open
      */
     isModalOpen() {
-        return (this.aboutModal && this.aboutModal.isOpen) || 
+        return (this.aboutModal && this.aboutModal.isOpen) ||
                (this.tutorialModal && this.tutorialModal.isOpen) ||
+               (this.finTutorialModal && this.finTutorialModal.isOpen) ||
                (this.settingsPopup && this.settingsPopup.isOpen) ||
-               (this.scoreboardModal && this.scoreboardModal.isOpen); // NEW: Include scoreboard modal
+               (this.scoreboardModal && this.scoreboardModal.isOpen);
     }
     
     /**
@@ -202,8 +215,12 @@ class GameUI {
         if (this.tutorialModal) {
             this.tutorialModal.cleanup();
         }
-        
-        if (this.scoreboardModal) { // NEW: Cleanup scoreboard modal
+
+        if (this.finTutorialModal) {
+            this.finTutorialModal.cleanup();
+        }
+
+        if (this.scoreboardModal) {
             this.scoreboardModal.cleanup();
         }
         
@@ -786,6 +803,11 @@ class GameUI {
                 mainContainer.classList.remove('fin-mode');
             }
             document.title = 'Kalida - A Game by Koert Voorhees';
+        }
+
+        // Update marker shapes on the board
+        if (this.boardUI) {
+            this.boardUI.setGameType(gameType);
         }
 
         // Update all UI elements
