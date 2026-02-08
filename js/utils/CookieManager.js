@@ -14,7 +14,8 @@ class CookieManager {
             ROUND_SCORES: 'kalida_round_scores',
             MATCH_SCORES: 'kalida_match_scores',
             RULE_PREFERENCES: 'kalida_rule_preferences',
-            LAST_ROOM: 'kalida_last_room'
+            LAST_ROOM: 'kalida_last_room',
+            GAME_TYPE: 'kalida_game_type'
         };
         
         // Default expiration: 30 days from now
@@ -180,6 +181,25 @@ class CookieManager {
     }
 
     /**
+     * Save game type preference (kalida or fin)
+     * @param {string} gameType - 'kalida' or 'fin'
+     */
+    saveGameType(gameType) {
+        if (!this.hasConsent()) return false;
+        this.setCookie(this.cookieNames.GAME_TYPE, gameType);
+        return true;
+    }
+
+    /**
+     * Get saved game type
+     * @returns {string|null} - Saved game type or null
+     */
+    getSavedGameType() {
+        if (!this.hasConsent()) return null;
+        return this.getCookie(this.cookieNames.GAME_TYPE);
+    }
+
+    /**
      * Clear all game-related cookies (keep consent)
      */
     clearGameData() {
@@ -189,6 +209,7 @@ class CookieManager {
         this.deleteCookie(this.cookieNames.MATCH_SCORES);
         this.deleteCookie(this.cookieNames.RULE_PREFERENCES);
         this.deleteCookie(this.cookieNames.LAST_ROOM);
+        this.deleteCookie(this.cookieNames.GAME_TYPE);
     }
     
     /**

@@ -4,6 +4,7 @@
  */
 import Board from './Board.js';
 import Rules from './Rules.js';
+import FinRules from './FinRules.js';
 import CookieManager from '../utils/CookieManager.js';
 import CookieConsent from '../utils/CookieConsent.js';
 import GameStateLoader from '../utils/GameStateLoader.js';
@@ -17,6 +18,8 @@ class Game {
         this.boardSize = boardSize;
         this.board = new Board(boardSize);
         this.rules = new Rules(boardSize);
+        this.finRules = new FinRules(boardSize);
+        this.gameType = 'kalida'; // 'kalida' or 'fin'
         this.currentPlayer = 'X';
         this.gameActive = true;
         
@@ -72,7 +75,8 @@ class Game {
             'aiMoveComplete': [],
             'knightMoveRequired': [], // New event for when knight move is required
             'knightMoveRuleToggled': [], // New event for when knight move rule is toggled
-            'cookieConsentChanged': [] // NEW: Event for when cookie consent changes
+            'cookieConsentChanged': [], // Event for when cookie consent changes
+            'gameTypeChanged': [] // Event for when game type changes (kalida/fin)
         };
     }
     
@@ -184,6 +188,13 @@ class Game {
                 console.log('No valid match scores found, using defaults');
             }
             
+            // Load game type preference
+            const savedGameType = this.cookieManager.getSavedGameType();
+            if (savedGameType && (savedGameType === 'kalida' || savedGameType === 'fin')) {
+                console.log('Loading saved game type:', savedGameType);
+                this.gameType = savedGameType;
+            }
+
             // Load game mode preference and apply it
             const savedGameMode = this.cookieManager.getSavedGameMode();
             if (savedGameMode && typeof savedGameMode === 'string') {
@@ -258,9 +269,10 @@ class Game {
                 matchScores: this.matchScores
             });
             
-            // Save current game mode
+            // Save current game mode and game type
             const gameModeResult = this.cookieManager.saveGameMode(this.gameMode);
-            console.log('Game mode save result:', gameModeResult);
+            const gameTypeResult = this.cookieManager.saveGameType(this.gameType);
+            console.log('Game mode save result:', gameModeResult, 'Game type save result:', gameTypeResult);
             
             // Save scores
             const roundScoreResult = this.cookieManager.saveRoundScores(this.scores);
@@ -385,7 +397,9 @@ class Game {
         }
         
         // Check if this is the first player's second move and enforce knight move rule
-        if (this.knightMoveRuleEnabled &&
+        // Knight move rule only applies to Kalida, not Fin
+        if (this.gameType === 'kalida' &&
+            this.knightMoveRuleEnabled &&
             this.currentPlayer === this.firstPlayerOfGame &&
             this.moveCount[this.firstPlayerOfGame] === 1) {
 
@@ -461,13 +475,20 @@ class Game {
             board: this.board.getState()
         });
         
-        // Check for a win or draw - FIXED: Pass all rule parameters
-        const gameStatus = this.rules.checkGameStatus(
-            this.board.getState(),
-            this.bounceRuleEnabled,
-            this.missingTeethRuleEnabled,
-            this.wrapRuleEnabled  // IMPORTANT: Pass the wrap rule setting
-        );
+        // Check for a win or draw
+        let gameStatus;
+        if (this.gameType === 'fin') {
+            // Fin uses its own rules engine (no bounce/wrap/missingTeeth)
+            gameStatus = this.finRules.checkGameStatus(this.board.getState());
+        } else {
+            // Kalida rules with all rule parameters
+            gameStatus = this.rules.checkGameStatus(
+                this.board.getState(),
+                this.bounceRuleEnabled,
+                this.missingTeethRuleEnabled,
+                this.wrapRuleEnabled
+            );
+        }
         
         if (gameStatus.isOver) {
             this.gameActive = false;
@@ -514,7 +535,9 @@ class Game {
         console.log('Switched to player', this.currentPlayer);
         
         // Check if we need to show knight move indicators for next turn
-        const isKnightMoveRequired = this.knightMoveRuleEnabled &&
+        // Knight move rule only applies to Kalida
+        const isKnightMoveRequired = this.gameType === 'kalida' &&
+                                this.knightMoveRuleEnabled &&
                                 this.currentPlayer === this.firstPlayerOfGame &&
                                 this.moveCount[this.firstPlayerOfGame] === 1;
         
@@ -618,6 +641,50 @@ class Game {
         this.resetGame();
     }
     
+    /**
+     * Set the game type (Kalida or Fin)
+     * @param {string} type - 'kalida' or 'fin'
+     */
+    setGameType(type) {
+        if (type !== 'kalida' && type !== 'fin') {
+            console.warn('Unknown game type:', type);
+            return;
+        }
+
+        const prevType = this.gameType;
+        this.gameType = type;
+        console.log('Game type set to:', type);
+
+        // When switching to Fin, force human mode (no AI for Fin yet)
+        if (type === 'fin' && this.gameMode !== 'human') {
+            this.gameMode = 'human';
+        }
+
+        // Reset scores when switching game types
+        if (prevType !== type) {
+            this.scores = { 'X': 0, 'O': 0 };
+            this.matchScores = { 'X': 0, 'O': 0 };
+            this.matchWinner = null;
+            this.matchJustWon = false;
+            this.lastRoundWinner = null;
+        }
+
+        // Save to cookies
+        this.saveDataToCookies();
+
+        // Reset the game
+        this.resetGame();
+
+        // Trigger events to update UI
+        this.triggerEvent('scoreUpdate', { scores: { ...this.scores } });
+        this.triggerEvent('matchScoreUpdate', {
+            matchScores: { ...this.matchScores },
+            roundScores: { ...this.scores },
+            matchWinner: null
+        });
+        this.triggerEvent('gameTypeChanged', { gameType: type });
+    }
+
     /**
      * Check if a round win leads to a match win
      * @param {string} lastWinner - The winner of the last round

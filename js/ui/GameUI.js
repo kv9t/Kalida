@@ -100,6 +100,8 @@ class GameUI {
             this.elements.tutorialButton = document.getElementById('tutorial-btn');
             this.elements.clearScoresBtn = document.getElementById('clear-scores-btn');
             this.elements.toggleLabelsBtn = document.getElementById('toggle-labels-btn');
+            this.elements.gameSwitcherBtn = document.getElementById('game-switcher-btn');
+            this.elements.gameTitle = document.getElementById('game-title');
 
 
             // Create board UI if not already created
@@ -265,7 +267,11 @@ class GameUI {
                 this.elements.knightMoveToggle.checked = this.game.knightMoveRuleEnabled;
             }
             
+            // Apply game type UI (Kalida or Fin)
+            this.updateGameTypeUI(this.game.gameType);
+
             console.log('Applied current game state to UI:', {
+                gameType: this.game.gameType,
                 gameMode: this.game.gameMode,
                 bounce: this.game.bounceRuleEnabled,
                 wrap: this.game.wrapRuleEnabled,
@@ -737,6 +743,53 @@ class GameUI {
             });
         }
 
+        // Game Switcher button (Kalida <-> Fin)
+        if (this.elements.gameSwitcherBtn) {
+            this.elements.gameSwitcherBtn.addEventListener('click', () => {
+                const newType = this.game.gameType === 'kalida' ? 'fin' : 'kalida';
+                this.game.setGameType(newType);
+                this.updateGameTypeUI(newType);
+            });
+        }
+
+    }
+
+    /**
+     * Update UI elements for the current game type (Kalida or Fin)
+     * @param {string} gameType - 'kalida' or 'fin'
+     */
+    updateGameTypeUI(gameType) {
+        const mainContainer = document.querySelector('.main-container');
+
+        if (gameType === 'fin') {
+            // Switch to Fin mode
+            if (this.elements.gameTitle) {
+                this.elements.gameTitle.textContent = 'FIN';
+            }
+            if (this.elements.gameSwitcherBtn) {
+                this.elements.gameSwitcherBtn.textContent = 'Switch to Kalida';
+            }
+            if (mainContainer) {
+                mainContainer.classList.add('fin-mode');
+            }
+            // Update page title
+            document.title = 'Fin - A Game by Koert Voorhees';
+        } else {
+            // Switch to Kalida mode
+            if (this.elements.gameTitle) {
+                this.elements.gameTitle.textContent = 'KALIDA';
+            }
+            if (this.elements.gameSwitcherBtn) {
+                this.elements.gameSwitcherBtn.textContent = 'Switch to Fin';
+            }
+            if (mainContainer) {
+                mainContainer.classList.remove('fin-mode');
+            }
+            document.title = 'Kalida - A Game by Koert Voorhees';
+        }
+
+        // Update all UI elements
+        this.updateAll();
     }
 
     /**
@@ -1003,6 +1056,12 @@ class GameUI {
             this.updateClearScoresButtonText();
         });
         
+        // Game type changed event (Kalida <-> Fin)
+        this.game.on('gameTypeChanged', (data) => {
+            console.log('Game type changed:', data.gameType);
+            this.updateGameTypeUI(data.gameType);
+        });
+
         // Game reset event - important to handle this first
         this.game.on('gameReset', (data) => {
             console.log('Game reset event received', data);

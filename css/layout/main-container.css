@@ -26,6 +26,68 @@
     box-sizing: border-box;
 }
 
+/* Header: allow column layout when game title + switcher present */
+.header {
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Game Switcher Button */
+.game-switcher-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 14px;
+    padding: 3px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+.game-switcher-btn:hover {
+    background: #f0f0f0;
+    border-color: #999;
+    color: #333;
+}
+
+/* Fin mode accent */
+.main-container.fin-mode .game-switcher-btn {
+    border-color: #7B68EE;
+    color: #7B68EE;
+}
+
+.main-container.fin-mode .game-switcher-btn:hover {
+    background: #f0ecff;
+}
+
+/* Hide Kalida-specific UI elements when in Fin mode */
+.main-container.fin-mode .frame-354-container {
+    display: none;
+}
+
+.main-container.fin-mode .flag-button-container {
+    display: none;
+}
+
+/* Fin game description shown below the board */
+.fin-rules-summary {
+    display: none;
+    text-align: center;
+    padding: 8px 16px;
+    font-size: 11px;
+    color: #888;
+    line-height: 1.5;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.main-container.fin-mode .fin-rules-summary {
+    display: block;
+}
+
 .header-divider {
     width: 100%;
     height: 1px;
