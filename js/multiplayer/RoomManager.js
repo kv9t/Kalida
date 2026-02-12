@@ -534,7 +534,7 @@ export class RoomManager {
      * Save current game state to the active room
      * @param {object} game - Game instance
      */
-    async saveGameStateToRoom(game) {
+    async saveGameStateToRoom(game, gameEndData = null) {
         // Prevent saving during loading to avoid infinite recursion
         if (this.isLoadingGameState) {
             return;
@@ -565,26 +565,38 @@ export class RoomManager {
             lastMoveAt: new Date().toISOString()
         };
 
-        // If game is over, check for winner by analyzing the board
+        // If game is over, save winning data
         if (!game.gameActive) {
-            const gameStatus = game.rules.checkGameStatus(
-                game.getBoardState(),
-                game.bounceRuleEnabled,
-                game.missingTeethRuleEnabled,
-                game.wrapRuleEnabled
-            );
+            if (gameEndData && gameEndData.type === 'win') {
+                // Use the actual winning data from the gameEnd event
+                // This works correctly for both Kalida and Fin win detection
+                gameState.winner = gameEndData.winner;
+                const cells = gameEndData.winningCells || gameEndData.winningLine || [];
+                gameState.winningLine = cells.map(cell => `${cell[0]},${cell[1]}`);
+                gameState.bounceCellIndex = gameEndData.bounceCellIndex || -1;
+                gameState.secondBounceCellIndex = gameEndData.secondBounceCellIndex || -1;
+                gameState.isDraw = false;
+            } else if (gameEndData && gameEndData.type === 'draw') {
+                gameState.isDraw = true;
+            } else {
+                // Fallback: re-derive from rules (for saves not triggered by gameEnd)
+                const gameStatus = game.rules.checkGameStatus(
+                    game.getBoardState(),
+                    game.bounceRuleEnabled,
+                    game.missingTeethRuleEnabled,
+                    game.wrapRuleEnabled
+                );
 
-            if (gameStatus.winner) {
-                gameState.winner = gameStatus.winner;
-                // Firestore doesn't support nested arrays, so serialize winningLine
-                // Convert [[0,0], [0,1], [0,2]] to ["0,0", "0,1", "0,2"]
-                gameState.winningLine = gameStatus.winningCells
-                    ? gameStatus.winningCells.map(cell => `${cell[0]},${cell[1]}`)
-                    : [];
-                gameState.bounceCellIndex = gameStatus.bounceCellIndex;
-                gameState.secondBounceCellIndex = gameStatus.secondBounceCellIndex;
+                if (gameStatus.winner) {
+                    gameState.winner = gameStatus.winner;
+                    gameState.winningLine = gameStatus.winningCells
+                        ? gameStatus.winningCells.map(cell => `${cell[0]},${cell[1]}`)
+                        : [];
+                    gameState.bounceCellIndex = gameStatus.bounceCellIndex;
+                    gameState.secondBounceCellIndex = gameStatus.secondBounceCellIndex;
+                }
+                gameState.isDraw = gameStatus.isDraw;
             }
-            gameState.isDraw = gameStatus.isDraw;
         }
 
         // Use silent=true to prevent reloading game state after save

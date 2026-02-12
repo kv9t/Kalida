@@ -393,6 +393,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
+                // Skip reload if local board already matches remote (prevents double-render on own moves)
+                const localBoard = roomManager.compressBoard(game.getBoardState());
+                const remoteBoard = typeof updatedRoom.boardState === 'string'
+                    ? updatedRoom.boardState
+                    : roomManager.compressBoard(updatedRoom.boardState || []);
+                if (localBoard === remoteBoard && game.gameActive === updatedRoom.gameActive) {
+                    console.log('Skipping sync - local state already matches remote');
+                    if (updatedRoom.type === 'remote') {
+                        gameUI.updateReadyButtonText(updatedRoom);
+                    }
+                    return;
+                }
+
                 gameUI.boardUI.clearHighlights();
                 await roomManager.loadGameStateFromRoom(updatedRoom.id, game);
                 gameUI.updateAll();
@@ -429,9 +442,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // But still update UI elements below
             } else {
                 // Save immediately - winning moves don't trigger turnChange, so no delay needed
-                // This prevents race conditions where stale Firestore updates overwrite the winning move
+                // Pass gameEnd data so the actual winning cells are saved (not re-derived by Kalida's rules)
                 console.log('Saving game end state to room...');
-                await roomManager.saveGameStateToRoom(game);
+                await roomManager.saveGameStateToRoom(game, data);
                 console.log('Game end state saved');
             }
 
